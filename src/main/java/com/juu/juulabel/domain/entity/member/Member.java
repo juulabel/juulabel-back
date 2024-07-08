@@ -4,6 +4,7 @@ import com.juu.juulabel.domain.enums.MemberRole;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.enums.Gender;
 import com.juu.juulabel.domain.enums.MemberStatus;
+import com.juu.juulabel.domain.enums.Provider;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,10 +23,9 @@ public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '회원 고유 번호'")
-//    @Column(name = "id", columnDefinition = "BIGINT AUTO_INCREMENT comment '회원 고유 번호'")
     private Long id;
 
-    @Column(name = "email", nullable = false, columnDefinition = "varchar(255) comment '이메일'")
+    @Column(name = "email", nullable = false, unique = true, columnDefinition = "varchar(255) comment '이메일'")
     private String email;
 
     @Column(name = "name", nullable = false, columnDefinition = "varchar(45) comment '회원 이름'")
@@ -47,8 +47,15 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(name = "status", nullable = false, columnDefinition = "varchar(20) comment '회원 상태'")
     @Enumerated(EnumType.STRING)
+    @Column(name = "provider", nullable = false, columnDefinition = "varchar(20) comment '가입 경로'")
+    private Provider provider;
+
+    @Column(name = "provider_id", columnDefinition = "varchar(255) comment '공급 고유 번호'")
+    private String providerId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, columnDefinition = "varchar(20) comment '회원 상태'")
     private MemberStatus status;
 
     @Builder.Default
