@@ -2,6 +2,7 @@ package com.juu.juulabel.api.provider;
 
 import com.juu.juulabel.api.principal.CustomUserDetailsService;
 import com.juu.juulabel.api.principal.JuulabelMember;
+import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
@@ -23,7 +24,6 @@ import java.util.Optional;
 public class JwtTokenProvider {
 
     public static final Long ACCESS_TOKEN_EXPIRE_TIME = Duration.ofHours(6).toMillis();
-    public static final String TOKEN_PREFIX = "Bearer ";
 
     private final SecretKey key;
     private final CustomUserDetailsService customUserDetailsService;
@@ -35,18 +35,6 @@ public class JwtTokenProvider {
         byte[] keyBytes = Base64.getDecoder().decode(key);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.customUserDetailsService = customUserDetailsService;
-    }
-
-    public String createAccessToken(Authentication authentication) {
-        Date now = new Date();
-        long accessTokenExpireTime = new Date().getTime() + ACCESS_TOKEN_EXPIRE_TIME;
-
-        return Jwts.builder()
-            .subject(authentication.getName())
-            .issuedAt(now)
-            .expiration(new Date(accessTokenExpireTime))
-            .signWith(key)
-            .compact();
     }
 
     public String createAccessToken(String email) {
@@ -69,7 +57,7 @@ public class JwtTokenProvider {
     public String resolveToken(String header) {
         return Optional.ofNullable(header)
             .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_AUTHENTICATION))
-            .replace(TOKEN_PREFIX, "");
+            .replace(AuthConstants.TOKEN_PREFIX, "");
     }
 
     public boolean isValidateToken(String token) {
@@ -95,8 +83,6 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-//        } catch (SignatureException ex) {
-//            throw new CustomJwtException(ErrorCode.SIGNATURE_EXCEPTION);
         } catch (MalformedJwtException ex) {
             throw new CustomJwtException(ErrorCode.MALFORMED_JWT_EXCEPTION);
         } catch (ExpiredJwtException ex) {

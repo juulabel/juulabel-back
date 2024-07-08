@@ -2,8 +2,6 @@ package com.juu.juulabel.api.config;
 
 import com.juu.juulabel.api.filter.JwtAuthenticationFilter;
 import com.juu.juulabel.api.filter.JwtExceptionFilter;
-import com.juu.juulabel.oauth.OAuth2UserService;
-import com.juu.juulabel.oauth.OAuthLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,8 +27,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
-    private final OAuth2UserService oAuth2UserService;
-    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
+//    private final OAuth2UserService oAuth2UserService;
+//    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
 
     private static final String[] PERMIT_PATHS = {
         "/api/auth/**", "/swagger-ui/**", "/api-docs/**", "/error", "/favicon.ico", "/", "/login/kakao/**"
@@ -73,11 +71,11 @@ public class SecurityConfig {
             .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class)
 
             // OAuth2 로그인
-            .oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(
-                    userInfoEndpoint -> userInfoEndpoint.userService(oAuth2UserService))
-                .successHandler(oAuthLoginSuccessHandler)
-            )
+//            .oauth2Login(oauth2 -> oauth2
+//                .userInfoEndpoint(
+//                    userInfoEndpoint -> userInfoEndpoint.userService(oAuth2UserService))
+//                .successHandler(oAuthLoginSuccessHandler)
+//            )
 
             .build();
     }
