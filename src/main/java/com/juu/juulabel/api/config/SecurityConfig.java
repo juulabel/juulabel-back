@@ -31,7 +31,7 @@ public class SecurityConfig {
 //    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
 
     private static final String[] PERMIT_PATHS = {
-        "/api/auth/**", "/swagger-ui/**", "/api-docs/**", "/error", "/favicon.ico", "/", "/login/kakao/**"
+        "/swagger-ui/**", "/api-docs/**", "/error", "/favicon.ico", "/", "/v1/api/members/login/**"
         , "/*", "/**" // 배포 시 제거
     };
 
@@ -61,7 +61,7 @@ public class SecurityConfig {
 //            .logout(AbstractHttpConfigurer::disable)
 
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/auth/logout").authenticated()
+                .requestMatchers("/v1/api/members/logout").authenticated()
                 .requestMatchers(OPTIONS, "**").permitAll()
                 .requestMatchers(PERMIT_PATHS).permitAll()
                 .anyRequest().authenticated()
