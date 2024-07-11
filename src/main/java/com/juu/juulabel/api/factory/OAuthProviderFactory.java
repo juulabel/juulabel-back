@@ -1,5 +1,6 @@
 package com.juu.juulabel.api.factory;
 
+import com.juu.juulabel.api.provider.oauth.GoogleProvider;
 import com.juu.juulabel.api.provider.oauth.KakaoProvider;
 import com.juu.juulabel.api.provider.oauth.OAuthProvider;
 import com.juu.juulabel.common.exception.InvalidParamException;
@@ -18,17 +19,21 @@ public class OAuthProviderFactory {
 
     private final Map<Provider, OAuthProvider> OAuthProviderMap;
     private final KakaoProvider kakaoProvider;
+    private final GoogleProvider googleProvider;
 
     public OAuthProviderFactory(
-            KakaoProvider kakaoProvider
+            KakaoProvider kakaoProvider,
+            GoogleProvider googleProvider
     ) {
         OAuthProviderMap = new EnumMap<>(Provider.class);
         this.kakaoProvider = kakaoProvider;
+        this.googleProvider = googleProvider;
         initialize();
     }
 
     private void initialize() {
         OAuthProviderMap.put(Provider.KAKAO, kakaoProvider);
+        OAuthProviderMap.put(Provider.GOOGLE, googleProvider);
     }
 
     private OAuthProvider getOAuthProvider(Provider provider) {
@@ -44,15 +49,19 @@ public class OAuthProviderFactory {
         return getOAuthToken(provider, redirectUri, code).accessToken();
     }
 
-    public Long getProviderId(Provider provider, String accessToken) {
-        return getOAuthUser(provider, accessToken).id();
-    }
-
     private OAuthToken getOAuthToken(Provider provider, String redirectUri, String code) {
         return getOAuthProvider(provider).getOAuthToken(redirectUri, code);
     }
 
-    private OAuthUser getOAuthUser(Provider provider, String accessToken) {
+    public String getProviderId(OAuthUser oAuthUser) {
+        return oAuthUser.id();
+    }
+
+    public String getEmail(OAuthUser oAuthUser) {
+        return oAuthUser.email();
+    }
+
+    public OAuthUser getOAuthUser(Provider provider, String accessToken) {
         return getOAuthProvider(provider).getOAuthUser(accessToken);
     }
 
