@@ -42,16 +42,16 @@ public class JwtTokenProvider {
         long accessTokenExpireTime = now.getTime() + ACCESS_TOKEN_EXPIRE_TIME;
 
         return Jwts.builder()
-            .subject(email)
-            .issuedAt(now)
-            .expiration(new Date(accessTokenExpireTime))
-            .signWith(key)
-            .compact();
+                .subject(email)
+                .issuedAt(now)
+                .expiration(new Date(accessTokenExpireTime))
+                .signWith(key)
+                .compact();
     }
 
     public Authentication getAuthentication(String token) {
-        JuulabelMember principal = (JuulabelMember) customUserDetailsService.loadUserByUsername(getEmailByToken(token));
-        return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
+        JuulabelMember userDetails = (JuulabelMember) customUserDetailsService.loadUserByUsername(getEmailByToken(token));
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     public String resolveToken(String header) {
@@ -79,10 +79,10 @@ public class JwtTokenProvider {
     private Claims parseClaims(String token) {
         try {
             return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
         } catch (MalformedJwtException ex) {
             throw new CustomJwtException(ErrorCode.MALFORMED_JWT_EXCEPTION);
         } catch (ExpiredJwtException ex) {

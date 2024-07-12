@@ -3,7 +3,7 @@ package com.juu.juulabel.api.principal;
 import com.juu.juulabel.common.exception.AuthenticationException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.repository.query.MemberQueryRepository;
+import com.juu.juulabel.domain.repository.reader.MemberReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,16 +14,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final MemberQueryRepository memberQueryRepository;
+    private final MemberReader memberReader;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberQueryRepository.getByEmail(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Member member = memberReader.getByEmail(email);
 
-        JuulabelMember juulabelMember = new JuulabelMember(member);
-        validateAuthenticate(juulabelMember);
+        JuulabelMember userDetails = new JuulabelMember(member);
+        validateAuthenticate(userDetails);
 
-        return juulabelMember;
+        return userDetails;
     }
 
     private void validateAuthenticate(JuulabelMember member) {

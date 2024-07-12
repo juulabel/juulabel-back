@@ -10,4 +10,5 @@ public record KakaoUser(
     public String email() {
         return kakaoAccount.email();
     }
+
 }

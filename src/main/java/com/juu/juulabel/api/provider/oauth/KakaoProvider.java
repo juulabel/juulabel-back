@@ -16,13 +16,13 @@ public class KakaoProvider implements OAuthProvider {
     private final KakaoApiClient kakaoApiClient;
     private final KakaoAuthClient kakaoAuthClient;
 
-    @Value("${spring.oauth2.client.registration.kakao.authorization-grant-type}")
+    @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
     private String grantType;
 
-    @Value("${spring.oauth2.client.registration.kakao.client-id}")
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
 
-    @Value("${spring.oauth2.client.registration.kakao.client-secret}")
+    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
     private String clientSecret;
 
     @Override

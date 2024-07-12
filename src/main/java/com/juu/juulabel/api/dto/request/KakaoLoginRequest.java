@@ -13,10 +13,10 @@ public record KakaoLoginRequest(
         String redirectUri
 ) {
     public OAuthLoginInfo toDto() {
-        var propertiesValues = Map.of(
+        Map<String, String> propertyMap = Map.of(
                 AuthConstants.CODE, code,
                 AuthConstants.REDIRECT_URI, redirectUri
         );
-        return new OAuthLoginInfo(Provider.KAKAO, propertiesValues);
+        return new OAuthLoginInfo(Provider.KAKAO, propertyMap);
     }
 }

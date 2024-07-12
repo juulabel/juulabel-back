@@ -18,7 +18,6 @@ public class MemberQueryRepository {
 
     QMember member = QMember.member;
 
-
     public Member getByProviderId(String providerId) {
         Member activeMember = jpaQueryFactory
             .selectFrom(member)

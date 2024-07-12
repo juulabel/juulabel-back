@@ -2,8 +2,6 @@ package com.juu.juulabel.api.principal;
 
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.enums.MemberStatus;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,11 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@Getter
-@RequiredArgsConstructor
-public class JuulabelMember implements UserDetails {
-
-    private final Member member;
+public record JuulabelMember(Member member) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
