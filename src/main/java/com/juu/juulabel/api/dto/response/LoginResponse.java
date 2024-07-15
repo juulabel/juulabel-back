@@ -1,9 +1,11 @@
 package com.juu.juulabel.api.dto.response;
 
+import com.juu.juulabel.domain.dto.member.OAuthUser;
 import com.juu.juulabel.domain.dto.token.Token;
 
 public record LoginResponse(
         Token token,
-        boolean isNewMember
+        boolean isNewMember,
+        OAuthUser oAuthUser
 ) {
 }
