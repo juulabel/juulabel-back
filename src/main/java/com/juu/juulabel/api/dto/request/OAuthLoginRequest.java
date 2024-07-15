@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.util.Map;
 
-public record GoogleLoginRequest(
+public record OAuthLoginRequest(
     @NotBlank
     String code,
     @JsonProperty("redirectUri")
