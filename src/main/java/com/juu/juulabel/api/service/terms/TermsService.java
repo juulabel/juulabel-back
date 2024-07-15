@@ -1,6 +1,7 @@
 package com.juu.juulabel.api.service.terms;
 
 import com.juu.juulabel.api.dto.response.LoadTermsListResponse;
+import com.juu.juulabel.api.dto.response.TermsDetailResponse;
 import com.juu.juulabel.domain.dto.terms.UsedTermsInfo;
 import com.juu.juulabel.domain.repository.reader.TermsReader;
 import lombok.RequiredArgsConstructor;
@@ -21,4 +22,7 @@ public class TermsService {
         return new LoadTermsListResponse(termsInfoList);
     }
 
+    public TermsDetailResponse loadTermsDetail(Long termsId) {
+        return termsReader.getTermsById(termsId);
+    }
 }

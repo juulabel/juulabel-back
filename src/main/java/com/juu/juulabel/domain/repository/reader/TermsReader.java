@@ -1,5 +1,6 @@
 package com.juu.juulabel.domain.repository.reader;
 
+import com.juu.juulabel.api.dto.response.TermsDetailResponse;
 import com.juu.juulabel.domain.annotation.Reader;
 import com.juu.juulabel.domain.dto.terms.UsedTermsInfo;
 import com.juu.juulabel.domain.entity.terms.Terms;
@@ -22,4 +23,7 @@ public class TermsReader {
         return termsQueryRepository.getAllUsedTerms();
     }
 
+    public TermsDetailResponse getTermsById(Long termsId) {
+        return termsQueryRepository.getTermsById(termsId);
+    }
 }
