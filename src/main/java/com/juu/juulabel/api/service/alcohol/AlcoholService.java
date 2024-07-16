@@ -17,7 +17,7 @@ public class AlcoholService {
     private final AlcoholTypeReader alcoholTypeReader;
 
 
-    public LoadAlcoholTypeListResponse loadUsedTermsList() {
+    public LoadAlcoholTypeListResponse loadUsedAlcoholTypeList() {
         List<UsedAlcoholTypeInfo> alcoholTypeInfoList = alcoholTypeReader.getAllUsedAlcoholType();
         return new LoadAlcoholTypeListResponse(alcoholTypeInfoList);
     }

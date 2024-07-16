@@ -20,8 +20,8 @@ public class AlcoholController {
 
     @Operation(summary = "주종 조회")
     @GetMapping("/types")
-    public ResponseEntity<CommonResponse<LoadAlcoholTypeListResponse>> loadUsedTermsList() {
-        return CommonResponse.success(SuccessCode.SUCCESS, alcoholService.loadUsedTermsList());
+    public ResponseEntity<CommonResponse<LoadAlcoholTypeListResponse>> loadUsedAlcoholTypeList() {
+        return CommonResponse.success(SuccessCode.SUCCESS, alcoholService.loadUsedAlcoholTypeList());
     }
 
 }
