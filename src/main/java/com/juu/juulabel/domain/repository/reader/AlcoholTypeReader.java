@@ -14,11 +14,11 @@ public class AlcoholTypeReader {
 
     private final AlcoholTypeQueryRepository alcoholTypeQueryRepository;
 
-    public List<AlcoholType> getAllByIsUsed() {
-        return alcoholTypeQueryRepository.getAllByIsUsed();
-    }
-
     public List<UsedAlcoholTypeInfo> getAllUsedAlcoholType() {
         return alcoholTypeQueryRepository.getAllUsedAlcoholType();
+    }
+
+    public AlcoholType getById(Long alcoholTypeId) {
+        return alcoholTypeQueryRepository.getById(alcoholTypeId);
     }
 }

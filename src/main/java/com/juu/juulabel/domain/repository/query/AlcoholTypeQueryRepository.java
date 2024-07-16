@@ -1,5 +1,7 @@
 package com.juu.juulabel.domain.repository.query;
 
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.UsedAlcoholTypeInfo;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
 import com.juu.juulabel.domain.entity.alcohol.QAlcoholType;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -18,16 +21,6 @@ public class AlcoholTypeQueryRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
-
-    public List<AlcoholType> getAllByIsUsed() {
-        return jpaQueryFactory
-            .selectFrom(alcoholType)
-            .where(
-                isUsed(alcoholType),
-                isNotDeleted(alcoholType)
-            )
-            .fetch();
-    }
 
     public List<UsedAlcoholTypeInfo> getAllUsedAlcoholType() {
         return jpaQueryFactory
@@ -40,18 +33,30 @@ public class AlcoholTypeQueryRepository {
                 ))
             .from(alcoholType)
             .where(
-                isUsed(alcoholType),
                 isNotDeleted(alcoholType)
             )
             .fetch();
     }
 
-    private BooleanExpression isUsed(QAlcoholType alcoholType) {
-        return alcoholType.isUsed.isTrue();
+    public AlcoholType getById(Long alcoholTypeId) {
+        AlcoholType activeAlcoholType = jpaQueryFactory
+            .selectFrom(alcoholType)
+            .where(
+                eqId(alcoholType, alcoholTypeId),
+                isNotDeleted(alcoholType)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(activeAlcoholType)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOL_TYPE));
     }
 
     private BooleanExpression isNotDeleted(QAlcoholType alcoholType) {
         return alcoholType.deletedAt.isNull();
+    }
+
+    private BooleanExpression eqId(QAlcoholType alcoholType, Long alcoholTypeId) {
+        return alcoholType.id.eq(alcoholTypeId);
     }
 
 }

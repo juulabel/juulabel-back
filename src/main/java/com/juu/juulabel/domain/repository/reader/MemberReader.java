@@ -29,7 +29,7 @@ public class MemberReader {
         return memberQueryRepository.existActiveEmail(email);
     }
 
-    public boolean existsByNickname(String nickname) {
-        return memberJpaRepository.existsByNickname(nickname);
+    public boolean existActiveNickname(String nickname) {
+        return memberQueryRepository.existActiveNickname(nickname);
     }
 }

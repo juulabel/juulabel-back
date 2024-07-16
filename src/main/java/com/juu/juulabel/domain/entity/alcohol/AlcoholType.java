@@ -24,9 +24,6 @@ public class AlcoholType extends BaseTimeEntity {
     @Column(name = "name", nullable = false, columnDefinition = "varchar(100) comment '전통주 주종 이름'")
     private String name;
 
-    @Column(name = "is_used", columnDefinition = "tinyint comment '사용 여부'")
-    private boolean isUsed;
-
     @Column(name = "image", columnDefinition = "varchar(255) comment '이미지'")
     private String image;
 
