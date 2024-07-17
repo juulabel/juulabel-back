@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(servers = {
-    @Server(url = "https://juulabel.com", description = "Server"),
+    @Server(url = "https://juulabel.shop", description = "Server"),
     @Server(url = "http://localhost:8084", description = "Local")})
 @Configuration
 public class SwaggerConfig {
