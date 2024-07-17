@@ -64,15 +64,14 @@ public class MemberService {
         // 토큰을 이용해 사용자 정보 가져오기
         OAuthUser oAuthUser = providerFactory.getOAuthUser(provider, accessToken);
 
-        // 로그인 유저인지 반환
+        // 회원가입 or 로그인
         String email = oAuthUser.email();
         boolean isNewMember = !memberReader.existsByEmailAndProvider(email, provider);
 
-        // 액세스 토큰 발급
-        String token = jwtTokenProvider.createAccessToken(email); // TODO : 카카오와 구글 이메일이 같다면 토큰 중복 사용 가능 여부 확인
+        Token token = createTokenForMember(isNewMember, email); // TODO : 카카오와 구글 이메일이 같다면 토큰 중복 사용 가능 여부 확인
 
         return new LoginResponse(
-            new Token(token, jwtTokenProvider.getExpirationByToken(token)),
+            token,
             isNewMember,
             new OAuthUserInfo(email, oAuthUser.id(), provider)
         );
@@ -99,7 +98,12 @@ public class MemberService {
             memberTermsWriter.storeAll(memberTerms);
         }
 
-        return new SignUpMemberResponse(member.getId());
+        String token = jwtTokenProvider.createAccessToken(member.getEmail());
+
+        return new SignUpMemberResponse(
+            member.getId(),
+            new Token(token, jwtTokenProvider.getExpirationByToken(token))
+        );
     }
 
     private void validateEmailAndNickname(SignUpMemberRequest signUpRequest) {
@@ -108,6 +112,15 @@ public class MemberService {
         }
         if (memberReader.existActiveNickname(signUpRequest.nickname())) {
             throw new InvalidParamException(ErrorCode.EXIST_NICKNAME);
+        }
+    }
+
+    private Token createTokenForMember(boolean isNewMember, String email) {
+        if (isNewMember) {
+            return new Token(null, null);
+        } else {
+            String generatedToken = jwtTokenProvider.createAccessToken(email);
+            return new Token(generatedToken, jwtTokenProvider.getExpirationByToken(generatedToken));
         }
     }
 
