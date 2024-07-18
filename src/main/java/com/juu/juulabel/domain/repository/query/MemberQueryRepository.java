@@ -1,14 +1,10 @@
 package com.juu.juulabel.domain.repository.query;
 
-import com.juu.juulabel.common.exception.InvalidParamException;
-import com.juu.juulabel.common.exception.code.ErrorCode;
-import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.member.QMember;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -18,18 +14,38 @@ public class MemberQueryRepository {
 
     QMember member = QMember.member;
 
-    public Member getByProviderId(String providerId) {
-        Member activeMember = jpaQueryFactory
-            .selectFrom(member)
+    public boolean existActiveEmail(String email) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(member)
             .where(
-                member.providerId.eq(providerId),
-                member.deletedAt.isNull()
+                eqEmail(member, email),
+                isNotWithdrawal(member)
             )
-            .fetchOne();
-
-        return Optional.ofNullable(activeMember)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+            .fetchFirst() != null;
     }
-    // find로 Optinal 감싸서 서비스 로직에서 검열
+
+    public boolean existActiveNickname(String nickname) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(member)
+            .where(
+                eqNickname(member, nickname),
+                isNotWithdrawal(member)
+            )
+            .fetchFirst() != null;
+    }
+
+    private BooleanExpression eqEmail(QMember member, String email) {
+        return member.email.eq(email);
+    }
+
+    private BooleanExpression eqNickname(QMember member, String nickname) {
+        return member.nickname.eq(nickname);
+    }
+
+    private BooleanExpression isNotWithdrawal(QMember member) {
+        return member.deletedAt.isNull();
+    }
 
 }

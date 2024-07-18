@@ -1,5 +1,6 @@
 package com.juu.juulabel.domain.entity.member;
 
+import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
 import com.juu.juulabel.domain.enums.MemberRole;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.enums.Gender;
@@ -26,18 +27,19 @@ public class Member extends BaseTimeEntity {
     private Long id;
 
     @Column(name = "email", nullable = false, unique = true, columnDefinition = "varchar(255) comment '이메일'")
+    // TODO : unique에 대한 커스텀 예외 처리
     private String email;
 
-    @Column(name = "name", nullable = false, columnDefinition = "varchar(45) comment '회원 이름'")
+    @Column(name = "name", columnDefinition = "varchar(45) comment '회원 이름'")
     private String name;
 
     @Column(name = "nickname", nullable = false, columnDefinition = "varchar(45) comment '닉네임'")
     private String nickname;
 
-    @Column(name = "password", nullable = false, columnDefinition = "varchar(255) comment '비밀번호'")
+    @Column(name = "password", columnDefinition = "varchar(255) comment '비밀번호'")
     private String password;
 
-    @Column(name = "phone", nullable = false, columnDefinition = "varchar(20) comment '전화번호'")
+    @Column(name = "phone", columnDefinition = "varchar(20) comment '전화번호'")
     private String phone;
 
     @Column(name = "profile_image", columnDefinition = "varchar(255) comment '프로필 이미지'")
@@ -65,5 +67,17 @@ public class Member extends BaseTimeEntity {
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '탈퇴 일시'")
     private LocalDateTime deletedAt;
+
+    public static Member create(SignUpMemberRequest signUpMemberRequest) {
+        return Member.builder()
+            .email(signUpMemberRequest.email())
+            .nickname(signUpMemberRequest.nickname())
+            .gender(signUpMemberRequest.gender())
+            .provider(signUpMemberRequest.provider())
+            .providerId(signUpMemberRequest.providerId())
+            .status(MemberStatus.INACTIVE)
+            .role(MemberRole.ROLE_USER)
+            .build();
+    }
 
 }

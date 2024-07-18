@@ -31,8 +31,10 @@ public class SecurityConfig {
 //    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
 
     private static final String[] PERMIT_PATHS = {
-        "/swagger-ui/**", "/api-docs/**", "/error", "/favicon.ico", "/", "/v1/api/members/login/**"
-        , "/*", "/**" // 배포 시 제거
+        "/swagger-ui/**", "/api-docs/**", "/error", "/favicon.ico", "/", "/v1/api/members/login/**",
+        "/v1/api/members/sign-up/**", "/v1/api/members/nicknames/{nickname}/exists", "/v1/api/alcohols/types",
+        "/v1/api/terms/**",
+        "/*", "/**" // 배포 시 제거
     };
 
     private static final String[] ALLOW_ORIGINS = {
