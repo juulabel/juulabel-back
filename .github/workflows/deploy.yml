@@ -43,8 +43,8 @@ jobs:
       - name: web docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/wpp_backend .
-          docker push ${{ secrets.DOCKER_REPO }}/wpp_backend
+          docker build -t ${{ secrets.DOCKER_REPO }}/juu_backend .
+          docker push ${{ secrets.DOCKER_REPO }}/juu_backend
   deploy:
     needs:
       - build
@@ -58,6 +58,6 @@ jobs:
           key: ${{ secrets.KEY }}
           port: 22
           script: |
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/wpp_backend
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/juu_backend
             sudo docker compose down
             sudo docker compose up -d
