@@ -79,7 +79,8 @@ public class MemberService {
 
     @Transactional
     public SignUpMemberResponse signUp(SignUpMemberRequest signUpRequest) { // TODO : providerId 검증
-        validateEmailAndNickname(signUpRequest);
+        validateEmail(signUpRequest.email());
+        validateNickname(signUpRequest.nickname());
 
         Member member = Member.create(signUpRequest);
         memberWriter.store(member);
@@ -104,15 +105,6 @@ public class MemberService {
             member.getId(),
             new Token(token, jwtTokenProvider.getExpirationByToken(token))
         );
-    }
-
-    private void validateEmailAndNickname(SignUpMemberRequest signUpRequest) {
-        if (memberReader.existActiveEmail(signUpRequest.email())) {
-            throw new InvalidParamException(ErrorCode.EXIST_EMAIL);
-        }
-        if (memberReader.existActiveNickname(signUpRequest.nickname())) {
-            throw new InvalidParamException(ErrorCode.EXIST_NICKNAME);
-        }
     }
 
     private Token createTokenForMember(boolean isNewMember, String email) {
@@ -174,4 +166,17 @@ public class MemberService {
     public boolean checkNickname(String nickname) {
         return memberReader.existActiveNickname(nickname);
     }
+
+    private void validateNickname(String nickname) {
+        if (memberReader.existActiveNickname(nickname)) {
+            throw new InvalidParamException(ErrorCode.EXIST_NICKNAME);
+        }
+    }
+
+    private void validateEmail(String email) {
+        if (memberReader.existActiveEmail(email)) {
+            throw new InvalidParamException(ErrorCode.EXIST_EMAIL);
+        }
+    }
+
 }
