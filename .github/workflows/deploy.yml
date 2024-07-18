@@ -21,19 +21,19 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - uses: actions/checkout@v3
-      - name: make application-default.yml
+      - name: make application.yml
         run: |
           # mkdir src/main/resources
           mkdir -p ./src/main/resources
           
-          # create application-default.yml
+          # create application.yml
           cd ./src/main/resources
           
           # application.yml 파일 생성
-          touch ./application-default.yml
+          touch ./application.yml
           
           # GitHub-Actions 에서 설정한 값을 application.yml 파일에 쓰기
-          echo "${{ secrets.APPLICATION }}" >> ./application-default.yml
+          echo "${{ secrets.APPLICATION }}" >> ./application.yml
 
         shell: bash
 
