@@ -72,6 +72,11 @@ public enum ErrorCode {
     MISSING_REQUIRED_AGREEMENT(HttpStatus.BAD_REQUEST, "필수 약관에 동의하지 않았습니다."),
 
     /**
+     * Alcohol
+     */
+    NOT_FOUND_ALCOHOL_TYPE(HttpStatus.BAD_REQUEST, "주종을 찾을 수 없습니다."),
+
+    /**
      * Category
      */
     NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),
