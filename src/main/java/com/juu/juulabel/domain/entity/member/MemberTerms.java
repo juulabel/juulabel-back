@@ -1,7 +1,6 @@
-package com.juu.juulabel.domain.entity.mapping;
+package com.juu.juulabel.domain.entity.member;
 
 import com.juu.juulabel.domain.base.BaseTimeEntity;
-import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.terms.Terms;
 import jakarta.persistence.*;
 import lombok.*;

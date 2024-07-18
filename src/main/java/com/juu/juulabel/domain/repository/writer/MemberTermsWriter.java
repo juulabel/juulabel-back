@@ -1,7 +1,7 @@
 package com.juu.juulabel.domain.repository.writer;
 
 import com.juu.juulabel.domain.annotation.Writer;
-import com.juu.juulabel.domain.entity.mapping.MemberTerms;
+import com.juu.juulabel.domain.entity.member.MemberTerms;
 import com.juu.juulabel.domain.repository.jpa.MemberTermsJpaRepository;
 import lombok.RequiredArgsConstructor;
 
