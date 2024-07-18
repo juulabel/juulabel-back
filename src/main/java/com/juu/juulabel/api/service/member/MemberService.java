@@ -86,14 +86,14 @@ public class MemberService {
 
         // 선호전통주 주종 등록
         List<MemberAlcoholType> memberAlcoholTypeList =
-            getMemberAlcoholTypeList(member, signUpRequest.alcoholTypeIdList());
+            getMemberAlcoholTypeList(member, signUpRequest.alcoholTypeIds());
         if (!memberAlcoholTypeList.isEmpty()) {
             memberAlcoholTypeWriter.storeAll(memberAlcoholTypeList);
         }
 
         // 약관 등록
         List<MemberTerms> memberTerms =
-            getAndValidateTermsWithMapping(member, signUpRequest.termsAgreementList());
+            getAndValidateTermsWithMapping(member, signUpRequest.termsAgreements());
         if (!memberTerms.isEmpty()) {
             memberTermsWriter.storeAll(memberTerms);
         }

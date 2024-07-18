@@ -22,7 +22,7 @@ public record SignUpMemberRequest(
     @NotNull(message = "공급 고유 번호가 누락되었습니다.")
     String providerId,
     @NotEmpty(message = "주종 선택값이 누락되었습니다.")
-    List<Long> alcoholTypeIdList,
-    List<TermsAgreement> termsAgreementList
+    List<Long> alcoholTypeIds,
+    List<TermsAgreement> termsAgreements
 ) {
 }
