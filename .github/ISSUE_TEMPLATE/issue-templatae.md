@@ -1,5 +1,5 @@
 ---
-name: 'FEAT : FEATURE TEMPLATAE'
+name: ISSUE TEMPLATAE
 about: feature template (ex. signup, loadPost ..)
 title: ''
 labels: ''
