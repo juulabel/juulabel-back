@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public abstract class AuthConstants {
+public class AuthConstants {
 
     public static final String CODE = "code";
     public static final String REDIRECT_URI = "redirectUri";
