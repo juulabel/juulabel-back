@@ -16,6 +16,11 @@ public class MemberReader {
     private final MemberJpaRepository memberJpaRepository;
     private final MemberQueryRepository memberQueryRepository;
 
+    public Member getById(final Long id) {
+        return memberJpaRepository.findById(id)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
     public Member getByEmail(String email) {
         return memberJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
@@ -32,4 +37,5 @@ public class MemberReader {
     public boolean existActiveNickname(String nickname) {
         return memberQueryRepository.existActiveNickname(nickname);
     }
+
 }
