@@ -1,6 +1,6 @@
 package com.juu.juulabel.domain.dto.member;
 
-import com.juu.juulabel.domain.enums.Provider;
+import com.juu.juulabel.domain.enums.member.Provider;
 
 public record OAuthUserInfo(
     String email,

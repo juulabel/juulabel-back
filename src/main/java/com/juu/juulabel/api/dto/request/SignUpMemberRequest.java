@@ -1,8 +1,8 @@
 package com.juu.juulabel.api.dto.request;
 
 import com.juu.juulabel.domain.dto.terms.TermsAgreement;
-import com.juu.juulabel.domain.enums.Gender;
-import com.juu.juulabel.domain.enums.Provider;
+import com.juu.juulabel.domain.enums.member.Gender;
+import com.juu.juulabel.domain.enums.member.Provider;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

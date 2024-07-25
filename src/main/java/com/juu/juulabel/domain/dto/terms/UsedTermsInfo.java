@@ -1,6 +1,6 @@
 package com.juu.juulabel.domain.dto.terms;
 
-import com.juu.juulabel.domain.enums.TermsType;
+import com.juu.juulabel.domain.enums.terms.TermsType;
 
 public record UsedTermsInfo(
     Long id,

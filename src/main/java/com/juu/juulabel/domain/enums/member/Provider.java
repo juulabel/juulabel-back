@@ -1,4 +1,4 @@
-package com.juu.juulabel.domain.enums;
+package com.juu.juulabel.domain.enums.member;
 
 public enum Provider {
 

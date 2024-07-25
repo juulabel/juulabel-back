@@ -1,7 +1,7 @@
 package com.juu.juulabel.api.principal;
 
 import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.enums.MemberStatus;
+import com.juu.juulabel.domain.enums.member.MemberStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

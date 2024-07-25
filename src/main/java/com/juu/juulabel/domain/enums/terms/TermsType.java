@@ -1,5 +1,6 @@
-package com.juu.juulabel.domain.enums;
+package com.juu.juulabel.domain.enums.terms;
 
+import com.juu.juulabel.domain.enums.Code;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

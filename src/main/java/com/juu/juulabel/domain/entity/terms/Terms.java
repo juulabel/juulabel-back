@@ -3,7 +3,7 @@ package com.juu.juulabel.domain.entity.terms;
 
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.converter.TermsTypeConverter;
-import com.juu.juulabel.domain.enums.TermsType;
+import com.juu.juulabel.domain.enums.terms.TermsType;
 import jakarta.persistence.*;
 import lombok.*;
 

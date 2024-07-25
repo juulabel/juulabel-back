@@ -2,7 +2,7 @@ package com.juu.juulabel.api.dto.request;
 
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.domain.dto.member.OAuthLoginInfo;
-import com.juu.juulabel.domain.enums.Provider;
+import com.juu.juulabel.domain.enums.member.Provider;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

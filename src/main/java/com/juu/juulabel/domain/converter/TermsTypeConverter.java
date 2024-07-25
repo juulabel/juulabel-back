@@ -1,7 +1,7 @@
 package com.juu.juulabel.domain.converter;
 
 
-import com.juu.juulabel.domain.enums.TermsType;
+import com.juu.juulabel.domain.enums.terms.TermsType;
 import jakarta.persistence.Converter;
 
 @Converter

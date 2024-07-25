@@ -1,6 +1,6 @@
 package com.juu.juulabel.api.dto.response;
 
-import com.juu.juulabel.domain.enums.TermsType;
+import com.juu.juulabel.domain.enums.terms.TermsType;
 
 public record TermsDetailResponse(
     Long id,
