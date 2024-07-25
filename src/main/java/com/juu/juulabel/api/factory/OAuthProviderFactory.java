@@ -7,7 +7,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.member.OAuthUser;
 import com.juu.juulabel.domain.dto.token.OAuthToken;
-import com.juu.juulabel.domain.enums.Provider;
+import com.juu.juulabel.domain.enums.member.Provider;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;

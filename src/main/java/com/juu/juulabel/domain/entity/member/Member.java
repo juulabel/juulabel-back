@@ -1,11 +1,11 @@
 package com.juu.juulabel.domain.entity.member;
 
 import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
-import com.juu.juulabel.domain.enums.MemberRole;
+import com.juu.juulabel.domain.enums.member.MemberRole;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
-import com.juu.juulabel.domain.enums.Gender;
-import com.juu.juulabel.domain.enums.MemberStatus;
-import com.juu.juulabel.domain.enums.Provider;
+import com.juu.juulabel.domain.enums.member.Gender;
+import com.juu.juulabel.domain.enums.member.MemberStatus;
+import com.juu.juulabel.domain.enums.member.Provider;
 import jakarta.persistence.*;
 import lombok.*;
 

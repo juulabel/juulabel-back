@@ -19,7 +19,7 @@ import com.juu.juulabel.domain.entity.member.MemberAlcoholType;
 import com.juu.juulabel.domain.entity.member.MemberTerms;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.terms.Terms;
-import com.juu.juulabel.domain.enums.Provider;
+import com.juu.juulabel.domain.enums.member.Provider;
 import com.juu.juulabel.domain.repository.reader.AlcoholTypeReader;
 import com.juu.juulabel.domain.repository.reader.MemberReader;
 import com.juu.juulabel.domain.repository.reader.TermsReader;
