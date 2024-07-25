@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 
 @Schema(description = "팔로워 리스트 조회 요청")
 public record LoadFollowerListRequest(
-        @Schema(description = "마지막 팔로우 고유 번호")
+        @Schema(description = "마지막 팔로우 고유 번호", example = "20")
         Long lastFollowId,
-        @Schema(description = "페이지 사이즈")
+        @Schema(description = "페이지 사이즈", example = "1")
         @NotNull(message = "페이지 사이즈가 누락되었습니다.")
         int pageSize
 ) {
