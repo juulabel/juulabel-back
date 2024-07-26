@@ -45,8 +45,8 @@ public class Member extends BaseTimeEntity {
     @Column(name = "profile_image", columnDefinition = "varchar(255) comment '프로필 이미지'")
     private String profileImage;
 
-    @Column(name = "gender", nullable = false, columnDefinition = "varchar(20) comment '성별'")
     @Enumerated(EnumType.STRING)
+    @Column(name = "gender", nullable = false, columnDefinition = "varchar(20) comment '성별'")
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
