@@ -1,7 +1,7 @@
 package com.juu.juulabel.domain.entity.alcohol;
 
 import com.juu.juulabel.domain.base.BaseTimeEntity;
-import com.juu.juulabel.domain.converter.LevelConverter;
+import com.juu.juulabel.domain.converter.*;
 import com.juu.juulabel.domain.embedded.AlcoholSnapshot;
 import com.juu.juulabel.domain.entity.color.Color;
 import com.juu.juulabel.domain.enums.alcohol.sensory.*;
@@ -40,27 +40,27 @@ public class TastingNote extends BaseTimeEntity {
     @JoinColumn(name = "color_id", columnDefinition = "BIGINT UNSIGNED comment '색상 ID'")
     private Color color;
 
-    @Convert(converter = LevelConverter.class)
+    @Convert(converter = CarbonationLevelConverter.class)
     @Column(name = "carbonation", columnDefinition = "int comment '탄산도'")
     private CarbonationLevel carbonation;
 
-    @Convert(converter = LevelConverter.class)
+    @Convert(converter = ClarityLevelConverter.class)
     @Column(name = "clarity", columnDefinition = "int comment '투명도'")
     private ClarityLevel clarity;
 
-    @Convert(converter = LevelConverter.class)
+    @Convert(converter = ViscosityLevelConverter.class)
     @Column(name = "viscosity", columnDefinition = "int comment '점성도'")
     private ViscosityLevel viscosity;
 
-    @Convert(converter = LevelConverter.class)
+    @Convert(converter = SedimentLevelConverter.class)
     @Column(name = "sediment", columnDefinition = "int comment '침전물'")
     private SedimentLevel sediment;
 
-    @Convert(converter = LevelConverter.class)
+    @Convert(converter = DensityLevelConverter.class)
     @Column(name = "density", columnDefinition = "int comment '진하기'")
     private DensityLevel density;
 
-    @Convert(converter = LevelConverter.class)
+    @Convert(converter = TurbidityLevelConverter.class)
     @Column(name = "turbidity", columnDefinition = "int comment '탁도'")
     private TurbidityLevel turbidity;
 
