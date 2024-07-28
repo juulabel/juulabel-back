@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -43,5 +45,8 @@ public class AlcoholicDrinks extends BaseTimeEntity {
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "alcoholicDrinks", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TastingNote> tastingNotes = new ArrayList<>();
 
 }

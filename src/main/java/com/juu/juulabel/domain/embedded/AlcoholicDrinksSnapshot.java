@@ -11,7 +11,7 @@ import lombok.*;
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AlcoholSnapshot {
+public class AlcoholicDrinksSnapshot {
 
     @Column(name = "alcoholic_drinks_name", columnDefinition = "varchar(100) comment '전통주 이름'")
     private String alcoholicDrinksName;
@@ -22,19 +22,19 @@ public class AlcoholSnapshot {
     @Column(name = "brewery_name", columnDefinition = "varchar(100) comment '양조장 이름'")
     private String breweryName;
 
-    public static AlcoholSnapshot official(AlcoholicDrinks alcoholicDrinks,
-                                           Brewery brewery) {
-        return AlcoholSnapshot.builder()
+    public static AlcoholicDrinksSnapshot official(AlcoholicDrinks alcoholicDrinks,
+                                                   Brewery brewery) {
+        return AlcoholicDrinksSnapshot.builder()
                 .alcoholicDrinksName(alcoholicDrinks.getName())
                 .alcoholContent(alcoholicDrinks.getAlcoholContent())
                 .breweryName(brewery.getName())
                 .build();
     }
 
-    public static AlcoholSnapshot unofficial(String alcoholicDrinksName,
-                                             Double alcoholContent,
-                                             String breweryName) {
-        return AlcoholSnapshot.builder()
+    public static AlcoholicDrinksSnapshot unofficial(String alcoholicDrinksName,
+                                                     Double alcoholContent,
+                                                     String breweryName) {
+        return AlcoholicDrinksSnapshot.builder()
                 .alcoholicDrinksName(alcoholicDrinksName)
                 .alcoholContent(alcoholContent)
                 .breweryName(breweryName)

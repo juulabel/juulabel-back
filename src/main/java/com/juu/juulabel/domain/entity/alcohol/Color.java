@@ -1,4 +1,4 @@
-package com.juu.juulabel.domain.entity.color;
+package com.juu.juulabel.domain.entity.alcohol;
 
 import jakarta.persistence.*;
 import lombok.*;
