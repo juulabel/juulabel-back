@@ -38,4 +38,13 @@ public class DailyLife extends BaseTimeEntity {
     @Column(name = "deleted_at", columnDefinition = "DATETIME comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static DailyLife create(Member member, String title, String content, boolean isPrivate) {
+        return DailyLife.builder()
+            .member(member)
+            .title(title)
+            .content(content)
+            .isPrivate(isPrivate)
+            .build();
+    }
+
 }
