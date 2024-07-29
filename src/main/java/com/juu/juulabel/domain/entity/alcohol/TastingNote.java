@@ -67,7 +67,6 @@ public class TastingNote extends BaseTimeEntity {
     @OneToMany(mappedBy = "tastingNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TastingNoteImage> tastingNoteImages = new ArrayList<>();
 
-
     public void rate(Double rating) {
         if (rating < 0 || rating > 5 || rating % 0.25 != 0) {
             throw new InvalidParamException(ErrorCode.INVALID_RATING_VALUE);

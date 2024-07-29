@@ -22,7 +22,7 @@ public class TastingNoteScent extends BaseTimeEntity {
     private TastingNote tastingNote;
 
     @ManyToOne
-    @JoinColumn(name = "scent_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '향기 ID'")
+    @JoinColumn(name = "scent_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '향 ID'")
     private Scent scent;
 
 }
