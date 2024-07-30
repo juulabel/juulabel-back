@@ -85,6 +85,8 @@ public enum ErrorCode {
      * DailyLife
      */
     NOT_FOUND_DAILY_LIFE(HttpStatus.BAD_REQUEST, "일상생활 게시글을 찾을 수 없습니다."),
+    ALREADY_DELETED_DAILY_LIFE(HttpStatus.BAD_REQUEST, "이미 삭제된 일상생활 게시글입니다."),
+    NOT_DAILY_LIFE_WRITER(HttpStatus.BAD_REQUEST, "게시글 작성자가 아닙니다."),
 
     /**
      * FILE

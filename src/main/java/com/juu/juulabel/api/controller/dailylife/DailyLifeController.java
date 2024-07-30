@@ -4,6 +4,7 @@ import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
 import com.juu.juulabel.api.dto.response.LoadDailyLifeResponse;
 import com.juu.juulabel.api.dto.response.WriteDailyLifeResponse;
+import com.juu.juulabel.api.dto.response.deleteDailyLifeResponse;
 import com.juu.juulabel.api.service.dailylife.DailyLifeService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -54,5 +55,32 @@ public class DailyLifeController {
         @PathVariable Long dailyLifeId
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLife(loginMember, dailyLifeId));
+    }
+
+//    @Operation(
+//        summary = "일상생활 목록 조회",
+//        description = "전통주 일상생활 게시글 목록을 조회한다."
+//    )
+//    @Parameters(
+//        @Parameter(name = "request", description = "일상생활 게시글 목록 조회 요청", required = true)
+//    )
+//    @GetMapping
+//    public ResponseEntity<CommonResponse<LoadDailyLifeListResponse>> loadDailyLifeList(
+//        @Parameter(hidden = true) @LoginMember Member loginMember,
+//        @Valid LoadDailyLifeListRequest request
+//    ) {
+//        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLifeList(loginMember, request));
+//    }
+
+    @Operation(
+        summary = "일상생활 삭제",
+        description = "전통주 일상생활 게시글을 삭제한다."
+    )
+    @DeleteMapping("/{dailyLifeId}")
+    public ResponseEntity<CommonResponse<deleteDailyLifeResponse>> deleteDailyLife(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long dailyLifeId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.deleteDailyLife(loginMember, dailyLifeId));
     }
 }

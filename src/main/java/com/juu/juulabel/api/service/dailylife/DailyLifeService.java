@@ -3,6 +3,7 @@ package com.juu.juulabel.api.service.dailylife;
 import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
 import com.juu.juulabel.api.dto.response.LoadDailyLifeResponse;
 import com.juu.juulabel.api.dto.response.WriteDailyLifeResponse;
+import com.juu.juulabel.api.dto.response.deleteDailyLifeResponse;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
@@ -88,4 +89,15 @@ public class DailyLifeService {
         }
     }
 
+    public deleteDailyLifeResponse deleteDailyLife(Member loginMember, Long dailyLifeId) {
+        Member member = memberReader.getById(loginMember.getId());
+        DailyLife dailyLife = dailyLifeReader.getById(dailyLifeId);
+
+        if (!member.getId().equals(dailyLife.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_DAILY_LIFE_WRITER);
+        }
+
+        dailyLife.delete();
+        return new deleteDailyLifeResponse(dailyLife.getId());
+    }
 }
