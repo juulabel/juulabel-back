@@ -1,15 +1,20 @@
 package com.juu.juulabel.api.service.dailylife;
 
 import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
+import com.juu.juulabel.api.dto.response.LoadDailyLifeResponse;
 import com.juu.juulabel.api.dto.response.WriteDailyLifeResponse;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.dailylife.DailyLifeDetailInfo;
+import com.juu.juulabel.domain.dto.dailylife.DailyLifeImageInfo;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.entity.dailylife.DailyLife;
 import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.repository.reader.DailyLifeImageReader;
+import com.juu.juulabel.domain.repository.reader.DailyLifeReader;
 import com.juu.juulabel.domain.repository.reader.MemberReader;
 import com.juu.juulabel.domain.repository.writer.DailyLifeImageWriter;
 import com.juu.juulabel.domain.repository.writer.DailyLifeWriter;
@@ -27,7 +32,9 @@ public class DailyLifeService {
 
     private final MemberReader memberReader;
     private final DailyLifeWriter dailyLifeWriter;
+    private final DailyLifeReader dailyLifeReader;
     private final DailyLifeImageWriter dailyLifeImageWriter;
+    private final DailyLifeImageReader dailyLifeImageReader;
     private final S3Service s3Service;
 
     @Transactional
@@ -63,11 +70,23 @@ public class DailyLifeService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public LoadDailyLifeResponse loadDailyLife(Member loginMember, Long dailyLifeId) {
+        Member member = memberReader.getById(loginMember.getId());
+        DailyLifeDetailInfo dailyLifeDetailInfo = dailyLifeReader.getDailyLifeDetailById(dailyLifeId);
+        List<String> urlList = dailyLifeImageReader.getImageUrlList(dailyLifeId);
+
+        return new LoadDailyLifeResponse(
+            dailyLifeDetailInfo,
+            new DailyLifeImageInfo(urlList, urlList.size()),
+            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage())
+        );
+    }
+
     private static void validateFileListSize(List<MultipartFile> nonEmptyFiles) {
         if (nonEmptyFiles.size() > FileConstants.FILE_MAX_SIZE_COUNT) {
             throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
         }
     }
-
 
 }
