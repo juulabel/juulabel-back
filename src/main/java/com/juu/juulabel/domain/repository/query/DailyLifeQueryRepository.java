@@ -4,6 +4,7 @@ package com.juu.juulabel.domain.repository.query;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeDetailInfo;
+import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.entity.dailylife.QDailyLife;
 import com.juu.juulabel.domain.entity.dailylife.QDailyLifeComment;
 import com.juu.juulabel.domain.entity.dailylife.like.QDailyLifeLike;
@@ -33,6 +34,12 @@ public class DailyLifeQueryRepository {
                     dailyLife.title,
                     dailyLife.content,
                     dailyLife.id,
+                    Projections.constructor(
+                        MemberInfo.class,
+                        dailyLife.member.id,
+                        dailyLife.member.nickname,
+                        dailyLife.member.profileImage
+                    ),
                     dailyLife.createdAt,
                     dailyLifeLike.count().as("likeCount"),
                     dailyLifeComment.count().as("commentCount")
