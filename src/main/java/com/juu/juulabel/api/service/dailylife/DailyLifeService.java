@@ -54,11 +54,10 @@ public class DailyLifeService {
         }
 
         return new WriteDailyLifeResponse(
-            dailyLife.getId(),
-            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()),
             dailyLife.getTitle(),
             dailyLife.getContent(),
-            dailyLife.isPrivate(),
+            dailyLife.getId(),
+            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()),
             imageUrlList.isEmpty() ? null : imageUrlList,
             imageUrlList.isEmpty() ? 0 : imageUrlList.size()
         );
