@@ -23,7 +23,7 @@ public class MemberAlcoholType extends BaseTimeEntity {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "liquor_type_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '전통주 주종 고유 번호'")
+    @JoinColumn(name = "alcohol_type_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '전통주 주종 고유 번호'")
     private AlcoholType alcoholType;
 
     public static MemberAlcoholType create(Member member, AlcoholType alcoholType) {
