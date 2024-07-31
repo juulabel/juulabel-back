@@ -41,12 +41,12 @@ public class TastingNoteQueryRepository {
                                         AlcoholTypeSummary.class,
                                         alcoholType.id,
                                         alcoholType.name
-                                ).as("alcoholType"),
+                                ),
                                 Projections.constructor(
                                         BrewerySummary.class,
                                         brewery.id,
                                         brewery.name
-                                ).as("brewery")
+                                )
                         )
                 )
                 .from(alcoholicDrinks)

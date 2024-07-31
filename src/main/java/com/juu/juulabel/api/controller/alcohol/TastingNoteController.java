@@ -22,6 +22,7 @@ public class TastingNoteController {
 
     private final TastingNoteService tastingNoteService;
 
+    // TODO : 권한 설정 + security
     @Operation(
             summary = "시음 노트 전통주 검색",
             description = "전통주명 또는 양조장으로 전통주를 검색한다."

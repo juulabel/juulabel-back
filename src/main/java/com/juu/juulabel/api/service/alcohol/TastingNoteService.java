@@ -2,6 +2,7 @@ package com.juu.juulabel.api.service.alcohol;
 
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
 import com.juu.juulabel.api.dto.response.AlcoholDrinksListResponse;
+import com.juu.juulabel.common.factory.SliceResponseFactory;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
 import com.juu.juulabel.domain.repository.reader.TastingNoteReader;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,11 @@ public class TastingNoteService {
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
         final Slice<AlcoholicDrinksSummary> alcoholicDrinks = tastingNoteReader.findAllAlcoholicDrinks(request.search(), request.lastAlcoholicDrinksName(), request.pageSize());
-        return AlcoholDrinksListResponse.fromSlice(alcoholicDrinks);
+        return SliceResponseFactory.create(
+                AlcoholDrinksListResponse.class,
+                alcoholicDrinks.isLast(),
+                alcoholicDrinks.getContent()
+        );
     }
 
 }
