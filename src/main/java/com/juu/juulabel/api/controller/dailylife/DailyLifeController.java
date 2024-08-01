@@ -2,11 +2,9 @@ package com.juu.juulabel.api.controller.dailylife;
 
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
+import com.juu.juulabel.api.dto.request.UpdateDailyLifeRequest;
 import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
-import com.juu.juulabel.api.dto.response.LoadDailyLifeListResponse;
-import com.juu.juulabel.api.dto.response.LoadDailyLifeResponse;
-import com.juu.juulabel.api.dto.response.WriteDailyLifeResponse;
-import com.juu.juulabel.api.dto.response.deleteDailyLifeResponse;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.dailylife.DailyLifeService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -45,7 +43,7 @@ public class DailyLifeController {
         @Valid @RequestPart(value = "request") WriteDailyLifeRequest request,
         @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.writeDailyLife(loginMember, request, files));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.writeDailyLife(loginMember, request, files));
     }
 
     @Operation(
@@ -76,6 +74,20 @@ public class DailyLifeController {
     }
 
     @Operation(
+        summary = "일상생활 수정",
+        description = "전통주 일상생활 게시글을 수정한다."
+    )
+    @PatchMapping(value = "/{dailyLifeId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<updateDailyLifeResponse>> updateDailyLife(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid @RequestPart(value = "request") UpdateDailyLifeRequest request,
+        @RequestPart(value = "files", required = false) List<MultipartFile> files,
+        @PathVariable Long dailyLifeId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, dailyLifeService.updateDailyLife(loginMember, dailyLifeId, request, files));
+    }
+
+    @Operation(
         summary = "일상생활 삭제",
         description = "전통주 일상생활 게시글을 삭제한다."
     )
@@ -84,6 +96,6 @@ public class DailyLifeController {
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @PathVariable Long dailyLifeId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.deleteDailyLife(loginMember, dailyLifeId));
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, dailyLifeService.deleteDailyLife(loginMember, dailyLifeId));
     }
 }

@@ -1,11 +1,9 @@
 package com.juu.juulabel.api.service.dailylife;
 
 import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
+import com.juu.juulabel.api.dto.request.UpdateDailyLifeRequest;
 import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
-import com.juu.juulabel.api.dto.response.LoadDailyLifeListResponse;
-import com.juu.juulabel.api.dto.response.LoadDailyLifeResponse;
-import com.juu.juulabel.api.dto.response.WriteDailyLifeResponse;
-import com.juu.juulabel.api.dto.response.deleteDailyLifeResponse;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
@@ -16,6 +14,7 @@ import com.juu.juulabel.domain.dto.dailylife.DailyLifeSummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.entity.dailylife.DailyLife;
+import com.juu.juulabel.domain.entity.dailylife.DailyLifeImage;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.repository.reader.DailyLifeImageReader;
 import com.juu.juulabel.domain.repository.reader.DailyLifeReader;
@@ -26,10 +25,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -52,18 +53,7 @@ public class DailyLifeService {
         DailyLife dailyLife = dailyLifeWriter.store(member, request);
 
         List<String> imageUrlList = new ArrayList<>();
-        if (files != null && !files.isEmpty()) {
-            // TODO : 파일 크기 및 확장자 validate
-            validateFileListSize(files);
-
-            for (int i = 1; i <= files.size(); i++) {
-                MultipartFile file = files.get(i - 1);
-                UploadImageInfo uploadImageInfo = s3Service.uploadDailyLifeImage(file);
-                imageUrlList.add(uploadImageInfo.ImageUrl());
-
-                dailyLifeImageWriter.store(dailyLife, i, uploadImageInfo.ImageUrl());
-            }
-        }
+        storeImageList(files, imageUrlList, dailyLife);
 
         return new WriteDailyLifeResponse(
             dailyLife.getTitle(),
@@ -95,10 +85,31 @@ public class DailyLifeService {
         return new LoadDailyLifeListResponse(dailyLifeList);
     }
 
-    private static void validateFileListSize(List<MultipartFile> nonEmptyFiles) {
-        if (nonEmptyFiles.size() > FileConstants.FILE_MAX_SIZE_COUNT) {
-            throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+    @Transactional
+    public updateDailyLifeResponse updateDailyLife(
+        Member loginMember,
+        Long dailyLifeId,
+        UpdateDailyLifeRequest request,
+        List<MultipartFile> files
+    ) {
+        Member member = memberReader.getById(loginMember.getId());
+        DailyLife dailyLife = dailyLifeReader.getById(dailyLifeId);
+
+        if (!member.getId().equals(dailyLife.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_DAILY_LIFE_WRITER);
         }
+
+        updateIfNotBlank(request.title(), dailyLife::updateTitle);
+        updateIfNotBlank(request.content(), dailyLife::updateContent);
+        dailyLife.updateIsPrivate(request.isPrivate());
+
+        List<DailyLifeImage> dailyLifeImageList = dailyLifeImageReader.getImageList(dailyLife.getId());
+        dailyLifeImageList.forEach(DailyLifeImage::delete);
+
+        List<String> newImageUrlList = new ArrayList<>();
+        storeImageList(files, newImageUrlList, dailyLife);
+
+        return new updateDailyLifeResponse(dailyLife.getId());
     }
 
     @Transactional
@@ -112,5 +123,30 @@ public class DailyLifeService {
 
         dailyLife.delete();
         return new deleteDailyLifeResponse(dailyLife.getId());
+    }
+
+    private void updateIfNotBlank(String value, Consumer<String> updater) {
+        if (StringUtils.hasText(value)) {
+            updater.accept(value);
+        }
+    }
+
+    private void storeImageList(List<MultipartFile> files, List<String> newImageUrlList, DailyLife dailyLife) {
+        if (files != null && !files.isEmpty()) {
+            // TODO : 파일 크기 및 확장자 validate
+            validateFileListSize(files);
+
+            for (MultipartFile file : files) {
+                UploadImageInfo uploadImageInfo = s3Service.uploadDailyLifeImage(file);
+                newImageUrlList.add(uploadImageInfo.ImageUrl());
+                dailyLifeImageWriter.store(dailyLife, newImageUrlList.size(), uploadImageInfo.ImageUrl());
+            }
+        }
+    }
+
+    private static void validateFileListSize(List<MultipartFile> nonEmptyFiles) {
+        if (nonEmptyFiles.size() > FileConstants.FILE_MAX_SIZE_COUNT) {
+            throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+        }
     }
 }
