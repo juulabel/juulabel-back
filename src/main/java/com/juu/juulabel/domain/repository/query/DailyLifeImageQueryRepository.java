@@ -1,5 +1,6 @@
 package com.juu.juulabel.domain.repository.query;
 
+import com.juu.juulabel.domain.entity.dailylife.DailyLifeImage;
 import com.juu.juulabel.domain.entity.dailylife.QDailyLife;
 import com.juu.juulabel.domain.entity.dailylife.QDailyLifeImage;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -21,6 +22,16 @@ public class DailyLifeImageQueryRepository {
         return jpaQueryFactory
             .select(dailyLifeImage.imagePath)
             .from(dailyLifeImage)
+            .where(
+                eqId(dailyLifeImage.dailyLife, dailyLifeId),
+                isNotDeleted(dailyLifeImage)
+            )
+            .fetch();
+    }
+
+    public List<DailyLifeImage> getImageList(Long dailyLifeId) {
+        return jpaQueryFactory
+            .selectFrom(dailyLifeImage)
             .where(
                 eqId(dailyLifeImage.dailyLife, dailyLifeId),
                 isNotDeleted(dailyLifeImage)
