@@ -1,7 +1,9 @@
 package com.juu.juulabel.api.controller.dailylife;
 
 import com.juu.juulabel.api.annotation.LoginMember;
+import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
 import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
+import com.juu.juulabel.api.dto.response.LoadDailyLifeListResponse;
 import com.juu.juulabel.api.dto.response.LoadDailyLifeResponse;
 import com.juu.juulabel.api.dto.response.WriteDailyLifeResponse;
 import com.juu.juulabel.api.dto.response.deleteDailyLifeResponse;
@@ -11,6 +13,7 @@ import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.domain.entity.member.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,20 +60,20 @@ public class DailyLifeController {
         return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLife(loginMember, dailyLifeId));
     }
 
-//    @Operation(
-//        summary = "일상생활 목록 조회",
-//        description = "전통주 일상생활 게시글 목록을 조회한다."
-//    )
-//    @Parameters(
-//        @Parameter(name = "request", description = "일상생활 게시글 목록 조회 요청", required = true)
-//    )
-//    @GetMapping
-//    public ResponseEntity<CommonResponse<LoadDailyLifeListResponse>> loadDailyLifeList(
-//        @Parameter(hidden = true) @LoginMember Member loginMember,
-//        @Valid LoadDailyLifeListRequest request
-//    ) {
-//        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLifeList(loginMember, request));
-//    }
+    @Operation(
+        summary = "일상생활 목록 조회",
+        description = "전통주 일상생활 게시글 목록을 조회한다."
+    )
+    @Parameters(
+        @Parameter(name = "request", description = "일상생활 게시글 목록 조회 요청", required = true)
+    )
+    @GetMapping
+    public ResponseEntity<CommonResponse<LoadDailyLifeListResponse>> loadDailyLifeList(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid LoadDailyLifeListRequest request
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLifeList(loginMember, request));
+    }
 
     @Operation(
         summary = "일상생활 삭제",

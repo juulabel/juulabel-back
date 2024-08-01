@@ -1,6 +1,8 @@
 package com.juu.juulabel.api.service.dailylife;
 
+import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
 import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
+import com.juu.juulabel.api.dto.response.LoadDailyLifeListResponse;
 import com.juu.juulabel.api.dto.response.LoadDailyLifeResponse;
 import com.juu.juulabel.api.dto.response.WriteDailyLifeResponse;
 import com.juu.juulabel.api.dto.response.deleteDailyLifeResponse;
@@ -10,6 +12,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeDetailInfo;
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeImageInfo;
+import com.juu.juulabel.domain.dto.dailylife.DailyLifeSummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.entity.dailylife.DailyLife;
@@ -20,6 +23,7 @@ import com.juu.juulabel.domain.repository.reader.MemberReader;
 import com.juu.juulabel.domain.repository.writer.DailyLifeImageWriter;
 import com.juu.juulabel.domain.repository.writer.DailyLifeWriter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,12 +87,21 @@ public class DailyLifeService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public LoadDailyLifeListResponse loadDailyLifeList(Member loginMember, LoadDailyLifeListRequest request) {
+        Member member = memberReader.getById(loginMember.getId());
+        Slice<DailyLifeSummary> dailyLifeList = dailyLifeReader.getAllDailyLife(member, request.lastDailyLifeId(), request.pageSize());
+
+        return new LoadDailyLifeListResponse(dailyLifeList);
+    }
+
     private static void validateFileListSize(List<MultipartFile> nonEmptyFiles) {
         if (nonEmptyFiles.size() > FileConstants.FILE_MAX_SIZE_COUNT) {
             throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
         }
     }
 
+    @Transactional
     public deleteDailyLifeResponse deleteDailyLife(Member loginMember, Long dailyLifeId) {
         Member member = memberReader.getById(loginMember.getId());
         DailyLife dailyLife = dailyLifeReader.getById(dailyLifeId);
