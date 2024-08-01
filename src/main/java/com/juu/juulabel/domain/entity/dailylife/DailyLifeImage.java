@@ -1,5 +1,7 @@
 package com.juu.juulabel.domain.entity.dailylife;
 
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,6 +42,14 @@ public class DailyLifeImage extends BaseTimeEntity {
             .seq(seq)
             .imagePath(imagePath)
             .build();
+    }
+
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_DAILY_LIFE);
+        }
+
+        this.deletedAt = LocalDateTime.now();
     }
 
 }
