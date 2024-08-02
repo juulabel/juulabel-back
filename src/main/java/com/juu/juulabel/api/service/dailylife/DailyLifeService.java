@@ -67,8 +67,8 @@ public class DailyLifeService {
 
     @Transactional(readOnly = true)
     public LoadDailyLifeResponse loadDailyLife(Member loginMember, Long dailyLifeId) {
-        memberReader.getById(loginMember.getId());
-        DailyLifeDetailInfo dailyLifeDetailInfo = dailyLifeReader.getDailyLifeDetailById(dailyLifeId);
+        Member member = memberReader.getById(loginMember.getId());
+        DailyLifeDetailInfo dailyLifeDetailInfo = dailyLifeReader.getDailyLifeDetailById(dailyLifeId, member);
         List<String> urlList = dailyLifeImageReader.getImageUrlList(dailyLifeId);
 
         return new LoadDailyLifeResponse(

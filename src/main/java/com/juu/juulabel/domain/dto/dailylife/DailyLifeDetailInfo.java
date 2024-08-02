@@ -11,6 +11,7 @@ public record DailyLifeDetailInfo(
     MemberInfo memberInfo,
     LocalDateTime createdAt,
     long likeCount,
-    long commentCount
+    long commentCount,
+    boolean isLiked
 ) {
 }

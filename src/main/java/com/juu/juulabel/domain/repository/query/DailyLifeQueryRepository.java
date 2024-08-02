@@ -35,7 +35,7 @@ public class DailyLifeQueryRepository {
     QDailyLifeLike dailyLifeLike = QDailyLifeLike.dailyLifeLike;
     QDailyLifeImage dailyLifeImage = QDailyLifeImage.dailyLifeImage;
 
-    public DailyLifeDetailInfo getDailyLifeDetailById(Long dailyLifeId) {
+    public DailyLifeDetailInfo getDailyLifeDetailById(Long dailyLifeId, Member member) {
         DailyLifeDetailInfo dailyLifeDetailInfo = jpaQueryFactory
             .select(
                 Projections.constructor(
@@ -51,7 +51,8 @@ public class DailyLifeQueryRepository {
                     ),
                     dailyLife.createdAt,
                     dailyLifeLike.count().as("likeCount"),
-                    dailyLifeComment.count().as("commentCount")
+                    dailyLifeComment.count().as("commentCount"),
+                    isLikedSubQuery(dailyLife, member)
                 )
             )
             .from(dailyLife)
@@ -88,13 +89,7 @@ public class DailyLifeQueryRepository {
                     dailyLife.createdAt,
                     dailyLifeLike.count().as("likeCount"),
                     dailyLifeComment.count().as("commentCount"),
-                    jpaQueryFactory
-                        .selectFrom(dailyLifeLike)
-                        .where(
-                            dailyLifeLike.dailyLife.eq(dailyLife),
-                            dailyLifeLike.member.eq(member)
-                        )
-                        .exists().as("isLiked")
+                    isLikedSubQuery(dailyLife, member)
                 )
             )
             .from(dailyLife)
@@ -141,6 +136,16 @@ public class DailyLifeQueryRepository {
 
     private BooleanExpression eqId(QDailyLife dailyLife, Long dailyLifeId) {
         return dailyLife.id.eq(dailyLifeId);
+    }
+
+    private BooleanExpression isLikedSubQuery(QDailyLife dailyLife, Member member) {
+        return jpaQueryFactory
+            .selectFrom(dailyLifeLike)
+            .where(
+                dailyLifeLike.dailyLife.eq(dailyLife),
+                dailyLifeLike.member.eq(member)
+            )
+            .exists();
     }
 
 }

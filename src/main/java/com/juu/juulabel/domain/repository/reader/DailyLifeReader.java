@@ -19,8 +19,8 @@ public class DailyLifeReader {
     private final DailyLifeQueryRepository dailyLifeQueryRepository;
     private final DailyLifeJpaRepository dailyLifeJpaRepository;
 
-    public DailyLifeDetailInfo getDailyLifeDetailById(final Long dailyLifeId) {
-        return dailyLifeQueryRepository.getDailyLifeDetailById(dailyLifeId);
+    public DailyLifeDetailInfo getDailyLifeDetailById(final Long dailyLifeId, final Member member) {
+        return dailyLifeQueryRepository.getDailyLifeDetailById(dailyLifeId, member);
     }
 
     public DailyLife getById(final Long dailyLifeId) {
