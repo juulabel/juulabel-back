@@ -6,6 +6,7 @@ import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.dailylife.DailyLifeCommentSummary;
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeDetailInfo;
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeImageInfo;
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeSummary;
@@ -141,6 +142,17 @@ public class DailyLifeService {
             comment.getContent(),
             dailyLife.getId(),
             new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()));
+    }
+
+    @Transactional(readOnly = true)
+    public LoadDailyLifeCommentListResponse loadCommentList(Member loginMember, LoadDailyLifeCommentListRequest request, Long dailyLifeId) {
+        Member member = getMember(loginMember);
+        DailyLife dailyLife = getDailyLife(dailyLifeId);
+
+        Slice<DailyLifeCommentSummary> commentList =
+            dailyLifeCommentReader.getAllByDailyLifeId(member, dailyLife.getId(), request.lastCommentId(), request.pageSize());
+
+        return new LoadDailyLifeCommentListResponse(commentList);
     }
 
     @Transactional
