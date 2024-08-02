@@ -2,6 +2,7 @@ package com.juu.juulabel.api.service.dailylife;
 
 import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
 import com.juu.juulabel.api.dto.request.UpdateDailyLifeRequest;
+import com.juu.juulabel.api.dto.request.WriteDailyLifeCommentRequest;
 import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.s3.S3Service;
@@ -14,11 +15,14 @@ import com.juu.juulabel.domain.dto.dailylife.DailyLifeSummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.entity.dailylife.DailyLife;
+import com.juu.juulabel.domain.entity.dailylife.DailyLifeComment;
 import com.juu.juulabel.domain.entity.dailylife.DailyLifeImage;
 import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.repository.reader.DailyLifeCommentReader;
 import com.juu.juulabel.domain.repository.reader.DailyLifeImageReader;
 import com.juu.juulabel.domain.repository.reader.DailyLifeReader;
 import com.juu.juulabel.domain.repository.reader.MemberReader;
+import com.juu.juulabel.domain.repository.writer.DailyLifeCommentWriter;
 import com.juu.juulabel.domain.repository.writer.DailyLifeImageWriter;
 import com.juu.juulabel.domain.repository.writer.DailyLifeWriter;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Service
@@ -41,6 +46,8 @@ public class DailyLifeService {
     private final DailyLifeReader dailyLifeReader;
     private final DailyLifeImageWriter dailyLifeImageWriter;
     private final DailyLifeImageReader dailyLifeImageReader;
+    private final DailyLifeCommentWriter dailyLifeCommentWriter;
+    private final DailyLifeCommentReader dailyLifeCommentReader;
     private final S3Service s3Service;
 
     @Transactional
@@ -49,7 +56,7 @@ public class DailyLifeService {
         final WriteDailyLifeRequest request,
         final List<MultipartFile> files
     ) {
-        final Member member = memberReader.getById(loginMember.getId());
+        final Member member = getMember(loginMember);
         DailyLife dailyLife = dailyLifeWriter.store(member, request);
 
         List<String> imageUrlList = new ArrayList<>();
@@ -67,7 +74,7 @@ public class DailyLifeService {
 
     @Transactional(readOnly = true)
     public LoadDailyLifeResponse loadDailyLife(Member loginMember, Long dailyLifeId) {
-        Member member = memberReader.getById(loginMember.getId());
+        Member member = getMember(loginMember);
         DailyLifeDetailInfo dailyLifeDetailInfo = dailyLifeReader.getDailyLifeDetailById(dailyLifeId, member);
         List<String> urlList = dailyLifeImageReader.getImageUrlList(dailyLifeId);
 
@@ -79,7 +86,7 @@ public class DailyLifeService {
 
     @Transactional(readOnly = true)
     public LoadDailyLifeListResponse loadDailyLifeList(Member loginMember, LoadDailyLifeListRequest request) {
-        Member member = memberReader.getById(loginMember.getId());
+        Member member = getMember(loginMember);
         Slice<DailyLifeSummary> dailyLifeList = dailyLifeReader.getAllDailyLife(member, request.lastDailyLifeId(), request.pageSize());
 
         return new LoadDailyLifeListResponse(dailyLifeList);
@@ -92,8 +99,8 @@ public class DailyLifeService {
         UpdateDailyLifeRequest request,
         List<MultipartFile> files
     ) {
-        Member member = memberReader.getById(loginMember.getId());
-        DailyLife dailyLife = dailyLifeReader.getById(dailyLifeId);
+        Member member = getMember(loginMember);
+        DailyLife dailyLife = getDailyLife(dailyLifeId);
 
         if (!member.getId().equals(dailyLife.getMember().getId())) {
             throw new InvalidParamException(ErrorCode.NOT_DAILY_LIFE_WRITER);
@@ -114,8 +121,8 @@ public class DailyLifeService {
 
     @Transactional
     public deleteDailyLifeResponse deleteDailyLife(Member loginMember, Long dailyLifeId) {
-        Member member = memberReader.getById(loginMember.getId());
-        DailyLife dailyLife = dailyLifeReader.getById(dailyLifeId);
+        Member member = getMember(loginMember);
+        DailyLife dailyLife = getDailyLife(dailyLifeId);
 
         if (!member.getId().equals(dailyLife.getMember().getId())) {
             throw new InvalidParamException(ErrorCode.NOT_DAILY_LIFE_WRITER);
@@ -125,10 +132,41 @@ public class DailyLifeService {
         return new deleteDailyLifeResponse(dailyLife.getId());
     }
 
+    @Transactional
+    public WriteDailyLifeCommentResponse writeComment(Member loginMember, WriteDailyLifeCommentRequest request, Long dailyLifeId) {
+        Member member = getMember(loginMember);
+        DailyLife dailyLife = getDailyLife(dailyLifeId);
+
+        DailyLifeComment dailyLifeComment = createCommentOrReply(request, member, dailyLife);
+        DailyLifeComment comment = dailyLifeCommentWriter.store(dailyLifeComment);
+
+        return new WriteDailyLifeCommentResponse(
+            comment.getContent(),
+            dailyLife.getId(),
+            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()));
+    }
+
+    private DailyLifeComment createCommentOrReply(WriteDailyLifeCommentRequest request, Member member, DailyLife dailyLife) {
+        if (Objects.isNull(request.parentCommentId())) {
+            return DailyLifeComment.createComment(member, dailyLife, request.content());
+        } else {
+            DailyLifeComment parentComment = dailyLifeCommentReader.getById(request.parentCommentId());
+            return DailyLifeComment.createReply(member, dailyLife, request.content(), parentComment);
+        }
+    }
+
+    private DailyLife getDailyLife(Long dailyLifeId) {
+        return dailyLifeReader.getById(dailyLifeId);
+    }
+
     private void updateIfNotBlank(String value, Consumer<String> updater) {
         if (StringUtils.hasText(value)) {
             updater.accept(value);
         }
+    }
+
+    private Member getMember(Member loginMember) {
+        return memberReader.getById(loginMember.getId());
     }
 
     private void storeImageList(List<MultipartFile> files, List<String> newImageUrlList, DailyLife dailyLife) {
