@@ -1,9 +1,6 @@
 package com.juu.juulabel.api.service.dailylife;
 
-import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
-import com.juu.juulabel.api.dto.request.UpdateDailyLifeRequest;
-import com.juu.juulabel.api.dto.request.WriteDailyLifeCommentRequest;
-import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
+import com.juu.juulabel.api.dto.request.*;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
@@ -146,6 +143,28 @@ public class DailyLifeService {
             new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()));
     }
 
+    @Transactional
+    public UpdateDailyLifeCommentResponse updateComment(
+        Member loginMember,
+        UpdateDailyLifeCommentRequest request,
+        Long dailyLifeId,
+        Long commentId
+    ) {
+        Member member = getMember(loginMember);
+        getDailyLife(dailyLifeId);
+        DailyLifeComment comment = getComment(commentId);
+
+        if (!member.getId().equals(comment.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
+        }
+
+        comment.updateContent(request.content());
+
+        return new UpdateDailyLifeCommentResponse(
+            comment.getContent(),
+            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()));
+    }
+
     private DailyLifeComment createCommentOrReply(WriteDailyLifeCommentRequest request, Member member, DailyLife dailyLife) {
         if (Objects.isNull(request.parentCommentId())) {
             return DailyLifeComment.createComment(member, dailyLife, request.content());
@@ -153,6 +172,10 @@ public class DailyLifeService {
             DailyLifeComment parentComment = dailyLifeCommentReader.getById(request.parentCommentId());
             return DailyLifeComment.createReply(member, dailyLife, request.content(), parentComment);
         }
+    }
+
+    private DailyLifeComment getComment(Long commentId) {
+        return dailyLifeCommentReader.getById(commentId);
     }
 
     private DailyLife getDailyLife(Long dailyLifeId) {

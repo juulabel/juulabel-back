@@ -57,4 +57,8 @@ public class DailyLifeComment extends BaseTimeEntity {
             .build();
     }
 
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
 }

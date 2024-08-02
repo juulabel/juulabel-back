@@ -1,10 +1,7 @@
 package com.juu.juulabel.api.controller.dailylife;
 
 import com.juu.juulabel.api.annotation.LoginMember;
-import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
-import com.juu.juulabel.api.dto.request.UpdateDailyLifeRequest;
-import com.juu.juulabel.api.dto.request.WriteDailyLifeCommentRequest;
-import com.juu.juulabel.api.dto.request.WriteDailyLifeRequest;
+import com.juu.juulabel.api.dto.request.*;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.dailylife.DailyLifeService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
@@ -111,6 +108,20 @@ public class DailyLifeController {
         @PathVariable Long dailyLifeId
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.writeComment(loginMember, request, dailyLifeId));
+    }
+
+    @Operation(
+        summary = "일상생활 댓글 수정",
+        description = "전통주 일상생활 게시글의 댓글을 수정한다."
+    )
+    @PatchMapping("/{dailyLifeId}/comments/{commentId}")
+    public ResponseEntity<CommonResponse<UpdateDailyLifeCommentResponse>> updateComment(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid @RequestBody UpdateDailyLifeCommentRequest request,
+        @PathVariable Long dailyLifeId,
+        @PathVariable Long commentId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.updateComment(loginMember, request, dailyLifeId, commentId));
     }
 
 
