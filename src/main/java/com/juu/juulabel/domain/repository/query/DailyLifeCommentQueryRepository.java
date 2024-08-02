@@ -1,6 +1,7 @@
 package com.juu.juulabel.domain.repository.query;
 
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeCommentSummary;
+import com.juu.juulabel.domain.dto.dailylife.DailyLifeReplySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.entity.dailylife.QDailyLifeComment;
 import com.juu.juulabel.domain.entity.dailylife.like.QDailyLifeCommentLike;
@@ -71,6 +72,45 @@ public class DailyLifeCommentQueryRepository {
         }
 
         return new SliceImpl<>(dailyLifeCommentSummaryList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
+    public Slice<DailyLifeReplySummary> getAllRepliesByParentId(Member member, Long dailyLifeId, Long dailyLifeCommentId, Long lastReplyId, int pageSize) {
+        List<DailyLifeReplySummary> dailyLifeReplySummaryList = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    DailyLifeReplySummary.class,
+                    dailyLifeComment.content,
+                    dailyLifeComment.id,
+                    Projections.constructor(
+                        MemberInfo.class,
+                        dailyLifeComment.member.id,
+                        dailyLifeComment.member.nickname,
+                        dailyLifeComment.member.profileImage
+                    ),
+                    dailyLifeComment.createdAt,
+                    dailyLifeCommentLike.count().as("likeCount"),
+                    isLikedSubQuery(dailyLifeComment, member)
+                )
+            )
+            .from(dailyLifeComment)
+            .leftJoin(dailyLifeCommentLike).on(dailyLifeCommentLike.dailyLifeComment.eq(dailyLifeComment))
+            .where(
+                dailyLifeComment.dailyLife.id.eq(dailyLifeId),
+                dailyLifeComment.parent.id.eq(dailyLifeCommentId),
+                isNotDeleted(dailyLifeComment),
+                noOffsetByCommentId(dailyLifeComment, lastReplyId)
+            )
+            .groupBy(dailyLifeComment.id)
+            .orderBy(dailyLifeComment.createdAt.desc())
+            .limit(pageSize + 1L)
+            .fetch();
+
+        boolean hasNext = dailyLifeReplySummaryList.size() > pageSize;
+        if (hasNext) {
+            dailyLifeReplySummaryList.remove(pageSize);
+        }
+
+        return new SliceImpl<>(dailyLifeReplySummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
     private BooleanExpression isLikedSubQuery(QDailyLifeComment dailyLifeComment, Member member) {

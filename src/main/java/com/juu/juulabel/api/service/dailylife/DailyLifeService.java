@@ -6,10 +6,7 @@ import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
-import com.juu.juulabel.domain.dto.dailylife.DailyLifeCommentSummary;
-import com.juu.juulabel.domain.dto.dailylife.DailyLifeDetailInfo;
-import com.juu.juulabel.domain.dto.dailylife.DailyLifeImageInfo;
-import com.juu.juulabel.domain.dto.dailylife.DailyLifeSummary;
+import com.juu.juulabel.domain.dto.dailylife.*;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.entity.dailylife.DailyLife;
@@ -153,6 +150,22 @@ public class DailyLifeService {
             dailyLifeCommentReader.getAllByDailyLifeId(member, dailyLife.getId(), request.lastCommentId(), request.pageSize());
 
         return new LoadDailyLifeCommentListResponse(commentList);
+    }
+
+    @Transactional(readOnly = true)
+    public LoadDailyLifeReplyListResponse loadReplyList(
+        Member loginMember,
+        LoadDailyLifeReplyListRequest request,
+        Long dailyLifeId,
+        Long dailyLifeCommentId
+    ) {
+        Member member = getMember(loginMember);
+        DailyLife dailyLife = getDailyLife(dailyLifeId);
+
+        Slice<DailyLifeReplySummary> replyList =
+            dailyLifeCommentReader.getAllRepliesByParentId(member, dailyLife.getId(), dailyLifeCommentId, request.lastReplyId(), request.pageSize());
+
+        return new LoadDailyLifeReplyListResponse(replyList);
     }
 
     @Transactional

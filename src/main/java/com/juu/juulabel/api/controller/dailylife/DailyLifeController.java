@@ -127,6 +127,23 @@ public class DailyLifeController {
     }
 
     @Operation(
+        summary = "일상생활 답글 목록 조회",
+        description = "전통주 일상생활 게시글의 댓글의 답글 목록을 조회한다."
+    )
+    @Parameters(
+        @Parameter(name = "request", description = "일상생활 게시글 답글 목록 조회 요청", required = true)
+    )
+    @GetMapping("/{dailyLifeId}/comments/{dailyLifeCommentId}")
+    public ResponseEntity<CommonResponse<LoadDailyLifeReplyListResponse>> loadReplyList(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid LoadDailyLifeReplyListRequest request,
+        @PathVariable Long dailyLifeId,
+        @PathVariable Long dailyLifeCommentId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadReplyList(loginMember, request, dailyLifeId, dailyLifeCommentId));
+    }
+
+    @Operation(
         summary = "일상생활 댓글 수정",
         description = "전통주 일상생활 게시글의 댓글을 수정한다."
     )
