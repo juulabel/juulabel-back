@@ -100,7 +100,9 @@ public enum ErrorCode {
      * Tasting Note
      */
     INVALID_RATING_VALUE(HttpStatus.BAD_REQUEST, "평점은 0에서 5 사이여야 하며, 0.25 단위로 증가해야 합니다."),
+    INVALID_SENSORY_TYPE(HttpStatus.BAD_REQUEST, "촉각 정보를 찾을 수 없습니다."),
     TASTING_NOTE_MAX_IMAGE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "이미지는 최대 9장까지 추가할 수 있습니다"),
+
 
     ;
 

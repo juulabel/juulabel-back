@@ -14,7 +14,7 @@ public class AlcoholTypeScent extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '주종-향기 매핑 고유 번호'")
+    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '주종별 향 매핑 고유 번호'")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

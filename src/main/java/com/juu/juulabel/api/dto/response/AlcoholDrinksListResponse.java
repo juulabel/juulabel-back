@@ -9,6 +9,7 @@ import java.util.List;
 @SliceResponse(content = AlcoholicDrinksSummary.class)
 @Schema(description = "전통주 리스트 조회 응답")
 public record AlcoholDrinksListResponse(
+        @Schema(description = "마지막 페이지 여부")
         boolean isLast,
         @Schema(description = "전통주 간단 정보")
         List<AlcoholicDrinksSummary> alcoholicDrinks

@@ -12,9 +12,9 @@ public class TastingNoteReader {
 
     private final TastingNoteQueryRepository tastingNoteQueryRepository;
 
-    public Slice<AlcoholicDrinksSummary> findAllAlcoholicDrinks(final String search,
-                                                                final String lastAlcoholicDrinksName,
-                                                                final int pageSize) {
+    public Slice<AlcoholicDrinksSummary> getAllAlcoholicDrinks(final String search,
+                                                               final String lastAlcoholicDrinksName,
+                                                               final int pageSize) {
         return tastingNoteQueryRepository.findAllAlcoholicDrinks(search, lastAlcoholicDrinksName, pageSize);
     }
 
