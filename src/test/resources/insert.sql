@@ -24,3 +24,30 @@ VALUES (1, 1, '청주탁주', '신선하고 깔끔한 맛의 청주 탁주입니
        (1, 2, '서울탁주', '부드럽고 깊은 맛을 자랑하는 안동 탁주입니다.', 7.0, now(), now()),
        (1, 3, '부산탁주', '신선한 맛과 향이 일품인 전주 탁주입니다.', 6.8, now(), now());
 
+-- 탁주
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_type, is_used, created_at, updated_at)
+VALUES (1, 'TURBIDITY', TRUE, NOW(), NOW()),
+       (1, 'CARBONATION', TRUE, NOW(), NOW()),
+       (1, 'VISCOSITY', TRUE, NOW(), NOW());
+
+-- 소주/증류주
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_type, is_used, created_at, updated_at)
+VALUES (2, 'VISCOSITY', TRUE, NOW(), NOW()),
+       (2, 'CLARITY', TRUE, NOW(), NOW());
+
+-- 약청주
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_type, is_used, created_at, updated_at)
+VALUES (3, 'TURBIDITY', TRUE, NOW(), NOW()),
+       (3, 'VISCOSITY', TRUE, NOW(), NOW()),
+       (3, 'SEDIMENT', TRUE, NOW(), NOW());
+
+-- 과실주
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_type, is_used, created_at, updated_at)
+VALUES (4, 'CARBONATION', TRUE, NOW(), NOW()),
+       (4, 'DENSITY', TRUE, NOW(), NOW());
+
+-- 기타 주류
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_type, is_used, created_at, updated_at)
+VALUES (5, 'CARBONATION', TRUE, NOW(), NOW()),
+       (5, 'DENSITY', TRUE, NOW(), NOW()),
+       (5, 'SEDIMENT', TRUE, NOW(), NOW());
