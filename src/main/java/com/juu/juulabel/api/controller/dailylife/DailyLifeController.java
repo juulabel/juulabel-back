@@ -98,6 +98,19 @@ public class DailyLifeController {
     }
 
     @Operation(
+        summary = "일상생활 좋아요",
+        description = "전통주 일상생활 게시글에 좋아요를 등록 및 취소한다."
+    )
+    @PostMapping("/{dailyLifeId}/likes")
+    public ResponseEntity<CommonResponse<Void>> toggleDailyLifeLike(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long dailyLifeId
+    ) {
+        boolean isLiked = dailyLifeService.toggleDailyLifeLike(loginMember, dailyLifeId);
+        return CommonResponse.success(isLiked ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
+    }
+
+    @Operation(
         summary = "일상생활 댓글 작성",
         description = "전통주 일상생활 게시글에 댓글을 작성한다."
     )

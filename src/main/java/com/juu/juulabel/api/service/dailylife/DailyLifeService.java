@@ -12,13 +12,12 @@ import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.entity.dailylife.DailyLife;
 import com.juu.juulabel.domain.entity.dailylife.DailyLifeComment;
 import com.juu.juulabel.domain.entity.dailylife.DailyLifeImage;
+import com.juu.juulabel.domain.entity.dailylife.like.DailyLifeLike;
 import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.repository.reader.DailyLifeCommentReader;
-import com.juu.juulabel.domain.repository.reader.DailyLifeImageReader;
-import com.juu.juulabel.domain.repository.reader.DailyLifeReader;
-import com.juu.juulabel.domain.repository.reader.MemberReader;
+import com.juu.juulabel.domain.repository.reader.*;
 import com.juu.juulabel.domain.repository.writer.DailyLifeCommentWriter;
 import com.juu.juulabel.domain.repository.writer.DailyLifeImageWriter;
+import com.juu.juulabel.domain.repository.writer.DailyLifeLikeWriter;
 import com.juu.juulabel.domain.repository.writer.DailyLifeWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -30,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Service
@@ -43,6 +43,8 @@ public class DailyLifeService {
     private final DailyLifeImageReader dailyLifeImageReader;
     private final DailyLifeCommentWriter dailyLifeCommentWriter;
     private final DailyLifeCommentReader dailyLifeCommentReader;
+    private final DailyLifeLikeWriter dailyLifeLikeWriter;
+    private final DailyLifeLikeReader dailyLifeLikeReader;
     private final S3Service s3Service;
 
     @Transactional
@@ -121,6 +123,24 @@ public class DailyLifeService {
 
         dailyLife.delete();
         return new deleteDailyLifeResponse(dailyLife.getId());
+    }
+
+    @Transactional
+    public boolean toggleDailyLifeLike(Member loginMember, Long dailyLifeId) {
+        Member member = getMember(loginMember);
+        DailyLife dailyLife = getDailyLife(dailyLifeId);
+        Optional<DailyLifeLike> dailyLifeLike = dailyLifeLikeReader.findByMemberAndDailyLife(member, dailyLife);
+
+        // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
+        return dailyLifeLike
+            .map(like -> {
+                dailyLifeLikeWriter.delete(like);
+                return false;
+            })
+            .orElseGet(() -> {
+                dailyLifeLikeWriter.store(member, dailyLife);
+                return true;
+            });
     }
 
     @Transactional
