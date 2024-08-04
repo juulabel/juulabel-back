@@ -29,4 +29,11 @@ public class DailyLifeCommentLike extends BaseTimeEntity {
     @JoinColumn(name = "daily_life_comment_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '일상생활 댓글 고유 번호'")
     private DailyLifeComment dailyLifeComment;
 
+    public static DailyLifeCommentLike create(Member member, DailyLifeComment dailyLifeComment) {
+        return DailyLifeCommentLike.builder()
+            .member(member)
+            .dailyLifeComment(dailyLifeComment)
+            .build();
+    }
+
 }

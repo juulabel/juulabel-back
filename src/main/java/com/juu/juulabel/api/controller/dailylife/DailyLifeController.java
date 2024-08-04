@@ -183,5 +183,18 @@ public class DailyLifeController {
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE, dailyLifeService.deleteComment(loginMember, dailyLifeId, commentId));
     }
 
+    @Operation(
+        summary = "일상생활 댓글 좋아요",
+        description = "전통주 일상생활 게시글에 좋아요를 등록 및 취소한다."
+    )
+    @PostMapping("/{dailyLifeId}/comments/{commentId}/likes")
+    public ResponseEntity<CommonResponse<Void>> toggleCommentLike(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long dailyLifeId,
+        @PathVariable Long commentId
+    ) {
+        boolean isLiked = dailyLifeService.toggleCommentLike(loginMember, dailyLifeId, commentId);
+        return CommonResponse.success(isLiked ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
+    }
 
 }

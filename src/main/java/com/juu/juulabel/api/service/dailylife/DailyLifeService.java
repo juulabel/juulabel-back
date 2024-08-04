@@ -12,13 +12,11 @@ import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.entity.dailylife.DailyLife;
 import com.juu.juulabel.domain.entity.dailylife.DailyLifeComment;
 import com.juu.juulabel.domain.entity.dailylife.DailyLifeImage;
+import com.juu.juulabel.domain.entity.dailylife.like.DailyLifeCommentLike;
 import com.juu.juulabel.domain.entity.dailylife.like.DailyLifeLike;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.repository.reader.*;
-import com.juu.juulabel.domain.repository.writer.DailyLifeCommentWriter;
-import com.juu.juulabel.domain.repository.writer.DailyLifeImageWriter;
-import com.juu.juulabel.domain.repository.writer.DailyLifeLikeWriter;
-import com.juu.juulabel.domain.repository.writer.DailyLifeWriter;
+import com.juu.juulabel.domain.repository.writer.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -45,6 +43,8 @@ public class DailyLifeService {
     private final DailyLifeCommentReader dailyLifeCommentReader;
     private final DailyLifeLikeWriter dailyLifeLikeWriter;
     private final DailyLifeLikeReader dailyLifeLikeReader;
+    private final DailyLifeCommentLikeWriter dailyLifeCommentLikeWriter;
+    private final DailyLifeCommentLikeReader dailyLifeCommentLikeReader;
     private final S3Service s3Service;
 
     @Transactional
@@ -216,6 +216,27 @@ public class DailyLifeService {
         return new deleteDailyLifeCommentResponse(comment.getId());
     }
 
+    @Transactional
+    public boolean toggleCommentLike(Member loginMember, Long dailyLifeId, Long commentId) {
+        Member member = getMember(loginMember);
+        getDailyLife(dailyLifeId);
+        DailyLifeComment comment = getComment(commentId);
+
+        Optional<DailyLifeCommentLike> dailyLifeCommentLike =
+            dailyLifeCommentLikeReader.findByMemberAndDailyLifeComment(member, comment);
+
+        // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
+        return dailyLifeCommentLike
+            .map(like -> {
+                dailyLifeCommentLikeWriter.delete(like);
+                return false;
+            })
+            .orElseGet(() -> {
+                dailyLifeCommentLikeWriter.store(member, comment);
+                return true;
+            });
+    }
+
     private static void validateCommentWriter(Member member, DailyLifeComment comment) {
         if (!member.getId().equals(comment.getMember().getId())) {
             throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
@@ -252,7 +273,7 @@ public class DailyLifeService {
     }
 
     private Member getMember(Member loginMember) {
-        return memberReader.getById(5L);
+        return memberReader.getById(loginMember.getId());
     }
 
     private void storeImageList(List<MultipartFile> files, List<String> newImageUrlList, DailyLife dailyLife) {
