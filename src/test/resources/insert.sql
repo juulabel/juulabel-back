@@ -51,3 +51,41 @@ INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_type, is_used, create
 VALUES (5, 'CARBONATION', TRUE, NOW(), NOW()),
        (5, 'DENSITY', TRUE, NOW(), NOW()),
        (5, 'SEDIMENT', TRUE, NOW(), NOW());
+
+-- 색상 데이터 삽입
+INSERT INTO color (name, rgb)
+VALUES ('빨간색', '#FF0000'),
+       ('파란색', '#0000FF'),
+       ('초록색', '#00FF00'),
+       ('노란색', '#FFFF00'),
+       ('검정색', '#000000');
+
+-- 탁주와 색상 매핑 데이터 삽입
+INSERT INTO alcohol_type_color (alcohol_type_id, color_id, is_used, created_at, updated_at)
+VALUES (1, 1, TRUE, now(), now()), -- 탁주 - 빨간색
+       (1, 2, TRUE, now(), now()), -- 탁주 - 파란색
+       (1, 3, TRUE, now(), now());  -- 탁주 - 초록색
+
+-- 소주/증류주와 색상 매핑 데이터 삽입
+INSERT INTO alcohol_type_color (alcohol_type_id, color_id, is_used, created_at, updated_at)
+VALUES (2, 2, TRUE, now(), now()), -- 소주/증류주 - 파란색
+       (2, 3, TRUE, now(), now()), -- 소주/증류주 - 초록색
+       (2, 4, TRUE, now(), now());  -- 소주/증류주 - 노란색
+
+-- 약청주와 색상 매핑 데이터 삽입
+INSERT INTO alcohol_type_color (alcohol_type_id, color_id, is_used, created_at, updated_at)
+VALUES (3, 1, TRUE, now(), now()), -- 약청주 - 빨간색
+       (3, 4, TRUE, now(), now()), -- 약청주 - 노란색
+       (3, 5, TRUE, now(), now());  -- 약청주 - 검정색
+
+-- 과실주와 색상 매핑 데이터 삽입
+INSERT INTO alcohol_type_color (alcohol_type_id, color_id, is_used, created_at, updated_at)
+VALUES (4, 1, TRUE, now(), now()), -- 과실주 - 빨간색
+       (4, 3, TRUE, now(), now()), -- 과실주 - 초록색
+       (4, 4, TRUE, now(), now());  -- 과실주 - 노란색
+
+-- 기타 주류와 색상 매핑 데이터 삽입
+INSERT INTO alcohol_type_color (alcohol_type_id, color_id, is_used, created_at, updated_at)
+VALUES (5, 2, TRUE, now(), now()), -- 기타 주류 - 파란색
+       (5, 4, TRUE, now(), now()), -- 기타 주류 - 노란색
+       (5, 5, TRUE, now(), now());  -- 기타 주류 - 검정색
