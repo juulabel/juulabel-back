@@ -89,3 +89,94 @@ INSERT INTO alcohol_type_color (alcohol_type_id, color_id, is_used, created_at, 
 VALUES (5, 2, TRUE, now(), now()), -- 기타 주류 - 파란색
        (5, 4, TRUE, now(), now()), -- 기타 주류 - 노란색
        (5, 5, TRUE, now(), now());  -- 기타 주류 - 검정색
+
+-- 카테고리 데이터 삽입
+INSERT INTO category (type, code, name, is_used, created_at, updated_at)
+VALUES ('SCENT', 'SC000', '자연', TRUE, NOW(), NOW()),
+       ('SCENT', 'SC001', '과일/채소', TRUE, NOW(), NOW()),
+       ('SCENT', 'SC002', '곡류/밥', TRUE, NOW(), NOW()),
+       ('SCENT', 'SC003', '향신료/기타', TRUE, NOW(), NOW());
+
+-- 향 데이터 입력
+INSERT INTO scent (name)
+VALUES
+    ('꽃'),
+    ('허브'),
+    ('꿀/나무'),
+    ('흙'),
+    ('귤/오렌지'),
+    ('레몬/라임'),
+    ('버섯'),
+    ('보리'),
+    ('옥수수'),
+    ('향신료'),
+    ('계피'),
+    ('꿀'),
+    ('팔각');
+
+-- AlcoholTypeScent 데이터 삽입
+INSERT INTO alcohol_type_scent (category_id, alcohol_type_id, scent_id, is_used, created_at, updated_at)
+VALUES
+    -- 자연 카테고리 (SC000)
+    (1, 1, 1, TRUE, NOW(), NOW()),  -- 꽃
+    (1, 1, 2, TRUE, NOW(), NOW()),  -- 허브
+    (1, 1, 3, TRUE, NOW(), NOW()),  -- 꿀/나무
+    (1, 1, 4, TRUE, NOW(), NOW()),  -- 흙
+
+    (1, 2, 1, TRUE, NOW(), NOW()),  -- 꽃
+    (1, 2, 2, TRUE, NOW(), NOW()),  -- 허브
+    (1, 2, 3, TRUE, NOW(), NOW()),  -- 꿀/나무
+    (1, 2, 4, TRUE, NOW(), NOW()),  -- 흙
+
+    (1, 3, 1, TRUE, NOW(), NOW()),  -- 꽃
+    (1, 3, 2, TRUE, NOW(), NOW()),  -- 허브
+    (1, 3, 3, TRUE, NOW(), NOW()),  -- 꿀/나무
+    (1, 3, 4, FALSE, NOW(), NOW()),  -- 흙
+
+    (1, 4, 1, FALSE, NOW(), NOW()),  -- 꽃
+    (1, 4, 2, FALSE, NOW(), NOW()),  -- 허브
+    (1, 4, 3, TRUE, NOW(), NOW()),  -- 꿀/나무
+    (1, 4, 4, FALSE, NOW(), NOW()),  -- 흙
+
+    -- 과일/채소 카테고리 (SC001)
+    (2, 1, 5, TRUE, NOW(), NOW()),  -- 귤/오렌지
+    (2, 1, 6, TRUE, NOW(), NOW()),  -- 레몬/라임
+
+    (2, 2, 5, TRUE, NOW(), NOW()),  -- 귤/오렌지
+    (2, 2, 6, TRUE, NOW(), NOW()),  -- 레몬/라임
+
+    (2, 3, 5, FALSE, NOW(), NOW()),  -- 귤/오렌지
+    (2, 3, 6, TRUE, NOW(), NOW()),  -- 레몬/라임
+
+    (2, 4, 5, TRUE, NOW(), NOW()),  -- 귤/오렌지
+    (2, 4, 6, FALSE, NOW(), NOW()),  -- 레몬/라임
+
+    -- 곡류/밥 카테고리 (SC002)
+    (3, 1, 7, TRUE, NOW(), NOW()),  -- 버섯
+    (3, 1, 8, TRUE, NOW(), NOW()),  -- 보리
+    (3, 1, 9, TRUE, NOW(), NOW()),  -- 옥수수
+
+    (3, 2, 7, TRUE, NOW(), NOW()),  -- 버섯
+    (3, 2, 8, TRUE, NOW(), NOW()),  -- 보리
+    (3, 2, 9, FALSE, NOW(), NOW()),  -- 옥수수
+
+    (3, 3, 7, TRUE, NOW(), NOW()),  -- 버섯
+    (3, 3, 8, TRUE, NOW(), NOW()),  -- 보리
+    (3, 3, 9, TRUE, NOW(), NOW()),  -- 옥수수
+
+    (3, 4, 7, FALSE, NOW(), NOW()),  -- 버섯
+    (3, 4, 8, TRUE, NOW(), NOW()),  -- 보리
+    (3, 4, 9, FALSE, NOW(), NOW()),  -- 옥수수
+
+    -- 향신료/기타 카테고리 (SC003)
+    (4, 1, 10, TRUE, NOW(), NOW()), -- 향신료
+
+    (4, 2, 11, TRUE, NOW(), NOW()), -- 계피
+    (4, 2, 12, TRUE, NOW(), NOW()), -- 꿀
+
+    (4, 3, 13, TRUE, NOW(), NOW()), -- 팔각
+
+    (4, 4, 10, TRUE, NOW(), NOW()), -- 향신료
+    (4, 4, 11, TRUE, NOW(), NOW()), -- 계피
+    (4, 4, 12, TRUE, NOW(), NOW()), -- 꿀
+    (4, 4, 13, TRUE, NOW(), NOW()); -- 팔각
