@@ -277,7 +277,7 @@ public class DailyLifeService {
     }
 
     private void storeImageList(List<MultipartFile> files, List<String> newImageUrlList, DailyLife dailyLife) {
-        if (files != null && !files.isEmpty()) {
+        if (!Objects.isNull(files) && !files.isEmpty()) {
             // TODO : 파일 크기 및 확장자 validate
             validateFileListSize(files);
 
