@@ -157,5 +157,18 @@ public class DailyLifeController {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.updateComment(loginMember, request, dailyLifeId, commentId));
     }
 
+    @Operation(
+        summary = "일상생활 댓글 삭제",
+        description = "전통주 일상생활 게시글의 댓글을 삭제한다."
+    )
+    @DeleteMapping("/{dailyLifeId}/comments/{commentId}")
+    public ResponseEntity<CommonResponse<deleteDailyLifeCommentResponse>> deleteComment(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long dailyLifeId,
+        @PathVariable Long commentId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, dailyLifeService.deleteComment(loginMember, dailyLifeId, commentId));
+    }
+
 
 }

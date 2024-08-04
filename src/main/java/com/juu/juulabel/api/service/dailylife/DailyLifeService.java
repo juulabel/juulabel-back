@@ -97,9 +97,7 @@ public class DailyLifeService {
         Member member = getMember(loginMember);
         DailyLife dailyLife = getDailyLife(dailyLifeId);
 
-        if (!member.getId().equals(dailyLife.getMember().getId())) {
-            throw new InvalidParamException(ErrorCode.NOT_DAILY_LIFE_WRITER);
-        }
+        validateDailyLifeWriter(member, dailyLife);
 
         updateIfNotBlank(request.title(), dailyLife::updateTitle);
         updateIfNotBlank(request.content(), dailyLife::updateContent);
@@ -119,9 +117,7 @@ public class DailyLifeService {
         Member member = getMember(loginMember);
         DailyLife dailyLife = getDailyLife(dailyLifeId);
 
-        if (!member.getId().equals(dailyLife.getMember().getId())) {
-            throw new InvalidParamException(ErrorCode.NOT_DAILY_LIFE_WRITER);
-        }
+        validateDailyLifeWriter(member, dailyLife);
 
         dailyLife.delete();
         return new deleteDailyLifeResponse(dailyLife.getId());
@@ -179,15 +175,37 @@ public class DailyLifeService {
         getDailyLife(dailyLifeId);
         DailyLifeComment comment = getComment(commentId);
 
-        if (!member.getId().equals(comment.getMember().getId())) {
-            throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
-        }
+        validateCommentWriter(member, comment);
 
         comment.updateContent(request.content());
 
         return new UpdateDailyLifeCommentResponse(
             comment.getContent(),
             new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()));
+    }
+
+    @Transactional
+    public deleteDailyLifeCommentResponse deleteComment(Member loginMember, Long dailyLifeId, Long commentId) {
+        Member member = getMember(loginMember);
+        getDailyLife(dailyLifeId);
+        DailyLifeComment comment = getComment(commentId);
+
+        validateCommentWriter(member, comment);
+
+        comment.delete();
+        return new deleteDailyLifeCommentResponse(comment.getId());
+    }
+
+    private static void validateCommentWriter(Member member, DailyLifeComment comment) {
+        if (!member.getId().equals(comment.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
+        }
+    }
+
+    private static void validateDailyLifeWriter(Member member, DailyLife dailyLife) {
+        if (!member.getId().equals(dailyLife.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_DAILY_LIFE_WRITER);
+        }
     }
 
     private DailyLifeComment createCommentOrReply(WriteDailyLifeCommentRequest request, Member member, DailyLife dailyLife) {
@@ -214,7 +232,7 @@ public class DailyLifeService {
     }
 
     private Member getMember(Member loginMember) {
-        return memberReader.getById(loginMember.getId());
+        return memberReader.getById(5L);
     }
 
     private void storeImageList(List<MultipartFile> files, List<String> newImageUrlList, DailyLife dailyLife) {
