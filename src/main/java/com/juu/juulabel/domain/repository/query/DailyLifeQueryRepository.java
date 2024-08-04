@@ -50,7 +50,7 @@ public class DailyLifeQueryRepository {
                         dailyLife.member.profileImage
                     ),
                     dailyLife.createdAt,
-                    dailyLifeLike.count().as("likeCount"),
+                    dailyLifeLike.countDistinct().as("likeCount"),
                     dailyLifeComment.count().as("commentCount"),
                     isLikedSubQuery(dailyLife, member)
                 )
@@ -87,7 +87,7 @@ public class DailyLifeQueryRepository {
                     dailyLifeImage.imagePath.min().as("thumbnailPath"),
                     dailyLifeImage.count().as("imageCount"),
                     dailyLife.createdAt,
-                    dailyLifeLike.count().as("likeCount"),
+                    dailyLifeLike.countDistinct().as("likeCount"),
                     dailyLifeComment.count().as("commentCount"),
                     isLikedSubQuery(dailyLife, member)
                 )
