@@ -10,8 +10,6 @@ import com.juu.juulabel.domain.enums.Rateable;
 import com.juu.juulabel.domain.enums.alcohol.sensory.*;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -56,18 +54,38 @@ public class SensoryLevelFactory {
      * Cannot invoke "Object.getClass()" because "obj" is null 발생
      * Rateable getLevels() 실행시 this.getClass().getEnumConstants()가 실행되기 위해 EnumConstants 부여
      */
+//    public SensoryLevel getSensoryLevel(SensoryType sensoryType) {
+//        Class<? extends Rateable> enumClass = sensoryMap.get(sensoryType);
+//        if (Objects.isNull(enumClass)) {
+//            throw new InvalidParamException(ErrorCode.INVALID_SENSORY_TYPE);
+//        }
+//
+//        try {
+//            Method getLevelsMethod = enumClass.getMethod("getLevels");
+//            Rateable enumInstance = enumClass.getEnumConstants()[0];
+//            @SuppressWarnings("unchecked")
+//            List<Level> levels = (List<Level>) getLevelsMethod.invoke(enumInstance);
+//            return new SensoryLevel(SensoryTypeInfo.of(sensoryType), levels);
+//        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+//            throw new BaseException("Failed to get levels for sensory type: " + sensoryType, ErrorCode.INVALID_SENSORY_TYPE);
+//        }
+//    }
+
+    /**
+     * 트러블 슈팅 (24.08.05) 정리 후 주석 제거
+     * Rateable enumInstance 를 가져와 getLevels()를 호출하도록 변경
+     */
     public SensoryLevel getSensoryLevel(SensoryType sensoryType) {
         Class<? extends Rateable> enumClass = sensoryMap.get(sensoryType);
         if (Objects.isNull(enumClass)) {
             throw new InvalidParamException(ErrorCode.INVALID_SENSORY_TYPE);
         }
+
         try {
-            Method getLevelsMethod = enumClass.getMethod("getLevels");
             Rateable enumInstance = enumClass.getEnumConstants()[0];
-            @SuppressWarnings("unchecked")
-            List<Level> levels = (List<Level>) getLevelsMethod.invoke(enumInstance);
+            List<Level> levels = enumInstance.getLevels();
             return new SensoryLevel(SensoryTypeInfo.of(sensoryType), levels);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             throw new BaseException("Failed to get levels for sensory type: " + sensoryType, ErrorCode.INVALID_SENSORY_TYPE);
         }
     }

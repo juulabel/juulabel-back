@@ -1,7 +1,7 @@
 package com.juu.juulabel.domain.embedded;
 
 import com.juu.juulabel.domain.converter.FlavorLevelConverter;
-import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorLevel;
+import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorCommonLevel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
@@ -16,26 +16,26 @@ public class Flavor {
 
     @Convert(converter = FlavorLevelConverter.class)
     @Column(name = "sweetness", columnDefinition = "int comment '단맛'")
-    private FlavorLevel sweetness;
+    private FlavorCommonLevel sweetness;
 
     @Convert(converter = FlavorLevelConverter.class)
     @Column(name = "sourness", columnDefinition = "int comment '신맛'")
-    private FlavorLevel sourness;
+    private FlavorCommonLevel sourness;
 
     @Convert(converter = FlavorLevelConverter.class)
     @Column(name = "bitterness", columnDefinition = "int comment '쓴맛'")
-    private FlavorLevel bitterness;
+    private FlavorCommonLevel bitterness;
 
     @Convert(converter = FlavorLevelConverter.class)
     @Column(name = "umami", columnDefinition = "int comment '감칠맛'")
-    private FlavorLevel umami;
+    private FlavorCommonLevel umami;
 
     @Convert(converter = FlavorLevelConverter.class)
     @Column(name = "aftertaste", columnDefinition = "int comment '여운'")
-    private FlavorLevel aftertaste;
+    private FlavorCommonLevel aftertaste;
 
     @Convert(converter = FlavorLevelConverter.class)
     @Column(name = "body", columnDefinition = "int comment '무게감'")
-    private FlavorLevel body;
+    private FlavorCommonLevel body;
 
 }

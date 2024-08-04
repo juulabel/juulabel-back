@@ -1,13 +1,13 @@
 package com.juu.juulabel.domain.converter;
 
 
-import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorLevel;
+import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorCommonLevel;
 import jakarta.persistence.Converter;
 
 @Converter
-public class FlavorLevelConverter extends LevelConverter<FlavorLevel> {
+public class FlavorLevelConverter extends LevelConverter<FlavorCommonLevel> {
 
     public FlavorLevelConverter() {
-        super(FlavorLevel.class);
+        super(FlavorCommonLevel.class);
     }
 }

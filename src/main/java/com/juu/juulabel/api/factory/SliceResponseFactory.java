@@ -1,4 +1,4 @@
-package com.juu.juulabel.common.factory;
+package com.juu.juulabel.api.factory;
 
 import com.juu.juulabel.api.annotation.SliceResponse;
 import com.juu.juulabel.common.constants.FileConstants;

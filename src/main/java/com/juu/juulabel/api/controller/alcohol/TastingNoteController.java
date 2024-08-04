@@ -2,6 +2,8 @@ package com.juu.juulabel.api.controller.alcohol;
 
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
 import com.juu.juulabel.api.dto.response.AlcoholDrinksListResponse;
+import com.juu.juulabel.api.dto.response.TastingNoteColorListResponse;
+import com.juu.juulabel.api.dto.response.TastingNoteFlavorListResponse;
 import com.juu.juulabel.api.dto.response.TastingNoteSensoryListResponse;
 import com.juu.juulabel.api.service.alcohol.TastingNoteService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
@@ -40,13 +42,32 @@ public class TastingNoteController {
     }
 
     @Operation(
-            summary = "시음 노트 작성을 위한 시각 및 촉각 정보 조회",
-            description = "주종에 따른 시각 및 촉각 정보를 조회한다."
+            summary = "시음 노트 작성을 위한 시각 정보 조회",
+            description = "주종에 따른 시각 정보를 조회한다."
     )
-    @GetMapping("/{alcoholTypeId}/color-sensory")
-    public ResponseEntity<CommonResponse<TastingNoteSensoryListResponse>> loadTastingNoteColorSensoryList(
+    @GetMapping("/{alcoholTypeId}/colors")
+    public ResponseEntity<CommonResponse<TastingNoteColorListResponse>> loadTastingNoteColorsList(
             @PathVariable Long alcoholTypeId) {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteColorSensoryList(alcoholTypeId));
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteColorsList(alcoholTypeId));
+    }
+
+    @Operation(
+            summary = "시음 노트 작성을 위한 촉각 정보 조회",
+            description = "주종에 따른 촉각 정보를 조회한다."
+    )
+    @GetMapping("/{alcoholTypeId}/sensory")
+    public ResponseEntity<CommonResponse<TastingNoteSensoryListResponse>> loadTastingNoteSensoryList(
+            @PathVariable Long alcoholTypeId) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteSensoryList(alcoholTypeId));
+    }
+
+    @Operation(
+            summary = "시음 노트 작성을 위한 미각 정보 조회",
+            description = "미각 정보(공통)를 조회한다."
+    )
+    @GetMapping("/flavor")
+    public ResponseEntity<CommonResponse<TastingNoteFlavorListResponse>> loadTastingNoteFlavorList() {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteFlavorList());
     }
 
 }

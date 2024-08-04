@@ -18,10 +18,4 @@ public interface Rateable {
                 .toList();
     }
 
-    static <E extends Enum<E> & Rateable> List<Level> getLevels(Class<E> enumClass) {
-        return Arrays.stream(enumClass.getEnumConstants())
-                .map(rateable -> new Level(rateable.getScore(), rateable.getDescription()))
-                .toList();
-    }
-
 }

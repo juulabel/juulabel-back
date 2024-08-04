@@ -37,6 +37,7 @@ public class TastingNoteQueryRepository {
                                 alcoholicDrinks.id,
                                 alcoholicDrinks.name,
                                 alcoholicDrinks.image,
+                                alcoholicDrinks.alcoholContent,
                                 Projections.constructor(
                                         AlcoholTypeSummary.class,
                                         alcoholType.id,

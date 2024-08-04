@@ -1,6 +1,5 @@
 package com.juu.juulabel.domain.entity.alcohol;
 
-import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.enums.alcohol.scent.ScentType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "scent")
-public class Scent extends BaseTimeEntity {
+public class Scent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
