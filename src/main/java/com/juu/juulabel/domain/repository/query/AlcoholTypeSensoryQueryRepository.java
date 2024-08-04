@@ -28,6 +28,9 @@ public class AlcoholTypeSensoryQueryRepository {
                         eqAlcoholTypeId(alcoholTypeSensory.alcoholType, alcoholTypeId),
                         isUsed(alcoholTypeSensory)
                 )
+                .orderBy(
+                        alcoholTypeSensory.id.asc()
+                )
                 .fetch();
     }
 

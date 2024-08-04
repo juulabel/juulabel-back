@@ -1,10 +1,7 @@
 package com.juu.juulabel.api.controller.alcohol;
 
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
-import com.juu.juulabel.api.dto.response.AlcoholDrinksListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteColorListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteFlavorListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteSensoryListResponse;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.alcohol.TastingNoteService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -59,6 +56,16 @@ public class TastingNoteController {
     public ResponseEntity<CommonResponse<TastingNoteSensoryListResponse>> loadTastingNoteSensoryList(
             @PathVariable Long alcoholTypeId) {
         return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteSensoryList(alcoholTypeId));
+    }
+
+    @Operation(
+            summary = "시음 노트 작성을 위한 후각 정보 조회",
+            description = "주종에 따른 후각 정보를 조회한다."
+    )
+    @GetMapping("/{alcoholTypeId}/scent")
+    public ResponseEntity<CommonResponse<TastingNoteScentListResponse>> loadTastingNoteScentList(
+            @PathVariable Long alcoholTypeId) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteScentList(alcoholTypeId));
     }
 
     @Operation(

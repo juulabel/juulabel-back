@@ -1,20 +1,15 @@
 package com.juu.juulabel.api.service.alcohol;
 
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
-import com.juu.juulabel.api.dto.response.AlcoholDrinksListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteColorListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteFlavorListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteSensoryListResponse;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.FlavorLevelFactory;
 import com.juu.juulabel.api.factory.SensoryLevelFactory;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
-import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
-import com.juu.juulabel.domain.dto.alcohol.ColorInfo;
-import com.juu.juulabel.domain.dto.alcohol.FlavorLevel;
-import com.juu.juulabel.domain.dto.alcohol.SensoryLevel;
+import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorType;
 import com.juu.juulabel.domain.enums.alcohol.sensory.SensoryType;
 import com.juu.juulabel.domain.repository.reader.AlcoholTypeColorReader;
+import com.juu.juulabel.domain.repository.reader.AlcoholTypeScentReader;
 import com.juu.juulabel.domain.repository.reader.AlcoholTypeSensoryReader;
 import com.juu.juulabel.domain.repository.reader.TastingNoteReader;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +31,7 @@ public class TastingNoteService {
 
     private final TastingNoteReader tastingNoteReader;
     private final AlcoholTypeColorReader alcoholTypeColorReader;
+    private final AlcoholTypeScentReader alcoholTypeScentReader;
     private final AlcoholTypeSensoryReader alcoholTypeSensoryReader;
 
 
@@ -60,6 +56,12 @@ public class TastingNoteService {
         final List<SensoryType> sensoryTypes = alcoholTypeSensoryReader.getAllSensoryTypesByAlcoholTypeId(alcoholTypeId);
         final List<SensoryLevel> sensoryLevels = sensoryLevelFactory.getAllSensoryLevel(sensoryTypes);
         return new TastingNoteSensoryListResponse(sensoryLevels);
+    }
+
+    @Transactional(readOnly = true)
+    public TastingNoteScentListResponse loadTastingNoteScentList(final Long alcoholTypeId) {
+        final List<CategoryWithScentSummary> categories = alcoholTypeScentReader.getAllCategoryWithScentByAlcoholTypeId(alcoholTypeId);
+        return new TastingNoteScentListResponse(categories);
     }
 
     @Transactional(readOnly = true)
