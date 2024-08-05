@@ -1,11 +1,15 @@
 package com.juu.juulabel.api.service.alcohol;
 
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
+import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.FlavorLevelFactory;
 import com.juu.juulabel.api.factory.SensoryLevelFactory;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
 import com.juu.juulabel.domain.dto.alcohol.*;
+import com.juu.juulabel.domain.embedded.Sensory;
+import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.enums.Rateable;
 import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorType;
 import com.juu.juulabel.domain.enums.alcohol.sensory.SensoryType;
 import com.juu.juulabel.domain.repository.reader.AlcoholTypeColorReader;
@@ -20,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -69,6 +74,26 @@ public class TastingNoteService {
         final List<FlavorType> flavorTypes = Arrays.asList(FlavorType.values());
         final List<FlavorLevel> flavorLevels = flavorLevelFactory.getAllFlavorLevel(flavorTypes);
         return new TastingNoteFlavorListResponse(flavorLevels);
+    }
+
+    @Transactional
+    public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
+        Sensory sensory = mapToSensory(request.sensoryMap());
+        return new TastingNoteWriteResponse(null);
+    }
+
+    private Sensory mapToSensory(Map<SensoryType, String> sensoryMap) {
+        Sensory.SensoryBuilder sensoryBuilder = Sensory.builder();
+
+        for (Map.Entry<SensoryType, String> entry : sensoryMap.entrySet()) {
+            SensoryType sensoryType = entry.getKey();
+            String levelName = entry.getValue();
+
+            Rateable level = sensoryLevelFactory.getRateableBySensoryType(sensoryType, levelName);
+            sensoryLevelFactory.setLevel(sensoryBuilder, sensoryType, level);
+        }
+
+        return sensoryBuilder.build();
     }
 
 }

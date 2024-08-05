@@ -6,21 +6,22 @@ import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.Level;
 import com.juu.juulabel.domain.dto.alcohol.SensoryLevel;
 import com.juu.juulabel.domain.dto.alcohol.SensoryTypeInfo;
+import com.juu.juulabel.domain.embedded.Sensory;
 import com.juu.juulabel.domain.enums.Rateable;
 import com.juu.juulabel.domain.enums.alcohol.sensory.*;
 import org.springframework.stereotype.Component;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.Method;
+import java.util.*;
 
 @Component
 public class SensoryLevelFactory {
     private final Map<SensoryType, Class<? extends Rateable>> sensoryMap;
+    private final Map<SensoryType, Method> sensoryMethodMap;
 
     public SensoryLevelFactory() {
         sensoryMap = new EnumMap<>(SensoryType.class);
+        sensoryMethodMap = new EnumMap<>(SensoryType.class);
         initialize();
     }
 
@@ -31,6 +32,38 @@ public class SensoryLevelFactory {
         sensoryMap.put(SensoryType.SEDIMENT, SedimentLevel.class);
         sensoryMap.put(SensoryType.VISCOSITY, ViscosityLevel.class);
         sensoryMap.put(SensoryType.TURBIDITY, TurbidityLevel.class);
+
+        try {
+            sensoryMethodMap.put(SensoryType.CARBONATION, Sensory.SensoryBuilder.class.getMethod("carbonation", CarbonationLevel.class));
+            sensoryMethodMap.put(SensoryType.CLARITY, Sensory.SensoryBuilder.class.getMethod("clarity", ClarityLevel.class));
+            sensoryMethodMap.put(SensoryType.DENSITY, Sensory.SensoryBuilder.class.getMethod("density", DensityLevel.class));
+            sensoryMethodMap.put(SensoryType.SEDIMENT, Sensory.SensoryBuilder.class.getMethod("sediment", SedimentLevel.class));
+            sensoryMethodMap.put(SensoryType.VISCOSITY, Sensory.SensoryBuilder.class.getMethod("viscosity", ViscosityLevel.class));
+            sensoryMethodMap.put(SensoryType.TURBIDITY, Sensory.SensoryBuilder.class.getMethod("turbidity", TurbidityLevel.class));
+        } catch (NoSuchMethodException e) {
+            throw new BaseException(e.getMessage(), ErrorCode.NO_SUCH_METHOD);
+        }
+
+    }
+
+    public Rateable getRateableBySensoryType(SensoryType sensoryType, String levelName) {
+        Class<? extends Rateable> enumClass = getEnumClass(sensoryType);
+        return Arrays.stream(enumClass.getEnumConstants())
+                .filter(e -> e.getName().equals(levelName))
+                .findFirst()
+                .orElseThrow(() -> new InvalidParamException("Invalid sensory level : " + levelName, ErrorCode.INVALID_SENSORY_LEVEL));
+    }
+
+    public void setLevel(Sensory.SensoryBuilder sensoryBuilder, SensoryType sensoryType, Rateable level) {
+        Method method = sensoryMethodMap.get(sensoryType);
+        if (Objects.isNull(method)) {
+            throw new InvalidParamException("Unknown sensory type: " + sensoryType);
+        }
+        try {
+            method.invoke(sensoryBuilder, level);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set level for sensory type: " + sensoryType, e);
+        }
     }
 
 //    public SensoryLevel getSensoryLevel(SensoryType sensoryType) {
@@ -76,10 +109,7 @@ public class SensoryLevelFactory {
      * Rateable enumInstance 를 가져와 getLevels()를 호출하도록 변경
      */
     public SensoryLevel getSensoryLevel(SensoryType sensoryType) {
-        Class<? extends Rateable> enumClass = sensoryMap.get(sensoryType);
-        if (Objects.isNull(enumClass)) {
-            throw new InvalidParamException(ErrorCode.INVALID_SENSORY_TYPE);
-        }
+        Class<? extends Rateable> enumClass = getEnumClass(sensoryType);
 
         try {
             Rateable enumInstance = enumClass.getEnumConstants()[0];
@@ -94,6 +124,14 @@ public class SensoryLevelFactory {
         return sensoryTypes.stream()
                 .map(this::getSensoryLevel)
                 .toList();
+    }
+
+    private Class<? extends Rateable> getEnumClass(SensoryType sensoryType) {
+        Class<? extends Rateable> enumClass = sensoryMap.get(sensoryType);
+        if (Objects.isNull(enumClass)) {
+            throw new InvalidParamException(ErrorCode.INVALID_SENSORY_TYPE);
+        }
+        return enumClass;
     }
 
 }

@@ -1,20 +1,20 @@
 package com.juu.juulabel.api.controller.alcohol;
 
+import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
+import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.alcohol.TastingNoteService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
+import com.juu.juulabel.domain.entity.member.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = {"/v1/api/shared-space/tasting-notes"})
@@ -75,6 +75,18 @@ public class TastingNoteController {
     @GetMapping("/flavor")
     public ResponseEntity<CommonResponse<TastingNoteFlavorListResponse>> loadTastingNoteFlavorList() {
         return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteFlavorList());
+    }
+
+    @Operation(
+            summary = "시음 노트 작성",
+            description = "시음노트를 작성한다."
+    )
+    @PostMapping
+    public ResponseEntity<CommonResponse<TastingNoteWriteResponse>> write(
+            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @Valid @RequestBody TastingNoteWriteRequest request
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.write(loginMember, request));
     }
 
 }

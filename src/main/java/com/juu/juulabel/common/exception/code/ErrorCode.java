@@ -23,6 +23,7 @@ public enum ErrorCode {
     IS_NULL(HttpStatus.BAD_REQUEST, "NULL 값이 들어왔습니다."),
     COMMON_INVALID_PARAM(HttpStatus.BAD_REQUEST, "요청한 값이 올바르지 않습니다."),
     INVALID_AUTHENTICATION(HttpStatus.BAD_REQUEST, "인증이 올바르지 않습니다."),
+    NO_SUCH_METHOD(HttpStatus.BAD_REQUEST, "메소드를 찾을 수 없습니다."),
 
     /**
      * Json Web Token
@@ -102,6 +103,7 @@ public enum ErrorCode {
      */
     INVALID_RATING_VALUE(HttpStatus.BAD_REQUEST, "평점은 0에서 5 사이여야 하며, 0.25 단위로 증가해야 합니다."),
     INVALID_SENSORY_TYPE(HttpStatus.BAD_REQUEST, "촉각 정보를 찾을 수 없습니다."),
+    INVALID_SENSORY_LEVEL(HttpStatus.BAD_REQUEST, "촉각 점수를 찾을 수 없습니다."),
     INVALID_FLAVOR_TYPE(HttpStatus.BAD_REQUEST, "미각 정보를 찾을 수 없습니다."),
     TASTING_NOTE_MAX_IMAGE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "이미지는 최대 9장까지 추가할 수 있습니다"),
 
