@@ -18,6 +18,11 @@ public enum CarbonationLevel implements Rateable {
     }
 
     @Override
+    public String getName() {
+        return name();
+    }
+
+    @Override
     public Integer getScore() {
         return score;
     }

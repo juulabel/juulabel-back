@@ -18,6 +18,11 @@ public enum ViscosityLevel implements Rateable  {
     }
 
     @Override
+    public String getName() {
+        return name();
+    }
+
+    @Override
     public Integer getScore() {
         return score;
     }

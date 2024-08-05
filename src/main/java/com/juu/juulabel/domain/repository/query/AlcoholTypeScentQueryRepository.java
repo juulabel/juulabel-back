@@ -12,10 +12,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,11 +25,13 @@ public class AlcoholTypeScentQueryRepository {
     QScent scent = QScent.scent;
 
     public List<CategoryWithScentSummary> findAllCategoryWithScentByAlcoholTypeId(Long alcoholTypeId) {
-        // TODO scent -> List 변경 필요
-
+        /*
+        key : categoryId
+        value : Object (CategoryWithScentSummary)
+         */
         Map<Long, CategoryWithScentSummary> categoryMap = new HashMap<>();
 
-        List<Tuple> fetch = jpaQueryFactory
+        List<Tuple> categoryTuples = jpaQueryFactory
                 .select(
                         category.id,
                         category.code,
@@ -54,56 +53,26 @@ public class AlcoholTypeScentQueryRepository {
                 )
                 .fetch();
 
-        fetch.forEach(tuple -> {
-            Long categoryId = tuple.get(category.id);
-            CategoryWithScentSummary categorySummary = categoryMap.get(categoryId);
+        categoryTuples.forEach(c -> {
+            Long categoryId = c.get(this.category.id);
 
-            if (categorySummary == null) {
-                categorySummary = new CategoryWithScentSummary(
-                        categoryId,
-                        tuple.get(category.code),
-                        tuple.get(category.name),
-                        new ArrayList<>()
-                );
-                categoryMap.put(categoryId, categorySummary);
-            }
+            CategoryWithScentSummary categories = categoryMap.computeIfAbsent(categoryId,
+                    id -> new CategoryWithScentSummary(
+                            id,
+                            c.get(this.category.code),
+                            c.get(this.category.name),
+                            new ArrayList<>()
+                    ));
 
             ScentSummary scentSummary = new ScentSummary(
-                    tuple.get(scent.id),
-                    tuple.get(scent.name)
+                    c.get(this.scent.id),
+                    c.get(this.scent.name)
             );
 
-            categorySummary.scents().add(scentSummary);
+            categories.scents().add(scentSummary);
         });
 
         return new ArrayList<>(categoryMap.values());
-//        return jpaQueryFactory
-//                .select(
-//                        Projections.constructor(
-//                                CategoryWithScentSummary.class,
-//                                category.id,
-//                                category.code,
-//                                category.name,
-//                                Projections.constructor(
-//                                        ScentSummary.class,
-//                                        scent.id,
-//                                        scent.name
-//                                )
-//                        )
-//                )
-//                .from(alcoholTypeScent)
-//                .innerJoin(category).on(alcoholTypeScent.category.eq(category))
-//                .innerJoin(scent).on(alcoholTypeScent.scent.eq(scent))
-//                .where(
-//                        eqAlcoholTypeId(alcoholTypeScent.alcoholType, alcoholTypeId),
-//                        isUsed(alcoholTypeScent),
-//                        isUsed(category)
-//                )
-//                .orderBy(
-//                        category.id.asc(),
-//                        scent.id.asc()
-//                )
-//                .fetch();
     }
 
     private BooleanExpression eqAlcoholTypeId(QAlcoholType alcoholType, Long alcoholTypeId) {
