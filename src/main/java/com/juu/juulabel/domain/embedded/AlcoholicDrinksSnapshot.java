@@ -1,5 +1,7 @@
 package com.juu.juulabel.domain.embedded;
 
+import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetails;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
 import com.juu.juulabel.domain.entity.alcohol.Brewery;
 import jakarta.persistence.Column;
@@ -13,6 +15,9 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AlcoholicDrinksSnapshot {
 
+    @Column(name = "alcohol_type_name", columnDefinition = "varchar(100) comment '전통주 주종 이름'")
+    private String alcoholTypeName;
+
     @Column(name = "alcoholic_drinks_name", columnDefinition = "varchar(100) comment '전통주 이름'")
     private String alcoholicDrinksName;
 
@@ -22,19 +27,32 @@ public class AlcoholicDrinksSnapshot {
     @Column(name = "brewery_name", columnDefinition = "varchar(100) comment '양조장 이름'")
     private String breweryName;
 
-    public static AlcoholicDrinksSnapshot official(AlcoholicDrinks alcoholicDrinks,
+    public static AlcoholicDrinksSnapshot official(AlcoholType alcoholType,
+                                                   AlcoholicDrinks alcoholicDrinks,
                                                    Brewery brewery) {
         return AlcoholicDrinksSnapshot.builder()
+                .alcoholTypeName(alcoholType.getName())
                 .alcoholicDrinksName(alcoholicDrinks.getName())
                 .alcoholContent(alcoholicDrinks.getAlcoholContent())
                 .breweryName(brewery.getName())
                 .build();
     }
 
-    public static AlcoholicDrinksSnapshot unofficial(String alcoholicDrinksName,
+    public static AlcoholicDrinksSnapshot official(AlcoholicDrinksDetails alcoholicDrinks) {
+        return AlcoholicDrinksSnapshot.builder()
+                .alcoholTypeName(alcoholicDrinks.alcoholTypeName())
+                .alcoholicDrinksName(alcoholicDrinks.alcoholicDrinksName())
+                .alcoholContent(alcoholicDrinks.alcoholContent())
+                .breweryName(alcoholicDrinks.breweryName())
+                .build();
+    }
+
+    public static AlcoholicDrinksSnapshot unofficial(String alcoholTypeName,
+                                                     String alcoholicDrinksName,
                                                      Double alcoholContent,
                                                      String breweryName) {
         return AlcoholicDrinksSnapshot.builder()
+                .alcoholTypeName(alcoholTypeName)
                 .alcoholicDrinksName(alcoholicDrinksName)
                 .alcoholContent(alcoholContent)
                 .breweryName(breweryName)
