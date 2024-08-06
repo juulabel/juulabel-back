@@ -46,7 +46,7 @@ public class SensoryLevelFactory {
 
     }
 
-    public Rateable getRateableBySensoryType(SensoryType sensoryType, String levelName) {
+    public Rateable getRateableBySensoryTypeAndLevel(SensoryType sensoryType, String levelName) {
         Class<? extends Rateable> enumClass = getEnumClass(sensoryType);
         return Arrays.stream(enumClass.getEnumConstants())
                 .filter(e -> e.getName().equals(levelName))
@@ -54,7 +54,7 @@ public class SensoryLevelFactory {
                 .orElseThrow(() -> new InvalidParamException("Invalid sensory level : " + levelName, ErrorCode.INVALID_SENSORY_LEVEL));
     }
 
-    public void setLevel(Sensory.SensoryBuilder sensoryBuilder, SensoryType sensoryType, Rateable level) {
+    public void buildLevel(Sensory.SensoryBuilder sensoryBuilder, SensoryType sensoryType, Rateable level) {
         Method method = sensoryMethodMap.get(sensoryType);
         if (Objects.isNull(method)) {
             throw new InvalidParamException("Unknown sensory type: " + sensoryType);
@@ -62,7 +62,7 @@ public class SensoryLevelFactory {
         try {
             method.invoke(sensoryBuilder, level);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to set level for sensory type: " + sensoryType, e);
+            throw new InvalidParamException("Failed to build level for sensory type: " + sensoryType);
         }
     }
 

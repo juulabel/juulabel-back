@@ -78,19 +78,18 @@ public class TastingNoteService {
 
     @Transactional
     public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
-        Sensory sensory = mapToSensory(request.sensoryMap());
+        Sensory sensory = convertMapToSensory(request.sensoryMap());
         return new TastingNoteWriteResponse(null);
     }
 
-    private Sensory mapToSensory(Map<SensoryType, String> sensoryMap) {
+    private Sensory convertMapToSensory(Map<SensoryType, String> sensoryMap) {
         Sensory.SensoryBuilder sensoryBuilder = Sensory.builder();
-
         for (Map.Entry<SensoryType, String> entry : sensoryMap.entrySet()) {
             SensoryType sensoryType = entry.getKey();
             String levelName = entry.getValue();
 
-            Rateable level = sensoryLevelFactory.getRateableBySensoryType(sensoryType, levelName);
-            sensoryLevelFactory.setLevel(sensoryBuilder, sensoryType, level);
+            Rateable level = sensoryLevelFactory.getRateableBySensoryTypeAndLevel(sensoryType, levelName);
+            sensoryLevelFactory.buildLevel(sensoryBuilder, sensoryType, level);
         }
 
         return sensoryBuilder.build();
