@@ -54,7 +54,7 @@ public class FlavorLevelFactory {
                 .orElseThrow(() -> new InvalidParamException("Invalid flavor level : " + levelName, ErrorCode.INVALID_FLAVOR_LEVEL));
     }
 
-    public void buildLevel(Flavor.FlavorBuilder flavorBuilder, FlavorType flavorType, Rateable level) {
+    public void updateFlavorLevel(Flavor.FlavorBuilder flavorBuilder, FlavorType flavorType, Rateable level) {
         Method method = flavorMethodMap.get(flavorType);
         if (Objects.isNull(method)) {
             throw new InvalidParamException("Unknown flavor type: " + flavorType);

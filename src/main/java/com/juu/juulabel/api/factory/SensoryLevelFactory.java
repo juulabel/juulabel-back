@@ -54,7 +54,7 @@ public class SensoryLevelFactory {
                 .orElseThrow(() -> new InvalidParamException("Invalid sensory level : " + levelName, ErrorCode.INVALID_SENSORY_LEVEL));
     }
 
-    public void buildLevel(Sensory.SensoryBuilder sensoryBuilder, SensoryType sensoryType, Rateable level) {
+    public void updateSensoryLevel(Sensory.SensoryBuilder sensoryBuilder, SensoryType sensoryType, Rateable level) {
         Method method = sensoryMethodMap.get(sensoryType);
         if (Objects.isNull(method)) {
             throw new InvalidParamException("Unknown sensory type: " + sensoryType);

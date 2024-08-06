@@ -78,6 +78,7 @@ public enum ErrorCode {
      * Alcohol
      */
     NOT_FOUND_ALCOHOL_TYPE(HttpStatus.BAD_REQUEST, "주종을 찾을 수 없습니다."),
+    NOT_FOUND_ALCOHOLIC_DRINKS_TYPE(HttpStatus.BAD_REQUEST, "전통주를 찾을 수 없습니다."),
 
     /**
      * Category
@@ -106,6 +107,7 @@ public enum ErrorCode {
     INVALID_FLAVOR_TYPE(HttpStatus.BAD_REQUEST, "미각 정보를 찾을 수 없습니다."),
     INVALID_SENSORY_LEVEL(HttpStatus.BAD_REQUEST, "촉각 점수를 찾을 수 없습니다."),
     INVALID_FLAVOR_LEVEL(HttpStatus.BAD_REQUEST, "미각 점수를 찾을 수 없습니다."),
+    NOT_FOUND_COLOR(HttpStatus.BAD_REQUEST, "색상을 찾을 수 없습니다"),
     TASTING_NOTE_MAX_IMAGE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "이미지는 최대 9장까지 추가할 수 있습니다"),
 
 

@@ -7,15 +7,17 @@ import com.juu.juulabel.api.factory.FlavorLevelFactory;
 import com.juu.juulabel.api.factory.SensoryLevelFactory;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
 import com.juu.juulabel.domain.dto.alcohol.*;
+import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
+import com.juu.juulabel.domain.embedded.Flavor;
 import com.juu.juulabel.domain.embedded.Sensory;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
+import com.juu.juulabel.domain.entity.alcohol.Color;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.enums.Rateable;
 import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorType;
 import com.juu.juulabel.domain.enums.alcohol.sensory.SensoryType;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeColorReader;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeScentReader;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeSensoryReader;
-import com.juu.juulabel.domain.repository.reader.TastingNoteReader;
+import com.juu.juulabel.domain.repository.reader.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
@@ -34,7 +36,10 @@ public class TastingNoteService {
     private final SensoryLevelFactory sensoryLevelFactory;
     private final FlavorLevelFactory flavorLevelFactory;
 
+    private final ColorReader colorReader;
     private final TastingNoteReader tastingNoteReader;
+    private final AlcoholTypeReader alcoholTypeReader;
+    private final AlcoholicDrinksReader alcoholicDrinksReader;
     private final AlcoholTypeColorReader alcoholTypeColorReader;
     private final AlcoholTypeScentReader alcoholTypeScentReader;
     private final AlcoholTypeSensoryReader alcoholTypeSensoryReader;
@@ -78,7 +83,12 @@ public class TastingNoteService {
 
     @Transactional
     public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
-        Sensory sensory = convertMapToSensory(request.sensoryMap());
+        final AlcoholType alcoholType = alcoholTypeReader.getById(request.alcoholTypeId());
+        final AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.findById(request.alcoholicDrinksId());
+        final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.official(request.alcoholicDrinksDetails());
+        final Color color = colorReader.getById(request.colorId());
+        final Sensory sensory = convertMapToSensory(request.sensoryMap());
+        final Flavor flavor = convertMapToFlavor(request.flavorMap());
         return new TastingNoteWriteResponse(null);
     }
 
@@ -89,10 +99,23 @@ public class TastingNoteService {
             String levelName = entry.getValue();
 
             Rateable level = sensoryLevelFactory.getRateableBySensoryTypeAndLevel(sensoryType, levelName);
-            sensoryLevelFactory.buildLevel(sensoryBuilder, sensoryType, level);
+            sensoryLevelFactory.updateSensoryLevel(sensoryBuilder, sensoryType, level);
         }
 
         return sensoryBuilder.build();
+    }
+
+    private Flavor convertMapToFlavor(Map<FlavorType, String> flavorMap) {
+        Flavor.FlavorBuilder flavorBuilder = Flavor.builder();
+        for (Map.Entry<FlavorType, String> entry : flavorMap.entrySet()) {
+            FlavorType flavorType = entry.getKey();
+            String levelName = entry.getValue();
+
+            Rateable level = flavorLevelFactory.getRateableByFlavorTypeAndLevel(flavorType, levelName);
+            flavorLevelFactory.updateFlavorLevel(flavorBuilder, flavorType, level);
+        }
+
+        return flavorBuilder.build();
     }
 
 }
