@@ -1,6 +1,6 @@
 package com.juu.juulabel.domain.entity.dailylife.like;
 
-import com.juu.juulabel.domain.base.BaseTimeEntity;
+import com.juu.juulabel.domain.base.BaseCreatedTimeEntity;
 import com.juu.juulabel.domain.entity.dailylife.DailyLifeComment;
 import com.juu.juulabel.domain.entity.member.Member;
 import jakarta.persistence.*;
@@ -14,7 +14,7 @@ import lombok.*;
 @Table(
     name = "daily_life_comment_like"
 )
-public class DailyLifeCommentLike extends BaseTimeEntity {
+public class DailyLifeCommentLike extends BaseCreatedTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
