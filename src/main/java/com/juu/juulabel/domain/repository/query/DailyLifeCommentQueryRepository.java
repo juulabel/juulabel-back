@@ -62,7 +62,7 @@ public class DailyLifeCommentQueryRepository {
                 noOffsetByCommentId(dailyLifeComment, lastCommentId)
             )
             .groupBy(dailyLifeComment.id)
-            .orderBy(dailyLifeComment.createdAt.desc())
+            .orderBy(dailyLifeComment.id.desc())
             .limit(pageSize + 1L)
             .fetch();
 
@@ -101,7 +101,7 @@ public class DailyLifeCommentQueryRepository {
                 noOffsetByCommentId(dailyLifeComment, lastReplyId)
             )
             .groupBy(dailyLifeComment.id)
-            .orderBy(dailyLifeComment.createdAt.desc())
+            .orderBy(dailyLifeComment.id.desc())
             .limit(pageSize + 1L)
             .fetch();
 

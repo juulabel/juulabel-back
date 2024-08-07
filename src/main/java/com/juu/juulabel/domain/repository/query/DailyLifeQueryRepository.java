@@ -102,7 +102,7 @@ public class DailyLifeQueryRepository {
                 noOffsetByDailyLifeId(dailyLife, lastDailyLifeId)
             )
             .groupBy(dailyLife.id)
-            .orderBy(dailyLife.createdAt.desc())
+            .orderBy(dailyLife.id.desc())
             .limit(pageSize + 1L)
             .fetch();
 
