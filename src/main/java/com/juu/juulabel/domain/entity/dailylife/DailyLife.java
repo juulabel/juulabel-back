@@ -28,10 +28,10 @@ public class DailyLife extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '회원 고유 번호'")
     private Member member;
 
-    @Column(name = "title", nullable = false, columnDefinition = "VARCHAR(20) comment '제목'")
+    @Column(name = "title", nullable = false, columnDefinition = "VARCHAR(30) comment '제목'")
     private String title;
 
-    @Column(name = "content", nullable = false, columnDefinition = "MEDIUMTEXT comment '내용'")
+    @Column(name = "content", nullable = false, columnDefinition = "VARCHAR(1200) comment '내용'")
     private String content;
 
     @Column(name = "is_private", nullable = false, columnDefinition = "TINYINT(1) comment '비밀글 여부'")

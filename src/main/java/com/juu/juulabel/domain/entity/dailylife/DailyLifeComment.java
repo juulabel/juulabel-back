@@ -32,7 +32,7 @@ public class DailyLifeComment extends BaseTimeEntity {
     @JoinColumn(name = "daily_life_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '일상생활 고유 번호'")
     private DailyLife dailyLife;
 
-    @Column(name = "content", nullable = false, columnDefinition = "MEDIUMTEXT comment '댓글 내용'")
+    @Column(name = "content", nullable = false, columnDefinition = "VARCHAR(600) comment '댓글 내용'")
     private String content;
 
     @ManyToOne
