@@ -49,11 +49,10 @@ public class DailyLifeService {
 
     @Transactional
     public WriteDailyLifeResponse writeDailyLife(
-        final Member loginMember,
+        final Member member,
         final WriteDailyLifeRequest request,
         final List<MultipartFile> files
     ) {
-        final Member member = getMember(loginMember);
         final DailyLife dailyLife = dailyLifeWriter.store(member, request);
 
         List<String> imageUrlList = new ArrayList<>();
@@ -70,8 +69,7 @@ public class DailyLifeService {
     }
 
     @Transactional(readOnly = true)
-    public LoadDailyLifeResponse loadDailyLife(final Member loginMember, final Long dailyLifeId) {
-        final Member member = getMember(loginMember);
+    public LoadDailyLifeResponse loadDailyLife(final Member member, final Long dailyLifeId) {
         final DailyLifeDetailInfo dailyLifeDetailInfo = dailyLifeReader.getDailyLifeDetailById(dailyLifeId, member);
         final List<String> urlList = dailyLifeImageReader.getImageUrlList(dailyLifeId);
 
@@ -82,8 +80,7 @@ public class DailyLifeService {
     }
 
     @Transactional(readOnly = true)
-    public LoadDailyLifeListResponse loadDailyLifeList(Member loginMember, LoadDailyLifeListRequest request) {
-        final Member member = getMember(loginMember);
+    public LoadDailyLifeListResponse loadDailyLifeList(Member member, LoadDailyLifeListRequest request) {
         final Slice<DailyLifeSummary> dailyLifeList =
             dailyLifeReader.getAllDailyLife(member, request.lastDailyLifeId(), request.pageSize());
 
@@ -92,14 +89,12 @@ public class DailyLifeService {
 
     @Transactional
     public updateDailyLifeResponse updateDailyLife(
-        final Member loginMember,
+        final Member member,
         final Long dailyLifeId,
         final UpdateDailyLifeRequest request,
         final List<MultipartFile> files
     ) {
-        final Member member = getMember(loginMember);
         DailyLife dailyLife = getDailyLife(dailyLifeId);
-
         validateDailyLifeWriter(member, dailyLife);
 
         updateIfNotBlank(request.title(), dailyLife::updateTitle);
@@ -116,10 +111,8 @@ public class DailyLifeService {
     }
 
     @Transactional
-    public deleteDailyLifeResponse deleteDailyLife(final Member loginMember, final Long dailyLifeId) {
-        final Member member = getMember(loginMember);
+    public deleteDailyLifeResponse deleteDailyLife(final Member member, final Long dailyLifeId) {
         DailyLife dailyLife = getDailyLife(dailyLifeId);
-
         validateDailyLifeWriter(member, dailyLife);
 
         dailyLife.delete();
@@ -127,8 +120,7 @@ public class DailyLifeService {
     }
 
     @Transactional
-    public boolean toggleDailyLifeLike(final Member loginMember, final Long dailyLifeId) {
-        final Member member = getMember(loginMember);
+    public boolean toggleDailyLifeLike(final Member member, final Long dailyLifeId) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
         Optional<DailyLifeLike> dailyLifeLike = dailyLifeLikeReader.findByMemberAndDailyLife(member, dailyLife);
 
@@ -146,11 +138,10 @@ public class DailyLifeService {
 
     @Transactional
     public WriteDailyLifeCommentResponse writeComment(
-        final Member loginMember,
+        final Member member,
         final WriteDailyLifeCommentRequest request,
         final Long dailyLifeId
     ) {
-        final Member member = getMember(loginMember);
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
 
         final DailyLifeComment dailyLifeComment = createCommentOrReply(request, member, dailyLife);
@@ -164,11 +155,10 @@ public class DailyLifeService {
 
     @Transactional(readOnly = true)
     public LoadDailyLifeCommentListResponse loadCommentList(
-        final Member loginMember,
+        final Member member,
         final LoadDailyLifeCommentListRequest request,
         final Long dailyLifeId
     ) {
-        final Member member = getMember(loginMember);
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
 
         final Slice<DailyLifeCommentSummary> commentList =
@@ -179,12 +169,11 @@ public class DailyLifeService {
 
     @Transactional(readOnly = true)
     public LoadDailyLifeReplyListResponse loadReplyList(
-        final Member loginMember,
+        final Member member,
         final LoadDailyLifeReplyListRequest request,
         final Long dailyLifeId,
         final Long dailyLifeCommentId
     ) {
-        final Member member = getMember(loginMember);
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
 
         final Slice<DailyLifeReplySummary> replyList =
@@ -195,12 +184,11 @@ public class DailyLifeService {
 
     @Transactional
     public UpdateDailyLifeCommentResponse updateComment(
-        final Member loginMember,
+        final Member member,
         final UpdateDailyLifeCommentRequest request,
         final Long dailyLifeId,
         final Long commentId
     ) {
-        final Member member = getMember(loginMember);
         getDailyLife(dailyLifeId);
         DailyLifeComment comment = getComment(commentId);
 
@@ -215,11 +203,10 @@ public class DailyLifeService {
 
     @Transactional
     public deleteDailyLifeCommentResponse deleteComment(
-        final Member loginMember,
+        final Member member,
         final Long dailyLifeId,
         final Long commentId
     ) {
-        final Member member = getMember(loginMember);
         getDailyLife(dailyLifeId);
         DailyLifeComment comment = getComment(commentId);
 
@@ -230,8 +217,7 @@ public class DailyLifeService {
     }
 
     @Transactional
-    public boolean toggleCommentLike(final Member loginMember, final Long dailyLifeId, final Long commentId) {
-        final Member member = getMember(loginMember);
+    public boolean toggleCommentLike(final Member member, final Long dailyLifeId, final Long commentId) {
         getDailyLife(dailyLifeId);
         final DailyLifeComment comment = getComment(commentId);
 
@@ -287,10 +273,6 @@ public class DailyLifeService {
         if (StringUtils.hasText(value)) {
             updater.accept(value);
         }
-    }
-
-    private Member getMember(final Member loginMember) {
-        return memberReader.getById(loginMember.getId());
     }
 
     private void storeImageList(
