@@ -75,7 +75,7 @@ public class Member extends BaseTimeEntity {
             .gender(signUpMemberRequest.gender())
             .provider(signUpMemberRequest.provider())
             .providerId(signUpMemberRequest.providerId())
-            .status(MemberStatus.INACTIVE)
+            .status(MemberStatus.ACTIVE)
             .role(MemberRole.ROLE_USER)
             .build();
     }
