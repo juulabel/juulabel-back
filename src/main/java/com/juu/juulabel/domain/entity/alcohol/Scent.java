@@ -16,10 +16,6 @@ public class Scent {
     @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '향 고유 번호'")
     private Long id;
 
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "type", nullable = false, columnDefinition = "varchar(20) comment '향 타입'")
-//    private ScentType type;
-
     @Column(name = "name", nullable = false, columnDefinition = "varchar(100) comment '향 이름'")
     private String name;
 

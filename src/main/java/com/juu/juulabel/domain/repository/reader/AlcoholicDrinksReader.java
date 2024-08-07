@@ -7,6 +7,7 @@ import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
 import com.juu.juulabel.domain.repository.query.AlcoholicDrinksQueryRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Reader
@@ -16,6 +17,14 @@ public class AlcoholicDrinksReader {
     private final AlcoholicDrinksQueryRepository alcoholicDrinksQueryRepository;
 
     public AlcoholicDrinks findById(Long id) {
+        return alcoholicDrinksQueryRepository.findById(id);
+    }
+
+    public AlcoholicDrinks getByIdOrElseNull(Long id) {
+        if (Objects.isNull(id)) {
+            return null;
+        }
+
         return alcoholicDrinksQueryRepository.findById(id);
     }
 

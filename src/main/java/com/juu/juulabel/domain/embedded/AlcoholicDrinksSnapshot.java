@@ -27,23 +27,14 @@ public class AlcoholicDrinksSnapshot {
     @Column(name = "brewery_name", columnDefinition = "varchar(100) comment '양조장 이름'")
     private String breweryName;
 
-    public static AlcoholicDrinksSnapshot official(AlcoholType alcoholType,
-                                                   AlcoholicDrinks alcoholicDrinks,
-                                                   Brewery brewery) {
+    public static AlcoholicDrinksSnapshot of(AlcoholType alcoholType,
+                                             AlcoholicDrinks alcoholicDrinks,
+                                             Brewery brewery) {
         return AlcoholicDrinksSnapshot.builder()
                 .alcoholTypeName(alcoholType.getName())
                 .alcoholicDrinksName(alcoholicDrinks.getName())
                 .alcoholContent(alcoholicDrinks.getAlcoholContent())
                 .breweryName(brewery.getName())
-                .build();
-    }
-
-    public static AlcoholicDrinksSnapshot official(AlcoholicDrinksDetails alcoholicDrinks) {
-        return AlcoholicDrinksSnapshot.builder()
-                .alcoholTypeName(alcoholicDrinks.alcoholTypeName())
-                .alcoholicDrinksName(alcoholicDrinks.alcoholicDrinksName())
-                .alcoholContent(alcoholicDrinks.alcoholContent())
-                .breweryName(alcoholicDrinks.breweryName())
                 .build();
     }
 
@@ -58,5 +49,15 @@ public class AlcoholicDrinksSnapshot {
                 .breweryName(breweryName)
                 .build();
     }
+
+    public static AlcoholicDrinksSnapshot of(AlcoholicDrinksDetails alcoholicDrinks) {
+        return AlcoholicDrinksSnapshot.builder()
+                .alcoholTypeName(alcoholicDrinks.alcoholTypeName())
+                .alcoholicDrinksName(alcoholicDrinks.alcoholicDrinksName())
+                .alcoholContent(alcoholicDrinks.alcoholContent())
+                .breweryName(alcoholicDrinks.breweryName())
+                .build();
+    }
+
 
 }

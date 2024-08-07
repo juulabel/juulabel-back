@@ -10,14 +10,13 @@ import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.embedded.Flavor;
 import com.juu.juulabel.domain.embedded.Sensory;
-import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
-import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
-import com.juu.juulabel.domain.entity.alcohol.Color;
+import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.enums.Rateable;
 import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorType;
 import com.juu.juulabel.domain.enums.alcohol.sensory.SensoryType;
 import com.juu.juulabel.domain.repository.reader.*;
+import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
@@ -33,10 +32,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TastingNoteService {
 
-    private final SensoryLevelFactory sensoryLevelFactory;
-    private final FlavorLevelFactory flavorLevelFactory;
-
     private final ColorReader colorReader;
+    private final ScentReader scentReader;
     private final TastingNoteReader tastingNoteReader;
     private final AlcoholTypeReader alcoholTypeReader;
     private final AlcoholicDrinksReader alcoholicDrinksReader;
@@ -44,6 +41,10 @@ public class TastingNoteService {
     private final AlcoholTypeScentReader alcoholTypeScentReader;
     private final AlcoholTypeSensoryReader alcoholTypeSensoryReader;
 
+    private final TastingNoteWriter tastingNoteWriter;
+
+    private final FlavorLevelFactory flavorLevelFactory;
+    private final SensoryLevelFactory sensoryLevelFactory;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -83,13 +84,31 @@ public class TastingNoteService {
 
     @Transactional
     public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
+        // 1. 전통주 정보 입력
         final AlcoholType alcoholType = alcoholTypeReader.getById(request.alcoholTypeId());
-        final AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.findById(request.alcoholicDrinksId());
-        final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.official(request.alcoholicDrinksDetails());
+        final AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getByIdOrElseNull(request.alcoholicDrinksId());
+        final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.of(request.alcoholicDrinksDetails());
+
+        // 2. 감각 정보 입력
         final Color color = colorReader.getById(request.colorId());
+        final List<Scent> scents = scentReader.getAllByIds(request.scentIds());
         final Sensory sensory = convertMapToSensory(request.sensoryMap());
         final Flavor flavor = convertMapToFlavor(request.flavorMap());
-        return new TastingNoteWriteResponse(null);
+
+        // 3. 시음노트 작성
+        final TastingNote tastingNote = TastingNote.of(alcoholType,
+                alcoholicDrinks,
+                color,
+                alcoholicDrinksInfo,
+                sensory,
+                flavor,
+                request.rating(),
+                request.content(),
+                request.isPrivate()
+        );
+        final List<TastingNoteScent> tastingNoteScents = TastingNoteScent.of(tastingNote, scents);
+        final TastingNote result = tastingNoteWriter.create(tastingNote, tastingNoteScents);
+        return TastingNoteWriteResponse.fromEntity(result);
     }
 
     private Sensory convertMapToSensory(Map<SensoryType, String> sensoryMap) {

@@ -4,6 +4,8 @@ import com.juu.juulabel.domain.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,5 +26,18 @@ public class TastingNoteScent extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "scent_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '향 ID'")
     private Scent scent;
+
+    public static TastingNoteScent of(TastingNote tastingNote, Scent scent) {
+        return TastingNoteScent.builder()
+                .tastingNote(tastingNote)
+                .scent(scent)
+                .build();
+    }
+
+    public static List<TastingNoteScent> of(TastingNote tastingNote, List<Scent> scents) {
+        return scents.stream()
+                .map(scent -> TastingNoteScent.of(tastingNote, scent))
+                .toList();
+    }
 
 }

@@ -1,7 +1,6 @@
 package com.juu.juulabel.domain.entity.alcohol;
 
-import com.juu.juulabel.common.exception.InvalidParamException;
-import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.api.annotation.Rating;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.embedded.Flavor;
@@ -49,6 +48,7 @@ public class TastingNote extends BaseTimeEntity {
     @Embedded
     private Flavor flavor;
 
+    @Rating
     @Column(name = "rating", nullable = false, columnDefinition = "DECIMAL(3,2) comment '평점 (0.00 - 5.00)'")
     private Double rating;
 
@@ -67,12 +67,36 @@ public class TastingNote extends BaseTimeEntity {
     @OneToMany(mappedBy = "tastingNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TastingNoteImage> tastingNoteImages = new ArrayList<>();
 
-    public void rate(Double rating) {
-        if (rating < 0 || rating > 5 || rating % 0.25 != 0) {
-            throw new InvalidParamException(ErrorCode.INVALID_RATING_VALUE);
-        }
-
-        this.rating = rating;
+    public static TastingNote of(AlcoholType alcoholType,
+                                 AlcoholicDrinks alcoholicDrinks,
+                                 Color color,
+                                 AlcoholicDrinksSnapshot alcoholDrinksInfo,
+                                 Sensory sensory,
+                                 Flavor flavor,
+                                 Double rating,
+                                 String content,
+                                 boolean isPrivate) {
+        return TastingNote.builder()
+                .alcoholType(alcoholType)
+                .alcoholicDrinks(alcoholicDrinks)
+                .color(color)
+                .alcoholDrinksInfo(alcoholDrinksInfo)
+                .sensory(sensory)
+                .flavor(flavor)
+                .rating(rating)
+                .content(content)
+                .isPrivate(isPrivate)
+                .build();
     }
+
+
+    // TODO @Rating
+//    public void rate(Double rating) {
+//        if (rating < 0 || rating > 5 || rating % 0.25 != 0) {
+//            throw new InvalidParamException(ErrorCode.INVALID_RATING_VALUE);
+//        }
+//
+//        this.rating = rating;
+//    }
 
 }
