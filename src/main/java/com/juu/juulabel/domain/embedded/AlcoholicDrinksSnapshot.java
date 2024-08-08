@@ -50,7 +50,7 @@ public class AlcoholicDrinksSnapshot {
                 .build();
     }
 
-    public static AlcoholicDrinksSnapshot of(AlcoholicDrinksDetails alcoholicDrinks) {
+    public static AlcoholicDrinksSnapshot fromDto(AlcoholicDrinksDetails alcoholicDrinks) {
         return AlcoholicDrinksSnapshot.builder()
                 .alcoholTypeName(alcoholicDrinks.alcoholTypeName())
                 .alcoholicDrinksName(alcoholicDrinks.alcoholicDrinksName())

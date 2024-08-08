@@ -26,14 +26,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TastingNoteService {
 
-    private final ColorReader colorReader;
-    private final ScentReader scentReader;
     private final TastingNoteReader tastingNoteReader;
     private final AlcoholTypeReader alcoholTypeReader;
     private final AlcoholicDrinksReader alcoholicDrinksReader;
@@ -85,26 +84,24 @@ public class TastingNoteService {
     @Transactional
     public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
         // 1. 전통주 정보 입력 (OD, UD)
-        final AlcoholType alcoholType = alcoholTypeReader.getById(request.alcoholTypeId());
+        final Long alcoholTypeId = request.alcoholTypeId();
+        final AlcoholType alcoholType = alcoholTypeReader.getById(alcoholTypeId);
         final AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getByIdOrElseNull(request.alcoholicDrinksId());
-        final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.of(request.alcoholicDrinksDetails());
+        final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.fromDto(request.alcoholicDrinksDetails());
 
         // 2. 시각, 촉각, 후각, 미각 그래프 입력
         // 2-1. 시각 정보 유효성 검사 (주종)
-        final List<Color> colors = alcoholTypeColorReader.getAllColorByAlcoholTypeId(request.alcoholTypeId());
-        final Color color = colors.stream()
-                .filter(c -> Objects.equals(c.getId(), request.colorId()))
-                .findFirst()
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_ALCOHOL_TYPE_COLOR));
+        final Color color = getValidColorOrElseThrow(alcoholTypeId, request.colorId());
 
-        // 2-2. 촉각 정보 유효성 검사 (주종)
-        final List<SensoryType> sensoryTypes = alcoholTypeSensoryReader.getAllSensoryTypesByAlcoholTypeId(request.alcoholTypeId());
+        // 2-2. 촉각 및 미각 정보 유효성 검사 (주종)
         final Map<SensoryType, String> sensoryMap = request.sensoryMap();
-        validateSensoryType(sensoryTypes, sensoryMap);
-        final Sensory sensory = convertMapToSensory(sensoryMap);
+        final Map<FlavorType, String> flavorMap = request.flavorMap();
+        validateSensoryType(alcoholTypeId, sensoryMap);
+        validateFlavorType(flavorMap);
 
-        final Flavor flavor = convertMapToFlavor(request.flavorMap());
-        final List<Scent> scents = scentReader.getAllByIds(request.scentIds());
+        final Sensory sensory = convertMapToSensory(sensoryMap);
+        final Flavor flavor = convertMapToFlavor(flavorMap);
+        final List<Scent> scents = getValidScentsOrElseThrow(alcoholTypeId, request.scentIds());
 
         // 3. 주관 평가 작성
         final TastingNote tastingNote = createBy(loginMember, alcoholType, alcoholicDrinks, color, alcoholicDrinksInfo, sensory, flavor, request);
@@ -113,11 +110,40 @@ public class TastingNoteService {
         return TastingNoteWriteResponse.fromEntity(result);
     }
 
-    private void validateSensoryType(List<SensoryType> sensoryTypes, Map<SensoryType, String> sensoryMap) {
-        final Set<SensoryType> sensoryTypeByAlcoholType = new HashSet<>(sensoryTypes);
-        final Set<SensoryType> sensoryTypeByRequest = sensoryMap.keySet();
-        if (!sensoryTypeByAlcoholType.equals(sensoryTypeByRequest)) {
+    private Color getValidColorOrElseThrow(final Long alcoholTypeId, final Long colorId) {
+        final List<Color> colors = alcoholTypeColorReader.getAllColorByAlcoholTypeId(alcoholTypeId);
+        return colors.stream()
+                .filter(c -> Objects.equals(c.getId(), colorId))
+                .findFirst()
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_ALCOHOL_TYPE_COLOR));
+    }
+
+    private List<Scent> getValidScentsOrElseThrow(final Long alcoholTypeId, final List<Long> scentIds) {
+        final List<Scent> scents = alcoholTypeScentReader.getAllScentByAlcoholTypeId(alcoholTypeId);
+        final Map<Long, Scent> scentMap = scents.stream()
+                .collect(Collectors.toMap(Scent::getId, scent -> scent));
+        return scentIds.stream()
+                .map(scentId ->
+                        Optional.ofNullable(scentMap.get(scentId))
+                                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_ALCOHOL_TYPE_SCENT))
+                )
+                .toList();
+    }
+
+    private void validateSensoryType(final Long alcoholTypeId, final Map<SensoryType, String> sensoryMap) {
+        final List<SensoryType> sensoryTypes = alcoholTypeSensoryReader.getAllSensoryTypesByAlcoholTypeId(alcoholTypeId);
+        final Set<SensoryType> sensoryTypesByAlcoholType = new HashSet<>(sensoryTypes);
+        final Set<SensoryType> sensoryTypesByRequest = sensoryMap.keySet();
+        if (!sensoryTypesByAlcoholType.equals(sensoryTypesByRequest)) {
             throw new InvalidParamException(ErrorCode.MISSING_SENSORY_TYPE);
+        }
+    }
+
+    private void validateFlavorType(final Map<FlavorType, String> flavorMap) {
+        final Set<FlavorType> flavorTypes = EnumSet.allOf(FlavorType.class);
+        final Set<FlavorType> flavorTypesByRequest = flavorMap.keySet();
+        if (!flavorTypesByRequest.equals(flavorTypes)) {
+            throw new InvalidParamException(ErrorCode.MISSING_FLAVOR_TYPE);
         }
     }
 

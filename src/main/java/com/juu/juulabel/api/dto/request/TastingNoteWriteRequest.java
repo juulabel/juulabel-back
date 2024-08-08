@@ -21,10 +21,12 @@ public record TastingNoteWriteRequest(
         @Schema(description = "전통주 고유 번호", example = "12", nullable = true)
         Long alcoholicDrinksId,
 
-        @Schema(description = "색상 고유 번호", example = "7", nullable = true)
+        @Schema(description = "색상 고유 번호", example = "7")
+        @NotNull(message = "색상 정보가 누락되었습니다.")
         Long colorId,
 
         @Schema(description = "향 고유 번호 리스트", example = "[1, 4, 7]", nullable = true)
+        @Size(min = 1, max = 3, message = "향 고유 번호 리스트는 최소 1개, 최대 3개의 요소를 포함해야 합니다.")
         List<Long> scentIds,
 
         @Schema(description = "전통주 세부 정보")

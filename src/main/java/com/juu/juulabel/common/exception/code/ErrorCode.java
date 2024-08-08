@@ -103,7 +103,9 @@ public enum ErrorCode {
      * Tasting Note
      */
     MISSING_SENSORY_TYPE(HttpStatus.BAD_REQUEST, "촉각 정보가 누락되었습니다."),
+    MISSING_FLAVOR_TYPE(HttpStatus.BAD_REQUEST, "미각 정보가 누락되었습니다."),
     INVALID_ALCOHOL_TYPE_COLOR(HttpStatus.BAD_REQUEST, "주종에 연결된 시각 정보가 없습니다."),
+    INVALID_ALCOHOL_TYPE_SCENT(HttpStatus.BAD_REQUEST, "주종에 연결된 후각 정보가 없습니다."),
     INVALID_RATING_VALUE(HttpStatus.BAD_REQUEST, "평점은 0에서 5 사이여야 하며, 0.25 단위로 증가해야 합니다."),
     INVALID_SENSORY_TYPE(HttpStatus.BAD_REQUEST, "촉각 정보를 찾을 수 없습니다."),
     INVALID_FLAVOR_TYPE(HttpStatus.BAD_REQUEST, "미각 정보를 찾을 수 없습니다."),
