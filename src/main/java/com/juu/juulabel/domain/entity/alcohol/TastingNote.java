@@ -5,6 +5,7 @@ import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.embedded.Flavor;
 import com.juu.juulabel.domain.embedded.Sensory;
+import com.juu.juulabel.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,10 @@ public class TastingNote extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '시음노트 고유 번호'")
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '회원 고유 번호'")
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "alcohol_type_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '주종 ID'")
@@ -67,7 +72,8 @@ public class TastingNote extends BaseTimeEntity {
     @OneToMany(mappedBy = "tastingNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TastingNoteImage> tastingNoteImages = new ArrayList<>();
 
-    public static TastingNote of(AlcoholType alcoholType,
+    public static TastingNote of(Member member,
+                                 AlcoholType alcoholType,
                                  AlcoholicDrinks alcoholicDrinks,
                                  Color color,
                                  AlcoholicDrinksSnapshot alcoholDrinksInfo,
@@ -77,6 +83,7 @@ public class TastingNote extends BaseTimeEntity {
                                  String content,
                                  boolean isPrivate) {
         return TastingNote.builder()
+                .member(member)
                 .alcoholType(alcoholType)
                 .alcoholicDrinks(alcoholicDrinks)
                 .color(color)
@@ -88,15 +95,5 @@ public class TastingNote extends BaseTimeEntity {
                 .isPrivate(isPrivate)
                 .build();
     }
-
-
-    // TODO @Rating
-//    public void rate(Double rating) {
-//        if (rating < 0 || rating > 5 || rating % 0.25 != 0) {
-//            throw new InvalidParamException(ErrorCode.INVALID_RATING_VALUE);
-//        }
-//
-//        this.rating = rating;
-//    }
 
 }

@@ -17,7 +17,6 @@ public class RatingValidator implements ConstraintValidator<Rating, Double> {
         this.max = annotation.max();
     }
 
-
     @Override
     public boolean isValid(Double value, ConstraintValidatorContext context) {
         if (Objects.isNull(value)) {

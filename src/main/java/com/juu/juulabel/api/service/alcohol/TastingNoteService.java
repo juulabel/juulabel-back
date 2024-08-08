@@ -6,6 +6,8 @@ import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.FlavorLevelFactory;
 import com.juu.juulabel.api.factory.SensoryLevelFactory;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.embedded.Flavor;
@@ -23,9 +25,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -58,7 +58,7 @@ public class TastingNoteService {
 
     @Transactional(readOnly = true)
     public TastingNoteColorListResponse loadTastingNoteColorsList(final Long alcoholTypeId) {
-        final List<ColorInfo> colors = alcoholTypeColorReader.getAllByAlcoholTypeId(alcoholTypeId);
+        final List<ColorInfo> colors = alcoholTypeColorReader.getAllColorInfoByAlcoholTypeId(alcoholTypeId);
         return new TastingNoteColorListResponse(colors);
     }
 
@@ -84,34 +84,44 @@ public class TastingNoteService {
 
     @Transactional
     public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
-        // 1. 전통주 정보 입력
+        // 1. 전통주 정보 입력 (OD, UD)
         final AlcoholType alcoholType = alcoholTypeReader.getById(request.alcoholTypeId());
         final AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getByIdOrElseNull(request.alcoholicDrinksId());
         final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.of(request.alcoholicDrinksDetails());
 
-        // 2. 감각 정보 입력
-        final Color color = colorReader.getById(request.colorId());
-        final List<Scent> scents = scentReader.getAllByIds(request.scentIds());
-        final Sensory sensory = convertMapToSensory(request.sensoryMap());
-        final Flavor flavor = convertMapToFlavor(request.flavorMap());
+        // 2. 시각, 촉각, 후각, 미각 그래프 입력
+        // 2-1. 시각 정보 유효성 검사 (주종)
+        final List<Color> colors = alcoholTypeColorReader.getAllColorByAlcoholTypeId(request.alcoholTypeId());
+        final Color color = colors.stream()
+                .filter(c -> Objects.equals(c.getId(), request.colorId()))
+                .findFirst()
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_ALCOHOL_TYPE_COLOR));
 
-        // 3. 시음노트 작성
-        final TastingNote tastingNote = TastingNote.of(alcoholType,
-                alcoholicDrinks,
-                color,
-                alcoholicDrinksInfo,
-                sensory,
-                flavor,
-                request.rating(),
-                request.content(),
-                request.isPrivate()
-        );
+        // 2-2. 촉각 정보 유효성 검사 (주종)
+        final List<SensoryType> sensoryTypes = alcoholTypeSensoryReader.getAllSensoryTypesByAlcoholTypeId(request.alcoholTypeId());
+        final Map<SensoryType, String> sensoryMap = request.sensoryMap();
+        validateSensoryType(sensoryTypes, sensoryMap);
+        final Sensory sensory = convertMapToSensory(sensoryMap);
+
+        final Flavor flavor = convertMapToFlavor(request.flavorMap());
+        final List<Scent> scents = scentReader.getAllByIds(request.scentIds());
+
+        // 3. 주관 평가 작성
+        final TastingNote tastingNote = createBy(loginMember, alcoholType, alcoholicDrinks, color, alcoholicDrinksInfo, sensory, flavor, request);
         final List<TastingNoteScent> tastingNoteScents = TastingNoteScent.of(tastingNote, scents);
         final TastingNote result = tastingNoteWriter.create(tastingNote, tastingNoteScents);
         return TastingNoteWriteResponse.fromEntity(result);
     }
 
-    private Sensory convertMapToSensory(Map<SensoryType, String> sensoryMap) {
+    private void validateSensoryType(List<SensoryType> sensoryTypes, Map<SensoryType, String> sensoryMap) {
+        final Set<SensoryType> sensoryTypeByAlcoholType = new HashSet<>(sensoryTypes);
+        final Set<SensoryType> sensoryTypeByRequest = sensoryMap.keySet();
+        if (!sensoryTypeByAlcoholType.equals(sensoryTypeByRequest)) {
+            throw new InvalidParamException(ErrorCode.MISSING_SENSORY_TYPE);
+        }
+    }
+
+    private Sensory convertMapToSensory(final Map<SensoryType, String> sensoryMap) {
         Sensory.SensoryBuilder sensoryBuilder = Sensory.builder();
         for (Map.Entry<SensoryType, String> entry : sensoryMap.entrySet()) {
             SensoryType sensoryType = entry.getKey();
@@ -124,7 +134,7 @@ public class TastingNoteService {
         return sensoryBuilder.build();
     }
 
-    private Flavor convertMapToFlavor(Map<FlavorType, String> flavorMap) {
+    private Flavor convertMapToFlavor(final Map<FlavorType, String> flavorMap) {
         Flavor.FlavorBuilder flavorBuilder = Flavor.builder();
         for (Map.Entry<FlavorType, String> entry : flavorMap.entrySet()) {
             FlavorType flavorType = entry.getKey();
@@ -135,6 +145,28 @@ public class TastingNoteService {
         }
 
         return flavorBuilder.build();
+    }
+
+    private TastingNote createBy(final Member member,
+                                 final AlcoholType alcoholType,
+                                 final AlcoholicDrinks alcoholicDrinks,
+                                 final Color color,
+                                 final AlcoholicDrinksSnapshot alcoholicDrinksInfo,
+                                 final Sensory sensory,
+                                 final Flavor flavor,
+                                 final TastingNoteWriteRequest request) {
+        return TastingNote.of(
+                member,
+                alcoholType,
+                alcoholicDrinks,
+                color,
+                alcoholicDrinksInfo,
+                sensory,
+                flavor,
+                request.rating(),
+                request.content(),
+                request.isPrivate()
+        );
     }
 
 }

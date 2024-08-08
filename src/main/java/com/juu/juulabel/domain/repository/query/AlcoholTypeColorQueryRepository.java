@@ -38,7 +38,7 @@ public class AlcoholTypeColorQueryRepository {
                         isUsed(alcoholTypeColor)
                 )
                 .orderBy(
-                        color.rgb.asc()
+                        color.id.asc()
                 )
                 .fetch();
     }

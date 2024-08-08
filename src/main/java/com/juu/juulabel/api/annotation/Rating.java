@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Rating {
-    String message() default "달점 입력이 잘못되었습니다.";
+    String message() default "달점 입력이 잘못되었습니다. (0.00 - 5.00, 0.25 단위)";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 
