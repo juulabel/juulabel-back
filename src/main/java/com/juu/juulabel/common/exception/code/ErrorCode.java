@@ -82,6 +82,19 @@ public enum ErrorCode {
     NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),
 
     /**
+     * Comment
+     */
+    NOT_COMMENT_WRITER(HttpStatus.BAD_REQUEST, "댓글 작성자가 아닙니다."),
+    NOT_FOUND_COMMENT(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
+
+    /**
+     * DailyLife
+     */
+    NOT_FOUND_DAILY_LIFE(HttpStatus.BAD_REQUEST, "일상생활 게시글을 찾을 수 없습니다."),
+    ALREADY_DELETED_DAILY_LIFE(HttpStatus.BAD_REQUEST, "이미 삭제된 일상생활 게시글입니다."),
+    NOT_DAILY_LIFE_WRITER(HttpStatus.BAD_REQUEST, "게시글 작성자가 아닙니다."),
+
+    /**
      * FILE
      */
     NOT_FOUND_FILE(HttpStatus.BAD_REQUEST, "파일을 찾을 수 없습니다"),
