@@ -11,11 +11,16 @@ import com.juu.juulabel.domain.entity.member.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(
+        name = "시음노트 API",
+        description = "시음노트 관련 API"
+)
 @RestController
 @RequestMapping(value = {"/v1/api/shared-space/tasting-notes"})
 @RequiredArgsConstructor

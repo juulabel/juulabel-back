@@ -4,8 +4,8 @@ import com.juu.juulabel.api.dto.request.FollowOrUnfollowRequest;
 import com.juu.juulabel.api.dto.request.LoadFollowerListRequest;
 import com.juu.juulabel.api.dto.request.LoadFollowingListRequest;
 import com.juu.juulabel.api.dto.response.FollowOrUnfollowResponse;
-import com.juu.juulabel.api.dto.response.LoadFollowerListResponse;
-import com.juu.juulabel.api.dto.response.LoadFollowingListResponse;
+import com.juu.juulabel.api.dto.response.FollowerListResponse;
+import com.juu.juulabel.api.dto.response.FollowingListResponse;
 import com.juu.juulabel.domain.dto.follow.FollowUser;
 import com.juu.juulabel.domain.entity.follow.Follow;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -34,17 +34,17 @@ public class FollowService {
     }
 
     @Transactional(readOnly = true)
-    public LoadFollowingListResponse loadFollowingList(final Member loginMember, final Long memberId, final LoadFollowingListRequest request) {
+    public FollowingListResponse loadFollowingList(final Member loginMember, final Long memberId, final LoadFollowingListRequest request) {
         final Member member = memberReader.getById(memberId);
         final Slice<FollowUser> followingList = followReader.findAllFollowing(loginMember, member, request.lastFollowId(), request.pageSize());
-        return new LoadFollowingListResponse(followingList);
+        return new FollowingListResponse(followingList);
     }
 
     @Transactional(readOnly = true)
-    public LoadFollowerListResponse loadFollowerList(final Member loginMember, final Long memberId, final LoadFollowerListRequest request) {
+    public FollowerListResponse loadFollowerList(final Member loginMember, final Long memberId, final LoadFollowerListRequest request) {
         final Member member = memberReader.getById(memberId);
         final Slice<FollowUser> followingList = followReader.findAllFollower(loginMember, member, request.lastFollowId(), request.pageSize());
-        return new LoadFollowerListResponse(followingList);
+        return new FollowerListResponse(followingList);
     }
 
 }
