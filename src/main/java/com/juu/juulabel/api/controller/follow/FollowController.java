@@ -5,8 +5,8 @@ import com.juu.juulabel.api.dto.request.FollowOrUnfollowRequest;
 import com.juu.juulabel.api.dto.request.LoadFollowerListRequest;
 import com.juu.juulabel.api.dto.request.LoadFollowingListRequest;
 import com.juu.juulabel.api.dto.response.FollowOrUnfollowResponse;
-import com.juu.juulabel.api.dto.response.LoadFollowerListResponse;
-import com.juu.juulabel.api.dto.response.LoadFollowingListResponse;
+import com.juu.juulabel.api.dto.response.FollowerListResponse;
+import com.juu.juulabel.api.dto.response.FollowingListResponse;
 import com.juu.juulabel.api.service.follow.FollowService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -55,7 +55,7 @@ public class FollowController {
             @Parameter(name = "request", description = "팔로잉 리스트 조회 요청", required = true)
     )
     @GetMapping("/members/{memberId}/followings")
-    public ResponseEntity<CommonResponse<LoadFollowingListResponse>> loadFollowingList(
+    public ResponseEntity<CommonResponse<FollowingListResponse>> loadFollowingList(
             @Parameter(hidden = true) @LoginMember Member loginMember,
             @PathVariable Long memberId,
             @Valid LoadFollowingListRequest request) {
@@ -70,7 +70,7 @@ public class FollowController {
             @Parameter(name = "request", description = "팔로워 리스트 조회 요청", required = true)
     )
     @GetMapping("/members/{memberId}/followers")
-    public ResponseEntity<CommonResponse<LoadFollowerListResponse>> loadFollowerList(
+    public ResponseEntity<CommonResponse<FollowerListResponse>> loadFollowerList(
             @Parameter(hidden = true) @LoginMember Member loginMember,
             @PathVariable Long memberId,
             @Valid LoadFollowerListRequest request) {

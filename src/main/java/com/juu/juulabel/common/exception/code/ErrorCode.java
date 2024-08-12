@@ -19,8 +19,11 @@ public enum ErrorCode {
     /**
      * Common
      */
+    NOT_FOUND_ENUM_CONSTANT(HttpStatus.BAD_REQUEST, "열거형 상수값을 찾을 수 없습니다."),
+    IS_NULL(HttpStatus.BAD_REQUEST, "NULL 값이 들어왔습니다."),
     COMMON_INVALID_PARAM(HttpStatus.BAD_REQUEST, "요청한 값이 올바르지 않습니다."),
     INVALID_AUTHENTICATION(HttpStatus.BAD_REQUEST, "인증이 올바르지 않습니다."),
+    NO_SUCH_METHOD(HttpStatus.BAD_REQUEST, "메소드를 찾을 수 없습니다."),
 
     /**
      * Json Web Token
@@ -75,6 +78,7 @@ public enum ErrorCode {
      * Alcohol
      */
     NOT_FOUND_ALCOHOL_TYPE(HttpStatus.BAD_REQUEST, "주종을 찾을 수 없습니다."),
+    NOT_FOUND_ALCOHOLIC_DRINKS_TYPE(HttpStatus.BAD_REQUEST, "전통주를 찾을 수 없습니다."),
 
     /**
      * Category
@@ -107,6 +111,22 @@ public enum ErrorCode {
      * SEARCH
      */
     NOT_FOUND_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "검색 타입을 찾을 수 없습니다"),
+
+    /**
+     * Tasting Note
+     */
+    MISSING_SENSORY_TYPE(HttpStatus.BAD_REQUEST, "촉각 정보가 누락되었습니다."),
+    MISSING_FLAVOR_TYPE(HttpStatus.BAD_REQUEST, "미각 정보가 누락되었습니다."),
+    INVALID_ALCOHOL_TYPE_COLOR(HttpStatus.BAD_REQUEST, "주종에 연결된 시각 정보가 없습니다."),
+    INVALID_ALCOHOL_TYPE_SCENT(HttpStatus.BAD_REQUEST, "주종에 연결된 후각 정보가 없습니다."),
+    INVALID_RATING_VALUE(HttpStatus.BAD_REQUEST, "평점은 0에서 5 사이여야 하며, 0.25 단위로 증가해야 합니다."),
+    INVALID_SENSORY_TYPE(HttpStatus.BAD_REQUEST, "촉각 정보를 찾을 수 없습니다."),
+    INVALID_FLAVOR_TYPE(HttpStatus.BAD_REQUEST, "미각 정보를 찾을 수 없습니다."),
+    INVALID_SENSORY_LEVEL(HttpStatus.BAD_REQUEST, "촉각 점수를 찾을 수 없습니다."),
+    INVALID_FLAVOR_LEVEL(HttpStatus.BAD_REQUEST, "미각 점수를 찾을 수 없습니다."),
+    NOT_FOUND_COLOR(HttpStatus.BAD_REQUEST, "색상을 찾을 수 없습니다"),
+    TASTING_NOTE_MAX_IMAGE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "이미지는 최대 9장까지 추가할 수 있습니다"),
+
     ;
 
     private final HttpStatus httpStatus;

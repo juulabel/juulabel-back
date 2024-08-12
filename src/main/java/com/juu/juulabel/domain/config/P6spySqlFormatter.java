@@ -23,13 +23,11 @@ public class P6spySqlFormatter implements MessageFormattingStrategy {
 
     private String getMessage(final int connectionId, final long elapsed) {
         return FileConstants.LINE_SEPARATOR +
+                "----------------------------------------------------------------------------------------------------" +
                 FileConstants.LINE_SEPARATOR +
                 "\t" + String.format("Connection ID : %s", connectionId) +
                 FileConstants.LINE_SEPARATOR +
                 "\t" + String.format("Execution Time : %s ms", elapsed) +
-                FileConstants.LINE_SEPARATOR +
-                FileConstants.LINE_SEPARATOR +
-                FileConstants.LINE_SEPARATOR +
                 FileConstants.LINE_SEPARATOR +
                 "----------------------------------------------------------------------------------------------------";
     }
