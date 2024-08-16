@@ -1,10 +1,10 @@
 -- 전통주 종류 INSERT
-INSERT INTO alcohol_type (name, created_at, updated_at)
-VALUES ('탁주', now(), now()),
-       ('소주/증류주', now(), now()),
-       ('약청주', now(), now()),
-       ('과실주', now(), now()),
-       ('기타 주류', now(), now());
+INSERT INTO alcohol_type (id, created_at, updated_at, name)
+VALUES (1, now(), now()), '탁주'),
+       (2, now(), now()), '소주/증류주'),
+       (3, now(), now()), '약청주'),
+       (4, now(), now()), '과실주'),
+       (5, now(), now()), '기타 주류');
 
 -- 양조장 INSERT
 INSERT INTO brewery (name, region, created_at, updated_at)
@@ -24,6 +24,7 @@ VALUES (1, 1, '청주탁주', '신선하고 깔끔한 맛의 청주 탁주입니
        (1, 2, '서울탁주', '부드럽고 깊은 맛을 자랑하는 안동 탁주입니다.', 7.0, now(), now()),
        (1, 3, '부산탁주', '신선한 맛과 향이 일품인 전주 탁주입니다.', 6.8, now(), now());
 
+/* 
 -- 탁주
 INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_type, is_used, created_at, updated_at)
 VALUES (1, 'TURBIDITY', TRUE, NOW(), NOW()),
@@ -51,6 +52,7 @@ INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_type, is_used, create
 VALUES (5, 'CARBONATION', TRUE, NOW(), NOW()),
        (5, 'DENSITY', TRUE, NOW(), NOW()),
        (5, 'SEDIMENT', TRUE, NOW(), NOW());
+ */
 
 -- 색상 데이터 삽입
 INSERT INTO color (name, rgb)
@@ -180,3 +182,160 @@ VALUES
     (4, 4, 11, TRUE, NOW(), NOW()), -- 계피
     (4, 4, 12, TRUE, NOW(), NOW()), -- 꿀
     (4, 4, 13, TRUE, NOW(), NOW()); -- 팔각
+
+-- Flavor 데이터 삽입
+INSERT INTO flavor (name) VALUES ('단맛');
+INSERT INTO flavor (name) VALUES ('신맛');
+INSERT INTO flavor (name) VALUES ('쓴맛');
+INSERT INTO flavor (name) VALUES ('감칠맛');
+INSERT INTO flavor (name) VALUES ('여운');
+INSERT INTO flavor (name) VALUES ('무게감');
+
+-- FlavorLevel 데이터 삽입
+-- FlavorLevel 데이터 삽입
+INSERT INTO flavor_level (flavor, score, description)
+VALUES (1, 1, '매우 낮음'),
+       (1, 2, '낮음'),
+       (1, 3, '중간'),
+       (1, 4, '높음'),
+       (1, 5, '매우 높음'),
+       (2, 1, '매우 낮음'),
+       (2, 2, '낮음'),
+       (2, 3, '중간'),
+       (2, 4, '높음'),
+       (2, 5, '매우 높음'),
+       (3, 1, '매우 낮음'),
+       (3, 2, '낮음'),
+       (3, 3, '중간'),
+       (3, 4, '높음'),
+       (3, 5, '매우 높음'),
+       (4, 1, '매우 낮음'),
+       (4, 2, '낮음'),
+       (4, 3, '중간'),
+       (4, 4, '높음'),
+       (4, 5, '매우 높음'),
+       (5, 1, '매우 낮음'),
+       (5, 2, '낮음'),
+       (5, 3, '중간'),
+       (5, 4, '높음'),
+       (5, 5, '매우 높음');
+
+-- Alcohol_type_flavor 데이터 삽입
+INSERT INTO alcohol_type_flavor (created_at, updated_at, is_used, alcohol_type_id, flavor_id)
+values (now(), now(), true, 1 , 1),
+       (now(), now(), true, 1 , 2),
+       (now(), now(), true, 1 , 3),
+       (now(), now(), true, 1 , 4),
+       (now(), now(), true, 1 , 5),
+       (now(), now(), true, 1 , 6),
+       (now(), now(), true, 2 , 1),
+       (now(), now(), true, 2 , 2),
+       (now(), now(), true, 2 , 3),
+       (now(), now(), true, 2 , 4),
+       (now(), now(), true, 2 , 5),
+       (now(), now(), true, 2 , 6),
+       (now(), now(), true, 3 , 1),
+       (now(), now(), true, 3 , 2),
+       (now(), now(), true, 3 , 3),
+       (now(), now(), true, 3 , 4),
+       (now(), now(), true, 3 , 5),
+       (now(), now(), true, 3 , 6),
+       (now(), now(), true, 4 , 1),
+       (now(), now(), true, 4 , 2),
+       (now(), now(), true, 4 , 3),
+       (now(), now(), true, 4 , 4),
+       (now(), now(), true, 4 , 5),
+       (now(), now(), true, 4 , 6),
+       (now(), now(), true, 5 , 1),
+       (now(), now(), true, 5 , 2),
+       (now(), now(), true, 5 , 3),
+       (now(), now(), true, 5 , 4),
+       (now(), now(), true, 5 , 5),
+       (now(), now(), true, 5 , 6);
+
+-- Sensory 데이터 삽입
+INSERT INTO sensory (name, created_at, updated_at)
+VALUES ('탁도', NOW(), NOW()),
+       ('탄산도', NOW(), NOW()),
+       ('점성도', NOW(), NOW()),
+       ('투명도', NOW(), NOW()),
+       ('침전물', NOW(), NOW()),
+       ('진하기', NOW(), NOW());
+
+-- AlcoholTypeSensory 데이터 삽입
+-- 탁도 (Sensory ID = 1)
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_id, is_used, created_at, updated_at)
+VALUES (1, 1, TRUE, NOW(), NOW()), -- 탁주
+       (3, 1, TRUE, NOW(), NOW());  -- 약청주
+
+-- 탄산도 (Sensory ID = 2)
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_id, is_used, created_at, updated_at)
+VALUES (1, 2, TRUE, NOW(), NOW()), -- 탁주
+       (4, 2, TRUE, NOW(), NOW()), -- 과실주
+       (5, 2, TRUE, NOW(), NOW());  -- 기타 주류
+
+-- 점성도 (Sensory ID = 3)
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_id, is_used, created_at, updated_at)
+VALUES (1, 3, TRUE, NOW(), NOW()), -- 탁주
+       (2, 3, TRUE, NOW(), NOW()), -- 소주/증류주
+       (3, 3, TRUE, NOW(), NOW());  -- 약청주
+
+-- 투명도 (Sensory ID = 4)
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_id, is_used, created_at, updated_at)
+VALUES (2, 4, TRUE, NOW(), NOW());  -- 소주
+
+-- 침전물 (Sensory ID = 5)
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_id, is_used, created_at, updated_at)
+VALUES (3, 5, TRUE, NOW(), NOW()), -- 약청주
+       (5, 5, TRUE, NOW(), NOW());  -- 기타 주류
+
+-- 진하기 (Sensory ID = 6)
+INSERT INTO alcohol_type_sensory (alcohol_type_id, sensory_id, is_used, created_at, updated_at)
+VALUES (4, 6, TRUE, NOW(), NOW()), -- 과실주
+       (5, 6, TRUE, NOW(), NOW());  -- 기타 주류
+
+-- TurbidityLevel (탁도)
+INSERT INTO sensory_level (sensory, score, description)
+VALUES (1, 1, '맑음'),
+       (1, 2, '맑은 편'),
+       (1, 3, '중간'),
+       (1, 4, '탁한 편'),
+       (1, 5, '탁함');
+
+-- CarbonationLevel (탄산도)
+INSERT INTO sensory_level (sensory, score, description)
+VALUES (2, 1, '없음'),
+       (2, 2, '적음'),
+       (2, 3, '중간'),
+       (2, 4, '있는 편'),
+       (2, 5, '많음');
+
+-- ViscosityLevel (점성도)
+INSERT INTO sensory_level (sensory, score, description)
+VALUES (3, 1, '없음'),
+       (3, 2, '적음'),
+       (3, 3, '중간'),
+       (3, 4, '있는 편'),
+       (3, 5, '많음');
+
+-- ClarityLevel (투명도)
+INSERT INTO sensory_level (sensory, score, description)
+VALUES (4, 1, '맑음'),
+       (4, 2, '맑은 편'),
+       (4, 3, '중간'),
+       (4, 4, '흐린 편'),
+       (4, 5, '흐림');
+
+-- SedimentLevel (침전물)
+INSERT INTO sensory_level (sensory, score, description)
+VALUES (5, 1, '없음'),
+       (5, 5, '있음');
+
+-- DensityLevel (진하기)
+INSERT INTO sensory_level (sensory, score, description)
+VALUES (6, 1, '연함'),
+       (6, 2, '연한 편'),
+       (6, 3, '중간'),
+       (6, 4, '진한 편'),
+       (6, 5, '진함');
+

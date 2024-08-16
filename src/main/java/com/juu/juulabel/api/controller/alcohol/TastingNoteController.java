@@ -75,11 +75,13 @@ public class TastingNoteController {
 
     @Operation(
             summary = "시음 노트 작성을 위한 미각 정보 조회",
-            description = "미각 정보(공통)를 조회한다."
+            description = "미각 정보를 조회한다."
     )
-    @GetMapping("/flavor")
-    public ResponseEntity<CommonResponse<TastingNoteFlavorListResponse>> loadTastingNoteFlavorList() {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteFlavorList());
+    @GetMapping("/{alcoholTypeId}/flavor")
+    public ResponseEntity<CommonResponse<TastingNoteFlavorListResponse>> loadTastingNoteFlavorList(
+            @PathVariable Long alcoholTypeId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteFlavorList(alcoholTypeId));
     }
 
     @Operation(
