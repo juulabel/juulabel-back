@@ -26,7 +26,7 @@ public class TastingNoteSensoryLevel extends BaseTimeEntity {
     private TastingNote tastingNote;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "flavor_level_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '촉각 점수 ID'")
+    @JoinColumn(name = "sensory_level_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '촉각 점수 ID'")
     private SensoryLevel sensoryLevel;
 
     public static TastingNoteSensoryLevel of(TastingNote tastingNote, SensoryLevel sensoryLevel) {
