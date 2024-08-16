@@ -9,12 +9,14 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "alcohol_type_sensory")
-public class AlcoholTypeSensory extends BaseTimeEntity {
+@Table(
+        name = "alcohol_type_flavor"
+)
+public class AlcoholTypeFlavor extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '주종별 촉각 매핑 고유 번호'")
+    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '주종별 맛 고유 번호'")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -22,8 +24,8 @@ public class AlcoholTypeSensory extends BaseTimeEntity {
     private AlcoholType alcoholType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sensory_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '촉각 고유 번호'")
-    private Sensory sensory;
+    @JoinColumn(name = "flavor_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '맛 고유 번호'")
+    private Flavor flavor;
 
     @Column(name = "is_used", columnDefinition = "tinyint comment '사용 여부'")
     private boolean isUsed;

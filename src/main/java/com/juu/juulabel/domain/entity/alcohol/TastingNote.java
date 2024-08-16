@@ -3,8 +3,6 @@ package com.juu.juulabel.domain.entity.alcohol;
 import com.juu.juulabel.api.annotation.Rating;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
-import com.juu.juulabel.domain.embedded.Flavor;
-import com.juu.juulabel.domain.embedded.Sensory;
 import com.juu.juulabel.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -47,12 +45,6 @@ public class TastingNote extends BaseTimeEntity {
     @Embedded
     private AlcoholicDrinksSnapshot alcoholDrinksInfo;
 
-    @Embedded
-    private Sensory sensory;
-
-    @Embedded
-    private Flavor flavor;
-
     @Rating
     @Column(name = "rating", nullable = false, columnDefinition = "DECIMAL(3,2) comment '평점 (0.00 - 5.00)'")
     private Double rating;
@@ -77,8 +69,6 @@ public class TastingNote extends BaseTimeEntity {
                                  AlcoholicDrinks alcoholicDrinks,
                                  Color color,
                                  AlcoholicDrinksSnapshot alcoholDrinksInfo,
-                                 Sensory sensory,
-                                 Flavor flavor,
                                  Double rating,
                                  String content,
                                  boolean isPrivate) {
@@ -88,8 +78,6 @@ public class TastingNote extends BaseTimeEntity {
                 .alcoholicDrinks(alcoholicDrinks)
                 .color(color)
                 .alcoholDrinksInfo(alcoholDrinksInfo)
-                .sensory(sensory)
-                .flavor(flavor)
                 .rating(rating)
                 .content(content)
                 .isPrivate(isPrivate)

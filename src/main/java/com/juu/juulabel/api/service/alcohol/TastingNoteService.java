@@ -3,20 +3,14 @@ package com.juu.juulabel.api.service.alcohol;
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
 import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
 import com.juu.juulabel.api.dto.response.*;
-import com.juu.juulabel.api.factory.FlavorLevelFactory;
-import com.juu.juulabel.api.factory.SensoryLevelFactory;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
-import com.juu.juulabel.domain.embedded.Flavor;
-import com.juu.juulabel.domain.embedded.Sensory;
+import com.juu.juulabel.domain.entity.alcohol.FlavorLevel;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.enums.Rateable;
-import com.juu.juulabel.domain.enums.alcohol.flavor.FlavorType;
-import com.juu.juulabel.domain.enums.alcohol.sensory.SensoryType;
 import com.juu.juulabel.domain.repository.reader.*;
 import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +19,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,12 +35,10 @@ public class TastingNoteService {
     private final AlcoholicDrinksReader alcoholicDrinksReader;
     private final AlcoholTypeColorReader alcoholTypeColorReader;
     private final AlcoholTypeScentReader alcoholTypeScentReader;
+    private final AlcoholTypeFlavorReader alcoholTypeFlavorReader;
     private final AlcoholTypeSensoryReader alcoholTypeSensoryReader;
 
     private final TastingNoteWriter tastingNoteWriter;
-
-    private final FlavorLevelFactory flavorLevelFactory;
-    private final SensoryLevelFactory sensoryLevelFactory;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -63,8 +58,7 @@ public class TastingNoteService {
 
     @Transactional(readOnly = true)
     public TastingNoteSensoryListResponse loadTastingNoteSensoryList(final Long alcoholTypeId) {
-        final List<SensoryType> sensoryTypes = alcoholTypeSensoryReader.getAllSensoryTypesByAlcoholTypeId(alcoholTypeId);
-        final List<SensoryLevel> sensoryLevels = sensoryLevelFactory.getAllSensoryLevel(sensoryTypes);
+        final List<SensoryLevelInfo> sensoryLevels = alcoholTypeSensoryReader.getAllSensoryLevelInfoByAlcoholTypeId(alcoholTypeId);
         return new TastingNoteSensoryListResponse(sensoryLevels);
     }
 
@@ -75,38 +69,35 @@ public class TastingNoteService {
     }
 
     @Transactional(readOnly = true)
-    public TastingNoteFlavorListResponse loadTastingNoteFlavorList() {
-        final List<FlavorType> flavorTypes = Arrays.asList(FlavorType.values());
-        final List<FlavorLevel> flavorLevels = flavorLevelFactory.getAllFlavorLevel(flavorTypes);
+    public TastingNoteFlavorListResponse loadTastingNoteFlavorList(final Long alcoholTypeId) {
+        final List<FlavorLevelInfo> flavorLevels = alcoholTypeFlavorReader.getAllFlavorLevelInfoByAlcoholTypeId(alcoholTypeId);
         return new TastingNoteFlavorListResponse(flavorLevels);
     }
 
     @Transactional
     public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
-        // 1. 전통주 정보 입력 (OD, UD)
+        // 1. 입력된 주종 확인
         final Long alcoholTypeId = request.alcoholTypeId();
         final AlcoholType alcoholType = alcoholTypeReader.getById(alcoholTypeId);
+
+        // 2. 전통주 정보 확인 (OD, UD)
         final AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getByIdOrElseNull(request.alcoholicDrinksId());
         final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.fromDto(request.alcoholicDrinksDetails());
 
-        // 2. 시각, 촉각, 후각, 미각 그래프 입력
-        // 2-1. 시각 정보 유효성 검사 (주종)
+        // 3. 감각 정보 확인 (시각 정보, 촉각 정보, 미각 정보, 후각 정보)
         final Color color = getValidColorOrElseThrow(alcoholTypeId, request.colorId());
-
-        // 2-2. 촉각 및 미각 정보 유효성 검사 (주종)
-        final Map<SensoryType, String> sensoryMap = request.sensoryMap();
-        final Map<FlavorType, String> flavorMap = request.flavorMap();
-        validateSensoryType(alcoholTypeId, sensoryMap);
-        validateFlavorType(flavorMap);
-
-        final Sensory sensory = convertMapToSensory(sensoryMap);
-        final Flavor flavor = convertMapToFlavor(flavorMap);
         final List<Scent> scents = getValidScentsOrElseThrow(alcoholTypeId, request.scentIds());
+        final List<FlavorLevel> flavorLevels = getValidFlavorLevelsOrElseThrow(alcoholTypeId, request.flavorLevelIds());
+        final List<SensoryLevel> sensoryLevels = getValidSensoryLevelsOrElseThrow(alcoholTypeId, request.sensoryLevelIds());
 
-        // 3. 주관 평가 작성
-        final TastingNote tastingNote = createBy(loginMember, alcoholType, alcoholicDrinks, color, alcoholicDrinksInfo, sensory, flavor, request);
-        final List<TastingNoteScent> tastingNoteScents = TastingNoteScent.of(tastingNote, scents);
-        final TastingNote result = tastingNoteWriter.create(tastingNote, tastingNoteScents);
+        // 4. 시음 노트 정보 생성 (작성)
+        final TastingNote tastingNote = createBy(loginMember, alcoholType, alcoholicDrinks, color, alcoholicDrinksInfo, request);
+        final TastingNote result = tastingNoteWriter.create(
+                tastingNote,
+                TastingNoteScent.of(tastingNote, scents),
+                TastingNoteFlavorLevel.of(tastingNote, flavorLevels),
+                TastingNoteSensoryLevel.of(tastingNote, sensoryLevels));
+
         return TastingNoteWriteResponse.fromEntity(result);
     }
 
@@ -130,47 +121,28 @@ public class TastingNoteService {
                 .toList();
     }
 
-    private void validateSensoryType(final Long alcoholTypeId, final Map<SensoryType, String> sensoryMap) {
-        final List<SensoryType> sensoryTypes = alcoholTypeSensoryReader.getAllSensoryTypesByAlcoholTypeId(alcoholTypeId);
-        final Set<SensoryType> sensoryTypesByAlcoholType = new HashSet<>(sensoryTypes);
-        final Set<SensoryType> sensoryTypesByRequest = sensoryMap.keySet();
-        if (!sensoryTypesByAlcoholType.equals(sensoryTypesByRequest)) {
-            throw new InvalidParamException(ErrorCode.MISSING_SENSORY_TYPE);
-        }
+    private List<SensoryLevel> getValidSensoryLevelsOrElseThrow(final Long alcoholTypeId, final List<Long> sensoryLevelIds) {
+        final List<SensoryLevel> sensoryLevels = alcoholTypeSensoryReader.getAllSensoryLevelByAlcoholTypeId(alcoholTypeId);
+        final Map<Long, SensoryLevel> sensoryLevelMap = sensoryLevels.stream()
+                .collect(Collectors.toMap(SensoryLevel::getId, sensoryLevel -> sensoryLevel));
+        return sensoryLevelIds.stream()
+                .map(sensoryLevelId ->
+                        Optional.ofNullable(sensoryLevelMap.get(sensoryLevelId))
+                                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_ALCOHOL_TYPE_SENSORY))
+                )
+                .toList();
     }
 
-    private void validateFlavorType(final Map<FlavorType, String> flavorMap) {
-        final Set<FlavorType> flavorTypes = EnumSet.allOf(FlavorType.class);
-        final Set<FlavorType> flavorTypesByRequest = flavorMap.keySet();
-        if (!flavorTypesByRequest.equals(flavorTypes)) {
-            throw new InvalidParamException(ErrorCode.MISSING_FLAVOR_TYPE);
-        }
-    }
-
-    private Sensory convertMapToSensory(final Map<SensoryType, String> sensoryMap) {
-        Sensory.SensoryBuilder sensoryBuilder = Sensory.builder();
-        for (Map.Entry<SensoryType, String> entry : sensoryMap.entrySet()) {
-            SensoryType sensoryType = entry.getKey();
-            String levelName = entry.getValue();
-
-            Rateable level = sensoryLevelFactory.getRateableBySensoryTypeAndLevel(sensoryType, levelName);
-            sensoryLevelFactory.updateSensoryLevel(sensoryBuilder, sensoryType, level);
-        }
-
-        return sensoryBuilder.build();
-    }
-
-    private Flavor convertMapToFlavor(final Map<FlavorType, String> flavorMap) {
-        Flavor.FlavorBuilder flavorBuilder = Flavor.builder();
-        for (Map.Entry<FlavorType, String> entry : flavorMap.entrySet()) {
-            FlavorType flavorType = entry.getKey();
-            String levelName = entry.getValue();
-
-            Rateable level = flavorLevelFactory.getRateableByFlavorTypeAndLevel(flavorType, levelName);
-            flavorLevelFactory.updateFlavorLevel(flavorBuilder, flavorType, level);
-        }
-
-        return flavorBuilder.build();
+    private List<FlavorLevel> getValidFlavorLevelsOrElseThrow(final Long alcoholTypeId, final List<Long> flavorLevelIds) {
+        final List<FlavorLevel> flavorLevels = alcoholTypeFlavorReader.getAllFlavorLevelByAlcoholTypeId(alcoholTypeId);
+        final Map<Long, FlavorLevel> flavorMap = flavorLevels.stream()
+                .collect(Collectors.toMap(FlavorLevel::getId, flavorLevel -> flavorLevel));
+        return flavorLevelIds.stream()
+                .map(flavorLevelId ->
+                        Optional.ofNullable(flavorMap.get(flavorLevelId))
+                                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_ALCOHOL_TYPE_FLAVOR))
+                )
+                .toList();
     }
 
     private TastingNote createBy(final Member member,
@@ -178,8 +150,6 @@ public class TastingNoteService {
                                  final AlcoholicDrinks alcoholicDrinks,
                                  final Color color,
                                  final AlcoholicDrinksSnapshot alcoholicDrinksInfo,
-                                 final Sensory sensory,
-                                 final Flavor flavor,
                                  final TastingNoteWriteRequest request) {
         return TastingNote.of(
                 member,
@@ -187,8 +157,6 @@ public class TastingNoteService {
                 alcoholicDrinks,
                 color,
                 alcoholicDrinksInfo,
-                sensory,
-                flavor,
                 request.rating(),
                 request.content(),
                 request.isPrivate()
