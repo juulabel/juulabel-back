@@ -84,7 +84,7 @@ public class DailyLifeQueryRepository {
                         dailyLife.member.nickname,
                         dailyLife.member.profileImage
                     ),
-                    dailyLifeImage.imagePath.min().as("thumbnailPath"),
+                    dailyLifeImage.imagePath.as("thumbnailPath"),
                     dailyLifeImage.count().as("imageCount"),
                     dailyLife.createdAt,
                     dailyLifeLike.countDistinct().as("likeCount"),
@@ -95,7 +95,9 @@ public class DailyLifeQueryRepository {
             .from(dailyLife)
             .leftJoin(dailyLifeComment).on(dailyLifeComment.dailyLife.eq(dailyLife).and(isNotDeleted(dailyLifeComment)))
             .leftJoin(dailyLifeLike).on(dailyLifeLike.dailyLife.eq(dailyLife))
-            .leftJoin(dailyLifeImage).on(dailyLifeImage.dailyLife.eq(dailyLife).and(isNotDeleted(dailyLifeImage)))
+            .leftJoin(dailyLifeImage).on(dailyLifeImage.dailyLife.eq(dailyLife)
+                .and(dailyLifeImage.seq.eq(1))
+                .and(isNotDeleted(dailyLifeImage)))
             .where(
                 isNotPrivate(dailyLife),
                 isNotDeleted(dailyLife),
