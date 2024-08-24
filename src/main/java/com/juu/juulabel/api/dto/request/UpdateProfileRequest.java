@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record UpdateProfileRequest(
-    String profileImageUrl,
     @NotBlank(message = "닉네임이 누락되었습니다.")
     String nickname,
     String introduction,
