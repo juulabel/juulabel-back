@@ -1,13 +1,18 @@
 package com.juu.juulabel.api.controller.member;
 
+import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.OAuthLoginRequest;
 import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
+import com.juu.juulabel.api.dto.request.UpdateProfileRequest;
 import com.juu.juulabel.api.dto.response.LoginResponse;
 import com.juu.juulabel.api.dto.response.SignUpMemberResponse;
+import com.juu.juulabel.api.dto.response.UpdateProfileResponse;
 import com.juu.juulabel.api.service.member.MemberService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
+import com.juu.juulabel.domain.entity.member.Member;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +48,15 @@ public class MemberController {
     @GetMapping("/nicknames/{nickname}/exists")
     public ResponseEntity<CommonResponse<Boolean>> checkNickname(@NotNull @PathVariable String nickname) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.checkNickname(nickname));
+    }
+
+    @Operation(summary = "프로필 수정")
+    @PutMapping("/me/profile")
+    public ResponseEntity<CommonResponse<UpdateProfileResponse>> updateProfile(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid @RequestBody UpdateProfileRequest request
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.updateProfile(loginMember, request));
     }
 
 }
