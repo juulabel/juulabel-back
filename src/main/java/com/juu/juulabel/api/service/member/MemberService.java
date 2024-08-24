@@ -8,12 +8,14 @@ import com.juu.juulabel.api.dto.response.SignUpMemberResponse;
 import com.juu.juulabel.api.dto.response.UpdateProfileResponse;
 import com.juu.juulabel.api.factory.OAuthProviderFactory;
 import com.juu.juulabel.api.provider.JwtTokenProvider;
+import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.member.OAuthLoginInfo;
 import com.juu.juulabel.domain.dto.member.OAuthUser;
 import com.juu.juulabel.domain.dto.member.OAuthUserInfo;
+import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.dto.terms.TermsAgreement;
 import com.juu.juulabel.domain.dto.token.Token;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
@@ -31,6 +33,7 @@ import com.juu.juulabel.domain.repository.writer.MemberWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,6 +51,8 @@ public class MemberService {
     private final MemberTermsWriter memberTermsWriter;
     private final MemberAlcoholTypeWriter memberAlcoholTypeWriter;
     private final AlcoholTypeReader alcoholTypeReader;
+    private final S3Service s3Service;
+
 
     @Transactional
     public LoginResponse login(OAuthLoginRequest oAuthLoginRequest) {
@@ -169,9 +174,10 @@ public class MemberService {
     }
 
     @Transactional
-    public UpdateProfileResponse updateProfile(Member loginMember, UpdateProfileRequest request) {
+    public UpdateProfileResponse updateProfile(Member loginMember, UpdateProfileRequest request, MultipartFile image) {
         Member member = memberReader.getByEmail(loginMember.getEmail());
-        member.updateProfile(request);
+        UploadImageInfo uploadImageInfo = s3Service.uploadMemberProfileImage(image);
+        member.updateProfile(request, uploadImageInfo.ImageUrl());
 
         memberAlcoholTypeWriter.deleteAllByMember(member);
 

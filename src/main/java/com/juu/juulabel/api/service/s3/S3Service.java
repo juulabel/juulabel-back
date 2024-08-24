@@ -24,4 +24,8 @@ public class S3Service {
         return s3Uploader.uploadMultipartFileToBucket(CATEGORY_DAILY_LIFE, image);
     }
 
+    public UploadImageInfo uploadMemberProfileImage(MultipartFile image) {
+        return s3Uploader.uploadMultipartFileToBucket(CATEGORY_MEMBER, image);
+    }
+
 }
