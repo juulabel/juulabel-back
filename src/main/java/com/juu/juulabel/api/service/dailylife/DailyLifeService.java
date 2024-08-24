@@ -34,7 +34,6 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class DailyLifeService {
 
-    private final MemberReader memberReader;
     private final DailyLifeWriter dailyLifeWriter;
     private final DailyLifeReader dailyLifeReader;
     private final DailyLifeImageWriter dailyLifeImageWriter;
