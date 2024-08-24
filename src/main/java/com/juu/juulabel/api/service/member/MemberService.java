@@ -2,8 +2,10 @@ package com.juu.juulabel.api.service.member;
 
 import com.juu.juulabel.api.dto.request.OAuthLoginRequest;
 import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
+import com.juu.juulabel.api.dto.request.UpdateProfileRequest;
 import com.juu.juulabel.api.dto.response.LoginResponse;
 import com.juu.juulabel.api.dto.response.SignUpMemberResponse;
+import com.juu.juulabel.api.dto.response.UpdateProfileResponse;
 import com.juu.juulabel.api.factory.OAuthProviderFactory;
 import com.juu.juulabel.api.provider.JwtTokenProvider;
 import com.juu.juulabel.common.constants.AuthConstants;
@@ -15,9 +17,9 @@ import com.juu.juulabel.domain.dto.member.OAuthUserInfo;
 import com.juu.juulabel.domain.dto.terms.TermsAgreement;
 import com.juu.juulabel.domain.dto.token.Token;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
+import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.member.MemberAlcoholType;
 import com.juu.juulabel.domain.entity.member.MemberTerms;
-import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.terms.Terms;
 import com.juu.juulabel.domain.enums.member.Provider;
 import com.juu.juulabel.domain.repository.reader.AlcoholTypeReader;
@@ -27,7 +29,6 @@ import com.juu.juulabel.domain.repository.writer.MemberAlcoholTypeWriter;
 import com.juu.juulabel.domain.repository.writer.MemberTermsWriter;
 import com.juu.juulabel.domain.repository.writer.MemberWriter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -163,8 +163,24 @@ public class MemberService {
         return mappings;
     }
 
+    @Transactional(readOnly = true)
     public boolean checkNickname(String nickname) {
         return memberReader.existActiveNickname(nickname);
+    }
+
+    @Transactional
+    public UpdateProfileResponse updateProfile(Member loginMember, UpdateProfileRequest request) {
+        Member member = memberReader.getByEmail(loginMember.getEmail());
+        member.updateProfile(request);
+
+        memberAlcoholTypeWriter.deleteAllByMember(member);
+
+        List<MemberAlcoholType> memberAlcoholTypeList = getMemberAlcoholTypeList(member, request.alcoholTypeIds());
+        if (!memberAlcoholTypeList.isEmpty()) {
+            memberAlcoholTypeWriter.storeAll(memberAlcoholTypeList);
+        }
+
+        return new UpdateProfileResponse(member.getId());
     }
 
     private void validateNickname(String nickname) {

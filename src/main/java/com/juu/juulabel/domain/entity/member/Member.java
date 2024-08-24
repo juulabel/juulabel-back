@@ -1,6 +1,7 @@
 package com.juu.juulabel.domain.entity.member;
 
 import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
+import com.juu.juulabel.api.dto.request.UpdateProfileRequest;
 import com.juu.juulabel.domain.enums.member.MemberRole;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.enums.member.Gender;
@@ -36,8 +37,8 @@ public class Member extends BaseTimeEntity {
     @Column(name = "nickname", nullable = false, columnDefinition = "varchar(45) comment '닉네임'")
     private String nickname;
 
-    @Column(name = "introduce", columnDefinition = "varchar(600) comment '자기소개'")
-    private String introduce;
+    @Column(name = "introduction", columnDefinition = "varchar(600) comment '자기소개'")
+    private String introduction;
 
     @Column(name = "password", columnDefinition = "varchar(255) comment '비밀번호'")
     private String password;
@@ -83,4 +84,10 @@ public class Member extends BaseTimeEntity {
             .build();
     }
 
+    public void updateProfile(UpdateProfileRequest request) {
+        this.profileImage = request.profileImageUrl();
+        this.nickname = request.nickname();
+        this.introduction = request.introduction();
+        this.gender = request.gender();
+    }
 }
