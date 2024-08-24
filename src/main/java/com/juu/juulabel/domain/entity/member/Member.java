@@ -36,6 +36,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "nickname", nullable = false, columnDefinition = "varchar(45) comment '닉네임'")
     private String nickname;
 
+    @Column(name = "introduce", columnDefinition = "varchar(600) comment '자기소개'")
+    private String introduce;
+
     @Column(name = "password", columnDefinition = "varchar(255) comment '비밀번호'")
     private String password;
 
