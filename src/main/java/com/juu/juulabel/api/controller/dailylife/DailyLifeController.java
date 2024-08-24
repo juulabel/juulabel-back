@@ -76,7 +76,7 @@ public class DailyLifeController {
         description = "전통주 일상생활 게시글을 수정한다."
     )
     @PatchMapping(value = "/{dailyLifeId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<CommonResponse<updateDailyLifeResponse>> updateDailyLife(
+    public ResponseEntity<CommonResponse<UpdateDailyLifeResponse>> updateDailyLife(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @Valid @RequestPart(value = "request") UpdateDailyLifeRequest request,
         @RequestPart(value = "files", required = false) List<MultipartFile> files,
@@ -90,7 +90,7 @@ public class DailyLifeController {
         description = "전통주 일상생활 게시글을 삭제한다."
     )
     @DeleteMapping("/{dailyLifeId}")
-    public ResponseEntity<CommonResponse<deleteDailyLifeResponse>> deleteDailyLife(
+    public ResponseEntity<CommonResponse<DeleteDailyLifeResponse>> deleteDailyLife(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @PathVariable Long dailyLifeId
     ) {
@@ -175,7 +175,7 @@ public class DailyLifeController {
         description = "전통주 일상생활 게시글의 댓글을 삭제한다."
     )
     @DeleteMapping("/{dailyLifeId}/comments/{commentId}")
-    public ResponseEntity<CommonResponse<deleteDailyLifeCommentResponse>> deleteComment(
+    public ResponseEntity<CommonResponse<DeleteDailyLifeCommentResponse>> deleteComment(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @PathVariable Long dailyLifeId,
         @PathVariable Long commentId

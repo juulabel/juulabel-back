@@ -1,6 +1,6 @@
 package com.juu.juulabel.api.dto.response;
 
-public record updateDailyLifeResponse(
+public record UpdateDailyLifeResponse(
     Long dailyLifeId
 ) {
 }
