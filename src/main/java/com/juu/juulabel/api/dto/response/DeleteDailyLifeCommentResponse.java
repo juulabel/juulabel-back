@@ -1,6 +1,6 @@
 package com.juu.juulabel.api.dto.response;
 
-public record deleteDailyLifeCommentResponse(
+public record DeleteDailyLifeCommentResponse(
     Long commentId
 ) {
 }

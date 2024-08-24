@@ -88,7 +88,7 @@ public class DailyLifeService {
     }
 
     @Transactional
-    public updateDailyLifeResponse updateDailyLife(
+    public UpdateDailyLifeResponse updateDailyLife(
         final Member member,
         final Long dailyLifeId,
         final UpdateDailyLifeRequest request,
@@ -107,16 +107,16 @@ public class DailyLifeService {
         List<String> newImageUrlList = new ArrayList<>();
         storeImageList(files, newImageUrlList, dailyLife);
 
-        return new updateDailyLifeResponse(dailyLife.getId());
+        return new UpdateDailyLifeResponse(dailyLife.getId());
     }
 
     @Transactional
-    public deleteDailyLifeResponse deleteDailyLife(final Member member, final Long dailyLifeId) {
+    public DeleteDailyLifeResponse deleteDailyLife(final Member member, final Long dailyLifeId) {
         DailyLife dailyLife = getDailyLife(dailyLifeId);
         validateDailyLifeWriter(member, dailyLife);
 
         dailyLife.delete();
-        return new deleteDailyLifeResponse(dailyLife.getId());
+        return new DeleteDailyLifeResponse(dailyLife.getId());
     }
 
     @Transactional
@@ -202,7 +202,7 @@ public class DailyLifeService {
     }
 
     @Transactional
-    public deleteDailyLifeCommentResponse deleteComment(
+    public DeleteDailyLifeCommentResponse deleteComment(
         final Member member,
         final Long dailyLifeId,
         final Long commentId
@@ -213,7 +213,7 @@ public class DailyLifeService {
         validateCommentWriter(member, comment);
 
         comment.delete();
-        return new deleteDailyLifeCommentResponse(comment.getId());
+        return new DeleteDailyLifeCommentResponse(comment.getId());
     }
 
     @Transactional
