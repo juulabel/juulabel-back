@@ -3,9 +3,12 @@ package com.juu.juulabel.domain.repository.reader;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.annotation.Reader;
+import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
+import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.repository.query.AlcoholicDrinksQueryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -33,4 +36,7 @@ public class AlcoholicDrinksReader {
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE));
     }
 
+    public Slice<AlcoholicDrinksSummary> getAllMyAlcoholicDrinks(Member member, Long lastAlcoholicDrinksId, int pageSize) {
+        return alcoholicDrinksQueryRepository.getAllMyAlcoholicDrinks(member, lastAlcoholicDrinksId, pageSize);
+    }
 }

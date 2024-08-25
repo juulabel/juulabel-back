@@ -1,19 +1,14 @@
 package com.juu.juulabel.api.service.member;
 
-import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
-import com.juu.juulabel.api.dto.request.OAuthLoginRequest;
-import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
-import com.juu.juulabel.api.dto.request.UpdateProfileRequest;
-import com.juu.juulabel.api.dto.response.LoadMyDailyLifeListResponse;
-import com.juu.juulabel.api.dto.response.LoginResponse;
-import com.juu.juulabel.api.dto.response.SignUpMemberResponse;
-import com.juu.juulabel.api.dto.response.UpdateProfileResponse;
+import com.juu.juulabel.api.dto.request.*;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.OAuthProviderFactory;
 import com.juu.juulabel.api.provider.JwtTokenProvider;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
 import com.juu.juulabel.domain.dto.dailylife.MyDailyLifeSummary;
 import com.juu.juulabel.domain.dto.member.OAuthLoginInfo;
 import com.juu.juulabel.domain.dto.member.OAuthUser;
@@ -201,7 +196,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public LoadMyDailyLifeListResponse loadMyDailyLifeList(Member member, LoadDailyLifeListRequest request) {
-        final Slice<MyDailyLifeSummary> myDailyLifeList =
+        Slice<MyDailyLifeSummary> myDailyLifeList =
             dailyLifeReader.getAllMyDailyLives(member, request.lastDailyLifeId(), request.pageSize());
 
         return new LoadMyDailyLifeListResponse(myDailyLifeList);
@@ -223,6 +218,14 @@ public class MemberService {
                 memberAlcoholicDrinksWriter.store(member, alcoholicDrinks);
                 return true;
             });
+    }
+
+    @Transactional(readOnly = true)
+    public MyAlcoholicDrinksListResponse loadMyAlcoholicDrinks(Member member, MyAlcoholicDrinksListRequest request) {
+        Slice<AlcoholicDrinksSummary> alcoholicDrinksSummaries =
+            alcoholicDrinksReader.getAllMyAlcoholicDrinks(member, request.lastAlcoholicDrinksId(), request.pageSize());
+
+        return new MyAlcoholicDrinksListResponse(alcoholicDrinksSummaries);
     }
 
     private void validateNickname(String nickname) {
