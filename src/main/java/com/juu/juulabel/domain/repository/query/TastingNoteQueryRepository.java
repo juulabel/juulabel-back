@@ -46,7 +46,8 @@ public class TastingNoteQueryRepository {
                                 Projections.constructor(
                                         BrewerySummary.class,
                                         brewery.id,
-                                        brewery.name
+                                        brewery.name,
+                                        brewery.region
                                 )
                         )
                 )
