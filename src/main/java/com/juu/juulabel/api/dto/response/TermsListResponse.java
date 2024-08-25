@@ -4,7 +4,7 @@ import com.juu.juulabel.domain.dto.terms.UsedTermsInfo;
 
 import java.util.List;
 
-public record LoadTermsListResponse(
+public record TermsListResponse(
     List<UsedTermsInfo> usedTermsInfos
 ) {
 }

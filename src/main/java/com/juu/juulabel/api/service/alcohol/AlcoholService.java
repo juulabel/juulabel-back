@@ -1,6 +1,6 @@
 package com.juu.juulabel.api.service.alcohol;
 
-import com.juu.juulabel.api.dto.response.LoadAlcoholTypeListResponse;
+import com.juu.juulabel.api.dto.response.AlcoholTypeListResponse;
 import com.juu.juulabel.domain.dto.alcohol.UsedAlcoholTypeInfo;
 import com.juu.juulabel.domain.repository.reader.AlcoholTypeReader;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,8 @@ public class AlcoholService {
     private final AlcoholTypeReader alcoholTypeReader;
 
 
-    public LoadAlcoholTypeListResponse loadUsedAlcoholTypeList() {
+    public AlcoholTypeListResponse loadUsedAlcoholTypeList() {
         List<UsedAlcoholTypeInfo> alcoholTypeInfoList = alcoholTypeReader.getAllUsedAlcoholType();
-        return new LoadAlcoholTypeListResponse(alcoholTypeInfoList);
+        return new AlcoholTypeListResponse(alcoholTypeInfoList);
     }
 }

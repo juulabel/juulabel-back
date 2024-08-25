@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 @Schema(description = "팔로워 리스트 조회 요청")
-public record LoadFollowerListRequest(
+public record FollowerListRequest(
         @Schema(description = "마지막 팔로우 고유 번호", example = "20")
         Long lastFollowId,
         @Schema(description = "페이지 사이즈", example = "1")

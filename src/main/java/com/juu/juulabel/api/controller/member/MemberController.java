@@ -70,9 +70,9 @@ public class MemberController {
     @Operation(summary = "내가 작성한 일상생활 목록 조회")
     @Parameters(@Parameter(name = "request", description = "내가 작성한 일상생활 목록 조회 요청", required = true))
     @GetMapping("/daily-lives/my")
-    public ResponseEntity<CommonResponse<LoadMyDailyLifeListResponse>> loadMyDailyLifeList(
+    public ResponseEntity<CommonResponse<MyDailyLifeListResponse>> loadMyDailyLifeList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid LoadDailyLifeListRequest request
+        @Valid DailyLifeListRequest request
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyDailyLifeList(loginMember, request));
     }

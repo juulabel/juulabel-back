@@ -1,6 +1,6 @@
 package com.juu.juulabel.api.controller.alcohol;
 
-import com.juu.juulabel.api.dto.response.LoadAlcoholTypeListResponse;
+import com.juu.juulabel.api.dto.response.AlcoholTypeListResponse;
 import com.juu.juulabel.api.service.alcohol.AlcoholService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -20,7 +20,7 @@ public class AlcoholController {
 
     @Operation(summary = "주종 조회")
     @GetMapping("/types")
-    public ResponseEntity<CommonResponse<LoadAlcoholTypeListResponse>> loadUsedAlcoholTypeList() {
+    public ResponseEntity<CommonResponse<AlcoholTypeListResponse>> loadUsedAlcoholTypeList() {
         return CommonResponse.success(SuccessCode.SUCCESS, alcoholService.loadUsedAlcoholTypeList());
     }
 
