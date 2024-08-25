@@ -81,7 +81,7 @@ public class DailyLifeService {
     @Transactional(readOnly = true)
     public LoadDailyLifeListResponse loadDailyLifeList(Member member, LoadDailyLifeListRequest request) {
         final Slice<DailyLifeSummary> dailyLifeList =
-            dailyLifeReader.getAllDailyLife(member, request.lastDailyLifeId(), request.pageSize());
+            dailyLifeReader.getAllDailyLives(member, request.lastDailyLifeId(), request.pageSize());
 
         return new LoadDailyLifeListResponse(dailyLifeList);
     }
