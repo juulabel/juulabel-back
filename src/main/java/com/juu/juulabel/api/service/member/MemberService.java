@@ -195,11 +195,11 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public LoadMyDailyLifeListResponse loadMyDailyLifeList(Member member, LoadDailyLifeListRequest request) {
+    public MyDailyLifeListResponse loadMyDailyLifeList(Member member, DailyLifeListRequest request) {
         Slice<MyDailyLifeSummary> myDailyLifeList =
             dailyLifeReader.getAllMyDailyLives(member, request.lastDailyLifeId(), request.pageSize());
 
-        return new LoadMyDailyLifeListResponse(myDailyLifeList);
+        return new MyDailyLifeListResponse(myDailyLifeList);
     }
 
     @Transactional

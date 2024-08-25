@@ -2,8 +2,8 @@ package com.juu.juulabel.api.controller.follow;
 
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.FollowOrUnfollowRequest;
-import com.juu.juulabel.api.dto.request.LoadFollowerListRequest;
-import com.juu.juulabel.api.dto.request.LoadFollowingListRequest;
+import com.juu.juulabel.api.dto.request.FollowerListRequest;
+import com.juu.juulabel.api.dto.request.FollowingListRequest;
 import com.juu.juulabel.api.dto.response.FollowOrUnfollowResponse;
 import com.juu.juulabel.api.dto.response.FollowerListResponse;
 import com.juu.juulabel.api.dto.response.FollowingListResponse;
@@ -58,7 +58,7 @@ public class FollowController {
     public ResponseEntity<CommonResponse<FollowingListResponse>> loadFollowingList(
             @Parameter(hidden = true) @LoginMember Member loginMember,
             @PathVariable Long memberId,
-            @Valid LoadFollowingListRequest request) {
+            @Valid FollowingListRequest request) {
         return CommonResponse.success(SuccessCode.SUCCESS, followService.loadFollowingList(loginMember, memberId, request));
     }
 
@@ -73,7 +73,7 @@ public class FollowController {
     public ResponseEntity<CommonResponse<FollowerListResponse>> loadFollowerList(
             @Parameter(hidden = true) @LoginMember Member loginMember,
             @PathVariable Long memberId,
-            @Valid LoadFollowerListRequest request) {
+            @Valid FollowerListRequest request) {
         return CommonResponse.success(SuccessCode.SUCCESS, followService.loadFollowerList(loginMember, memberId, request));
     }
 

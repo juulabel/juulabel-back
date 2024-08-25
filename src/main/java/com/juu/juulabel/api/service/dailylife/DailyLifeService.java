@@ -68,22 +68,22 @@ public class DailyLifeService {
     }
 
     @Transactional(readOnly = true)
-    public LoadDailyLifeResponse loadDailyLife(final Member member, final Long dailyLifeId) {
+    public DailyLifeResponse loadDailyLife(final Member member, final Long dailyLifeId) {
         final DailyLifeDetailInfo dailyLifeDetailInfo = dailyLifeReader.getDailyLifeDetailById(dailyLifeId, member);
         final List<String> urlList = dailyLifeImageReader.getImageUrlList(dailyLifeId);
 
-        return new LoadDailyLifeResponse(
+        return new DailyLifeResponse(
             dailyLifeDetailInfo,
             new DailyLifeImageInfo(urlList, urlList.size())
         );
     }
 
     @Transactional(readOnly = true)
-    public LoadDailyLifeListResponse loadDailyLifeList(Member member, LoadDailyLifeListRequest request) {
+    public DailyLifeListResponse loadDailyLifeList(Member member, DailyLifeListRequest request) {
         final Slice<DailyLifeSummary> dailyLifeList =
             dailyLifeReader.getAllDailyLives(member, request.lastDailyLifeId(), request.pageSize());
 
-        return new LoadDailyLifeListResponse(dailyLifeList);
+        return new DailyLifeListResponse(dailyLifeList);
     }
 
     @Transactional
@@ -153,9 +153,9 @@ public class DailyLifeService {
     }
 
     @Transactional(readOnly = true)
-    public LoadDailyLifeCommentListResponse loadCommentList(
+    public DailyLifeCommentListResponse loadCommentList(
         final Member member,
-        final LoadDailyLifeCommentListRequest request,
+        final DailyLifeCommentListRequest request,
         final Long dailyLifeId
     ) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
@@ -163,13 +163,13 @@ public class DailyLifeService {
         final Slice<DailyLifeCommentSummary> commentList =
             dailyLifeCommentReader.getAllByDailyLifeId(member, dailyLife.getId(), request.lastCommentId(), request.pageSize());
 
-        return new LoadDailyLifeCommentListResponse(commentList);
+        return new DailyLifeCommentListResponse(commentList);
     }
 
     @Transactional(readOnly = true)
-    public LoadDailyLifeReplyListResponse loadReplyList(
+    public DailyLifeReplyListResponse loadReplyList(
         final Member member,
-        final LoadDailyLifeReplyListRequest request,
+        final DailyLifeReplyListRequest request,
         final Long dailyLifeId,
         final Long dailyLifeCommentId
     ) {
@@ -178,7 +178,7 @@ public class DailyLifeService {
         final Slice<DailyLifeReplySummary> replyList =
             dailyLifeCommentReader.getAllRepliesByParentId(member, dailyLife.getId(), dailyLifeCommentId, request.lastReplyId(), request.pageSize());
 
-        return new LoadDailyLifeReplyListResponse(replyList);
+        return new DailyLifeReplyListResponse(replyList);
     }
 
     @Transactional

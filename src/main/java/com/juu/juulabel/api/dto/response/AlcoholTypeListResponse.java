@@ -4,7 +4,7 @@ import com.juu.juulabel.domain.dto.alcohol.UsedAlcoholTypeInfo;
 
 import java.util.List;
 
-public record LoadAlcoholTypeListResponse(
+public record AlcoholTypeListResponse(
     List<UsedAlcoholTypeInfo> alcoholTypeInfos
 ) {
 }

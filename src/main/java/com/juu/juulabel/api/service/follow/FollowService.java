@@ -1,8 +1,8 @@
 package com.juu.juulabel.api.service.follow;
 
 import com.juu.juulabel.api.dto.request.FollowOrUnfollowRequest;
-import com.juu.juulabel.api.dto.request.LoadFollowerListRequest;
-import com.juu.juulabel.api.dto.request.LoadFollowingListRequest;
+import com.juu.juulabel.api.dto.request.FollowerListRequest;
+import com.juu.juulabel.api.dto.request.FollowingListRequest;
 import com.juu.juulabel.api.dto.response.FollowOrUnfollowResponse;
 import com.juu.juulabel.api.dto.response.FollowerListResponse;
 import com.juu.juulabel.api.dto.response.FollowingListResponse;
@@ -34,14 +34,14 @@ public class FollowService {
     }
 
     @Transactional(readOnly = true)
-    public FollowingListResponse loadFollowingList(final Member loginMember, final Long memberId, final LoadFollowingListRequest request) {
+    public FollowingListResponse loadFollowingList(final Member loginMember, final Long memberId, final FollowingListRequest request) {
         final Member member = memberReader.getById(memberId);
         final Slice<FollowUser> followingList = followReader.findAllFollowing(loginMember, member, request.lastFollowId(), request.pageSize());
         return new FollowingListResponse(followingList);
     }
 
     @Transactional(readOnly = true)
-    public FollowerListResponse loadFollowerList(final Member loginMember, final Long memberId, final LoadFollowerListRequest request) {
+    public FollowerListResponse loadFollowerList(final Member loginMember, final Long memberId, final FollowerListRequest request) {
         final Member member = memberReader.getById(memberId);
         final Slice<FollowUser> followingList = followReader.findAllFollower(loginMember, member, request.lastFollowId(), request.pageSize());
         return new FollowerListResponse(followingList);

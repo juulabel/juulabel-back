@@ -49,7 +49,7 @@ public class DailyLifeController {
         description = "전통주 일상생활 게시글을 상세 조회한다."
     )
     @GetMapping("/{dailyLifeId}")
-    public ResponseEntity<CommonResponse<LoadDailyLifeResponse>> loadDailyLife(
+    public ResponseEntity<CommonResponse<DailyLifeResponse>> loadDailyLife(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @PathVariable Long dailyLifeId
     ) {
@@ -64,9 +64,9 @@ public class DailyLifeController {
         @Parameter(name = "request", description = "일상생활 게시글 목록 조회 요청", required = true)
     )
     @GetMapping
-    public ResponseEntity<CommonResponse<LoadDailyLifeListResponse>> loadDailyLifeList(
+    public ResponseEntity<CommonResponse<DailyLifeListResponse>> loadDailyLifeList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid LoadDailyLifeListRequest request
+        @Valid DailyLifeListRequest request
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLifeList(loginMember, request));
     }
@@ -131,9 +131,9 @@ public class DailyLifeController {
         @Parameter(name = "request", description = "일상생활 게시글 댓글 목록 조회 요청", required = true)
     )
     @GetMapping("/{dailyLifeId}/comments")
-    public ResponseEntity<CommonResponse<LoadDailyLifeCommentListResponse>> loadCommentList(
+    public ResponseEntity<CommonResponse<DailyLifeCommentListResponse>> loadCommentList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid LoadDailyLifeCommentListRequest request,
+        @Valid DailyLifeCommentListRequest request,
         @PathVariable Long dailyLifeId
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadCommentList(loginMember, request, dailyLifeId));
@@ -147,9 +147,9 @@ public class DailyLifeController {
         @Parameter(name = "request", description = "일상생활 게시글 답글 목록 조회 요청", required = true)
     )
     @GetMapping("/{dailyLifeId}/comments/{dailyLifeCommentId}")
-    public ResponseEntity<CommonResponse<LoadDailyLifeReplyListResponse>> loadReplyList(
+    public ResponseEntity<CommonResponse<DailyLifeReplyListResponse>> loadReplyList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid LoadDailyLifeReplyListRequest request,
+        @Valid DailyLifeReplyListRequest request,
         @PathVariable Long dailyLifeId,
         @PathVariable Long dailyLifeCommentId
     ) {

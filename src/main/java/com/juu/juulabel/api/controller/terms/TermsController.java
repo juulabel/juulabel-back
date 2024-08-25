@@ -1,6 +1,6 @@
 package com.juu.juulabel.api.controller.terms;
 
-import com.juu.juulabel.api.dto.response.LoadTermsListResponse;
+import com.juu.juulabel.api.dto.response.TermsListResponse;
 import com.juu.juulabel.api.dto.response.TermsDetailResponse;
 import com.juu.juulabel.api.service.terms.TermsService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
@@ -23,7 +23,7 @@ public class TermsController {
 
     @Operation(summary = "약관 목록 조회")
     @GetMapping
-    public ResponseEntity<CommonResponse<LoadTermsListResponse>> loadUsedTermsList() {
+    public ResponseEntity<CommonResponse<TermsListResponse>> loadUsedTermsList() {
         return CommonResponse.success(SuccessCode.SUCCESS, termsService.loadUsedTermsList());
     }
 
