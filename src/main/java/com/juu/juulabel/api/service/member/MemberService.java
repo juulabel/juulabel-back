@@ -1,17 +1,17 @@
 package com.juu.juulabel.api.service.member;
 
+import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
 import com.juu.juulabel.api.dto.request.OAuthLoginRequest;
 import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
 import com.juu.juulabel.api.dto.request.UpdateProfileRequest;
-import com.juu.juulabel.api.dto.response.LoginResponse;
-import com.juu.juulabel.api.dto.response.SignUpMemberResponse;
-import com.juu.juulabel.api.dto.response.UpdateProfileResponse;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.OAuthProviderFactory;
 import com.juu.juulabel.api.provider.JwtTokenProvider;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.dailylife.MyDailyLifeSummary;
 import com.juu.juulabel.domain.dto.member.OAuthLoginInfo;
 import com.juu.juulabel.domain.dto.member.OAuthUser;
 import com.juu.juulabel.domain.dto.member.OAuthUserInfo;
@@ -25,12 +25,14 @@ import com.juu.juulabel.domain.entity.member.MemberTerms;
 import com.juu.juulabel.domain.entity.terms.Terms;
 import com.juu.juulabel.domain.enums.member.Provider;
 import com.juu.juulabel.domain.repository.reader.AlcoholTypeReader;
+import com.juu.juulabel.domain.repository.reader.DailyLifeReader;
 import com.juu.juulabel.domain.repository.reader.MemberReader;
 import com.juu.juulabel.domain.repository.reader.TermsReader;
 import com.juu.juulabel.domain.repository.writer.MemberAlcoholTypeWriter;
 import com.juu.juulabel.domain.repository.writer.MemberTermsWriter;
 import com.juu.juulabel.domain.repository.writer.MemberWriter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +54,7 @@ public class MemberService {
     private final MemberAlcoholTypeWriter memberAlcoholTypeWriter;
     private final AlcoholTypeReader alcoholTypeReader;
     private final S3Service s3Service;
+    private final DailyLifeReader dailyLifeReader;
 
 
     @Transactional
@@ -187,6 +190,14 @@ public class MemberService {
         }
 
         return new UpdateProfileResponse(member.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public LoadMyDailyLifeListResponse loadMyDailyLifeList(Member member, LoadDailyLifeListRequest request) {
+        final Slice<MyDailyLifeSummary> myDailyLifeList =
+            dailyLifeReader.getAllMyDailyLives(member, request.lastDailyLifeId(), request.pageSize());
+
+        return new LoadMyDailyLifeListResponse(myDailyLifeList);
     }
 
     private void validateNickname(String nickname) {

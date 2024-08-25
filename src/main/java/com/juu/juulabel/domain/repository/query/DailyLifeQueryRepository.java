@@ -5,6 +5,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeDetailInfo;
 import com.juu.juulabel.domain.dto.dailylife.DailyLifeSummary;
+import com.juu.juulabel.domain.dto.dailylife.MyDailyLifeSummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.entity.dailylife.QDailyLife;
 import com.juu.juulabel.domain.entity.dailylife.QDailyLifeComment;
@@ -114,6 +115,53 @@ public class DailyLifeQueryRepository {
         }
 
         return new SliceImpl<>(dailyLifeSummaryList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
+    public Slice<MyDailyLifeSummary> getAllMyDailyLives(Member member, Long lastDailyLifeId, int pageSize) {
+        List<MyDailyLifeSummary> myDailyLifeSummaryList = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    MyDailyLifeSummary.class,
+                    dailyLife.title,
+                    dailyLife.content,
+                    dailyLife.id,
+                    Projections.constructor(
+                        MemberInfo.class,
+                        dailyLife.member.id,
+                        dailyLife.member.nickname,
+                        dailyLife.member.profileImage
+                    ),
+                    dailyLifeImage.imagePath.as("thumbnailPath"),
+                    dailyLifeImage.count().as("imageCount"),
+                    dailyLife.createdAt,
+                    dailyLifeLike.countDistinct().as("likeCount"),
+                    dailyLifeComment.count().as("commentCount"),
+                    dailyLife.isPrivate,
+                    isLikedSubQuery(dailyLife, member)
+                )
+            )
+            .from(dailyLife)
+            .leftJoin(dailyLifeComment).on(dailyLifeComment.dailyLife.eq(dailyLife).and(isNotDeleted(dailyLifeComment)))
+            .leftJoin(dailyLifeLike).on(dailyLifeLike.dailyLife.eq(dailyLife))
+            .leftJoin(dailyLifeImage).on(dailyLifeImage.dailyLife.eq(dailyLife)
+                .and(dailyLifeImage.seq.eq(1))
+                .and(isNotDeleted(dailyLifeImage)))
+            .where(
+                dailyLife.member.eq(member),
+                isNotDeleted(dailyLife),
+                noOffsetByDailyLifeId(dailyLife, lastDailyLifeId)
+            )
+            .groupBy(dailyLife.id)
+            .orderBy(dailyLife.id.desc())
+            .limit(pageSize + 1L)
+            .fetch();
+
+        boolean hasNext = myDailyLifeSummaryList.size() > pageSize;
+        if (hasNext) {
+            myDailyLifeSummaryList.remove(pageSize);
+        }
+
+        return new SliceImpl<>(myDailyLifeSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
     private BooleanExpression noOffsetByDailyLifeId(QDailyLife dailyLife, Long lastDailyLifeId) {
