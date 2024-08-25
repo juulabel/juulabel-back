@@ -1,14 +1,8 @@
 package com.juu.juulabel.api.controller.member;
 
 import com.juu.juulabel.api.annotation.LoginMember;
-import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
-import com.juu.juulabel.api.dto.request.OAuthLoginRequest;
-import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
-import com.juu.juulabel.api.dto.request.UpdateProfileRequest;
-import com.juu.juulabel.api.dto.response.LoadMyDailyLifeListResponse;
-import com.juu.juulabel.api.dto.response.LoginResponse;
-import com.juu.juulabel.api.dto.response.SignUpMemberResponse;
-import com.juu.juulabel.api.dto.response.UpdateProfileResponse;
+import com.juu.juulabel.api.dto.request.*;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.member.MemberService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -75,7 +69,7 @@ public class MemberController {
 
     @Operation(summary = "내가 작성한 일상생활 목록 조회")
     @Parameters(@Parameter(name = "request", description = "내가 작성한 일상생활 목록 조회 요청", required = true))
-    @GetMapping
+    @GetMapping("/daily-lives/my")
     public ResponseEntity<CommonResponse<LoadMyDailyLifeListResponse>> loadMyDailyLifeList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @Valid LoadDailyLifeListRequest request
@@ -91,6 +85,16 @@ public class MemberController {
     ) {
         boolean isSaved = memberService.saveAlcoholicDrinks(loginMember, alcoholicDrinksId);
         return CommonResponse.success(isSaved ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
+    }
+
+    @Operation(summary = "내가 저장한 전통주 목록 조회")
+    @Parameters(@Parameter(name = "request", description = "내가 저장한 전통주 목록 조회 요청", required = true))
+    @GetMapping("alcoholic-drinks/my")
+    public ResponseEntity<CommonResponse<MyAlcoholicDrinksListResponse>> loadMyAlcoholicDrinks(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid MyAlcoholicDrinksListRequest request
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyAlcoholicDrinks(loginMember, request));
     }
 
 }
