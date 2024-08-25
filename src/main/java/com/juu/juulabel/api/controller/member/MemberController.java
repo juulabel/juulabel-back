@@ -5,7 +5,10 @@ import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
 import com.juu.juulabel.api.dto.request.OAuthLoginRequest;
 import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
 import com.juu.juulabel.api.dto.request.UpdateProfileRequest;
-import com.juu.juulabel.api.dto.response.*;
+import com.juu.juulabel.api.dto.response.LoadMyDailyLifeListResponse;
+import com.juu.juulabel.api.dto.response.LoginResponse;
+import com.juu.juulabel.api.dto.response.SignUpMemberResponse;
+import com.juu.juulabel.api.dto.response.UpdateProfileResponse;
 import com.juu.juulabel.api.service.member.MemberService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -78,6 +81,16 @@ public class MemberController {
         @Valid LoadDailyLifeListRequest request
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyDailyLifeList(loginMember, request));
+    }
+
+    @Operation(summary = "전통주 저장")
+    @PostMapping("/{alcoholicDrinksId}/save")
+    public ResponseEntity<CommonResponse<Void>> saveAlcoholicDrinks(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long alcoholicDrinksId
+    ) {
+        boolean isSaved = memberService.saveAlcoholicDrinks(loginMember, alcoholicDrinksId);
+        return CommonResponse.success(isSaved ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
     }
 
 }

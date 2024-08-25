@@ -4,7 +4,10 @@ import com.juu.juulabel.api.dto.request.LoadDailyLifeListRequest;
 import com.juu.juulabel.api.dto.request.OAuthLoginRequest;
 import com.juu.juulabel.api.dto.request.SignUpMemberRequest;
 import com.juu.juulabel.api.dto.request.UpdateProfileRequest;
-import com.juu.juulabel.api.dto.response.*;
+import com.juu.juulabel.api.dto.response.LoadMyDailyLifeListResponse;
+import com.juu.juulabel.api.dto.response.LoginResponse;
+import com.juu.juulabel.api.dto.response.SignUpMemberResponse;
+import com.juu.juulabel.api.dto.response.UpdateProfileResponse;
 import com.juu.juulabel.api.factory.OAuthProviderFactory;
 import com.juu.juulabel.api.provider.JwtTokenProvider;
 import com.juu.juulabel.api.service.s3.S3Service;
@@ -19,16 +22,16 @@ import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.dto.terms.TermsAgreement;
 import com.juu.juulabel.domain.dto.token.Token;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.member.MemberAlcoholType;
+import com.juu.juulabel.domain.entity.member.MemberAlcoholicDrinks;
 import com.juu.juulabel.domain.entity.member.MemberTerms;
 import com.juu.juulabel.domain.entity.terms.Terms;
 import com.juu.juulabel.domain.enums.member.Provider;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeReader;
-import com.juu.juulabel.domain.repository.reader.DailyLifeReader;
-import com.juu.juulabel.domain.repository.reader.MemberReader;
-import com.juu.juulabel.domain.repository.reader.TermsReader;
+import com.juu.juulabel.domain.repository.reader.*;
 import com.juu.juulabel.domain.repository.writer.MemberAlcoholTypeWriter;
+import com.juu.juulabel.domain.repository.writer.MemberAlcoholicDrinksWriter;
 import com.juu.juulabel.domain.repository.writer.MemberTermsWriter;
 import com.juu.juulabel.domain.repository.writer.MemberWriter;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +59,9 @@ public class MemberService {
     private final AlcoholTypeReader alcoholTypeReader;
     private final S3Service s3Service;
     private final DailyLifeReader dailyLifeReader;
+    private final AlcoholicDrinksReader alcoholicDrinksReader;
+    private final MemberAlcoholicDrinksReader memberAlcoholicDrinksReader;
+    private final MemberAlcoholicDrinksWriter memberAlcoholicDrinksWriter;
 
 
     @Transactional
@@ -198,6 +205,24 @@ public class MemberService {
             dailyLifeReader.getAllMyDailyLives(member, request.lastDailyLifeId(), request.pageSize());
 
         return new LoadMyDailyLifeListResponse(myDailyLifeList);
+    }
+
+    @Transactional
+    public boolean saveAlcoholicDrinks(Member member, Long alcoholicDrinksId) {
+        AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getById(alcoholicDrinksId);
+        Optional<MemberAlcoholicDrinks> memberAlcoholicDrinks =
+            memberAlcoholicDrinksReader.findByMemberAndAlcoholicDrinks(member, alcoholicDrinks);
+
+        // 전통주가 이미 저장되어 있다면 삭제, 저장되어 있지 않다면 등록
+        return memberAlcoholicDrinks
+            .map(save -> {
+                memberAlcoholicDrinksWriter.delete(save);
+                return false;
+            })
+            .orElseGet(() -> {
+                memberAlcoholicDrinksWriter.store(member, alcoholicDrinks);
+                return true;
+            });
     }
 
     private void validateNickname(String nickname) {
