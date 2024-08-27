@@ -228,6 +228,15 @@ public class MemberService {
         return new MyAlcoholicDrinksListResponse(alcoholicDrinksSummaries);
     }
 
+    @Transactional(readOnly = true)
+    public MySpaceResponse getMySpace(Member member) {
+        return new MySpaceResponse(
+                member.getProfileImage(),
+                member.getNickname(),
+                member.getIntroduction()
+                );
+    }
+
     private void validateNickname(String nickname) {
         if (memberReader.existActiveNickname(nickname)) {
             throw new InvalidParamException(ErrorCode.EXIST_NICKNAME);
