@@ -30,21 +30,18 @@ public class MemberController {
     private final MemberService memberService;
 
     @Operation(summary = "카카오 로그인")
-    @Parameters(@Parameter(name = "request", description = "카카오 로그인 요청", required = true))
     @PostMapping("/login/kakao")
     public ResponseEntity<CommonResponse<LoginResponse>> kakaoLogin(@Valid @RequestBody OAuthLoginRequest request) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.login(request));
     }
 
     @Operation(summary = "구글 로그인")
-    @Parameters(@Parameter(name = "request", description = "구글 로그인 요청", required = true))
     @PostMapping("/login/google")
     public ResponseEntity<CommonResponse<LoginResponse>> googleLogin(@Valid @RequestBody OAuthLoginRequest request) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.login(request));
     }
 
     @Operation(summary = "회원가입")
-    @Parameters(@Parameter(name = "request", description = "회원가입 요청", required = true))
     @PostMapping("/sign-up")
     public ResponseEntity<CommonResponse<SignUpMemberResponse>> signUp(@Valid @RequestBody SignUpMemberRequest request) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.signUp(request));
@@ -57,7 +54,6 @@ public class MemberController {
     }
 
     @Operation(summary = "프로필 수정")
-    @Parameters(@Parameter(name = "request", description = "프로필 수정 요청", required = true))
     @PutMapping("/me/profile")
     public ResponseEntity<CommonResponse<UpdateProfileResponse>> updateProfile(
         @Parameter(hidden = true) @LoginMember Member loginMember,
@@ -101,6 +97,12 @@ public class MemberController {
     @GetMapping("/my-space")
     public ResponseEntity<CommonResponse<MySpaceResponse>> getMySpace(@Parameter(hidden = true) @LoginMember Member loginMember) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMySpace(loginMember));
+    }
+
+    @Operation(summary = "내 정보 조회")
+    @GetMapping("/my-info")
+    public ResponseEntity<CommonResponse<MyInfoResponse>> getMyInfo(@Parameter(hidden = true) @LoginMember Member loginMember) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMyInfo(loginMember));
     }
 
 }

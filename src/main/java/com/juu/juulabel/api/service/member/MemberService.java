@@ -51,6 +51,7 @@ public class MemberService {
     private final TermsReader termsReader;
     private final MemberTermsWriter memberTermsWriter;
     private final MemberAlcoholTypeWriter memberAlcoholTypeWriter;
+    private final MemberAlcoholTypeReader memberAlcoholTypeReader;
     private final AlcoholTypeReader alcoholTypeReader;
     private final S3Service s3Service;
     private final DailyLifeReader dailyLifeReader;
@@ -235,6 +236,20 @@ public class MemberService {
                 member.getNickname(),
                 member.getIntroduction()
                 );
+    }
+
+    @Transactional(readOnly = true)
+    public MyInfoResponse getMyInfo(Member member) {
+        List<Long> alcoholTypeIdList = memberAlcoholTypeReader.getIdListByMember(member);
+        return new MyInfoResponse(
+            member.getNickname(),
+            member.getEmail(),
+            member.isNotificationsAllowed(),
+            member.getIntroduction(),
+            member.getProfileImage(),
+            member.getGender(),
+            alcoholTypeIdList
+        );
     }
 
     private void validateNickname(String nickname) {
