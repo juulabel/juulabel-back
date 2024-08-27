@@ -89,12 +89,18 @@ public class MemberController {
 
     @Operation(summary = "내가 저장한 전통주 목록 조회")
     @Parameters(@Parameter(name = "request", description = "내가 저장한 전통주 목록 조회 요청", required = true))
-    @GetMapping("alcoholic-drinks/my")
+    @GetMapping("/alcoholic-drinks/my")
     public ResponseEntity<CommonResponse<MyAlcoholicDrinksListResponse>> loadMyAlcoholicDrinks(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @Valid MyAlcoholicDrinksListRequest request
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyAlcoholicDrinks(loginMember, request));
+    }
+
+    @Operation(summary = "내 공간 조회")
+    @GetMapping("/my-space")
+    public ResponseEntity<CommonResponse<MySpaceResponse>> getMySpace(@Parameter(hidden = true) @LoginMember Member loginMember) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMySpace(loginMember));
     }
 
 }
