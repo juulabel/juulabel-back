@@ -60,6 +60,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "provider_id", columnDefinition = "varchar(255) comment '공급 고유 번호'")
     private String providerId;
 
+    @Column(name = "is_notifications_allowed", nullable = false, columnDefinition = "TINYINT(1) comment '알림 허용 여부'")
+    private boolean isNotificationsAllowed;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, columnDefinition = "varchar(20) comment '회원 상태'")
     private MemberStatus status;
