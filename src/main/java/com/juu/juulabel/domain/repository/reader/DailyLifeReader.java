@@ -40,4 +40,11 @@ public class DailyLifeReader {
                                                         final int pageSize) {
         return dailyLifeQueryRepository.getAllMyDailyLives(member, lastDailyLifeId, pageSize);
     }
+
+    public Slice<DailyLifeSummary> getAllDailyLivesByMember(Member loginMember,
+                                                            Long memberId,
+                                                            Long lastDailyLifeId,
+                                                            int pageSize) {
+        return dailyLifeQueryRepository.getAllDailyLivesByMember(loginMember, memberId, lastDailyLifeId, pageSize);
+    }
 }

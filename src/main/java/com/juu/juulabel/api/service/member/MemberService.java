@@ -9,6 +9,7 @@ import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
+import com.juu.juulabel.domain.dto.dailylife.DailyLifeSummary;
 import com.juu.juulabel.domain.dto.dailylife.MyDailyLifeSummary;
 import com.juu.juulabel.domain.dto.member.OAuthLoginInfo;
 import com.juu.juulabel.domain.dto.member.OAuthUser;
@@ -250,6 +251,14 @@ public class MemberService {
             member.getGender(),
             alcoholTypeIdList
         );
+    }
+
+    @Transactional(readOnly = true)
+    public DailyLifeListResponse loadMemberDailyLifeList(Member loginMember, DailyLifeListRequest request, Long memberId) {
+        Slice<DailyLifeSummary> dailyLifeList =
+            dailyLifeReader.getAllDailyLivesByMember(loginMember, memberId, request.lastDailyLifeId(), request.pageSize());
+
+        return new DailyLifeListResponse(dailyLifeList);
     }
 
     private void validateNickname(String nickname) {

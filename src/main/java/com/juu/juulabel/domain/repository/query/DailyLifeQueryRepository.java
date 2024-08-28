@@ -164,6 +164,53 @@ public class DailyLifeQueryRepository {
         return new SliceImpl<>(myDailyLifeSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public Slice<DailyLifeSummary> getAllDailyLivesByMember(Member loginMember, Long memberId, Long lastDailyLifeId, int pageSize) {
+        List<DailyLifeSummary> dailyLifeSummaryList = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    DailyLifeSummary.class,
+                    dailyLife.title,
+                    dailyLife.content,
+                    dailyLife.id,
+                    Projections.constructor(
+                        MemberInfo.class,
+                        dailyLife.member.id,
+                        dailyLife.member.nickname,
+                        dailyLife.member.profileImage
+                    ),
+                    dailyLifeImage.imagePath.as("thumbnailPath"),
+                    dailyLifeImage.count().as("imageCount"),
+                    dailyLife.createdAt,
+                    dailyLifeLike.countDistinct().as("likeCount"),
+                    dailyLifeComment.count().as("commentCount"),
+                    isLikedSubQuery(dailyLife, loginMember)
+                )
+            )
+            .from(dailyLife)
+            .leftJoin(dailyLifeComment).on(dailyLifeComment.dailyLife.eq(dailyLife).and(isNotDeleted(dailyLifeComment)))
+            .leftJoin(dailyLifeLike).on(dailyLifeLike.dailyLife.eq(dailyLife))
+            .leftJoin(dailyLifeImage).on(dailyLifeImage.dailyLife.eq(dailyLife)
+                .and(dailyLifeImage.seq.eq(1))
+                .and(isNotDeleted(dailyLifeImage)))
+            .where(
+                dailyLife.member.id.eq(memberId),
+                isNotPrivate(dailyLife),
+                isNotDeleted(dailyLife),
+                noOffsetByDailyLifeId(dailyLife, lastDailyLifeId)
+            )
+            .groupBy(dailyLife.id)
+            .orderBy(dailyLife.id.desc())
+            .limit(pageSize + 1L)
+            .fetch();
+
+        boolean hasNext = dailyLifeSummaryList.size() > pageSize;
+        if (hasNext) {
+            dailyLifeSummaryList.remove(pageSize);
+        }
+
+        return new SliceImpl<>(dailyLifeSummaryList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
     private BooleanExpression noOffsetByDailyLifeId(QDailyLife dailyLife, Long lastDailyLifeId) {
         return Objects.isEmpty(lastDailyLifeId) ? null : dailyLife.id.lt(lastDailyLifeId);
     }
