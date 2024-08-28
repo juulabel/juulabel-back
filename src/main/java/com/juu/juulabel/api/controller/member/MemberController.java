@@ -105,4 +105,15 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMyInfo(loginMember));
     }
 
+    @Operation(summary = "특정 회원이 작성한 일상생활 목록 조회")
+    @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 일상생활 목록 조회 요청", required = true))
+    @GetMapping("/{memberId}/daily-lives")
+    public ResponseEntity<CommonResponse<DailyLifeListResponse>> loadMemberDailyLifeList(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid DailyLifeListRequest request,
+        @PathVariable Long memberId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMemberDailyLifeList(loginMember, request, memberId));
+    }
+
 }
