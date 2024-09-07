@@ -1,8 +1,10 @@
 package com.juu.juulabel.domain.entity.alcohol;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,8 +42,17 @@ public class AlcoholicDrinks extends BaseTimeEntity {
     @Column(name = "alcohol_content", columnDefinition = "decimal(4,2) comment '알코올 도수'")
     private Double alcoholContent;
 
+    @Column(name = "volume", columnDefinition = "decimal(10,2) comment '용량'")
+    private double volume;
+
+    @Column(name = "price", columnDefinition = "DECIMAL(12,2) comment '가격'")
+    private double price;
+
     @Column(name = "image", columnDefinition = "varchar(255) comment '이미지'")
     private String image;
+
+    @Column(name = "ingredients", columnDefinition = "text comment '원재료'")
+    private String ingredients;
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
