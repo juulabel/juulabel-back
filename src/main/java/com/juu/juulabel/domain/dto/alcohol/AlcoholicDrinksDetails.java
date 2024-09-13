@@ -16,6 +16,9 @@ public record AlcoholicDrinksDetails(
         Double alcoholContent,
         @Schema(description = "양조장 이름", example = "양조장명")
         @NotNull(message = "양조장 이름이 누락되었습니다.")
-        String breweryName
+        String breweryName,
+        @Schema(description = "양조장 지역", example = "인천광역시 부평구")
+        @NotNull(message = "양조장 지역이 누락되었습니다.")
+        String breweryRegion
 ) {
 }
