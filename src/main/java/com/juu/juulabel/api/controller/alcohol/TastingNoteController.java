@@ -14,8 +14,12 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Tag(
         name = "시음노트 API",
@@ -88,12 +92,13 @@ public class TastingNoteController {
             summary = "시음 노트 작성",
             description = "시음노트를 작성한다."
     )
-    @PostMapping
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<TastingNoteWriteResponse>> write(
             @Parameter(hidden = true) @LoginMember Member loginMember,
-            @Valid @RequestBody TastingNoteWriteRequest request
+            @Valid @RequestPart(value = "request") TastingNoteWriteRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.write(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.write(loginMember, request, files));
     }
 
 }
