@@ -4,24 +4,26 @@ import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
 import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
+import com.juu.juulabel.api.service.s3.S3Service;
+import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.*;
+import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.repository.reader.*;
+import com.juu.juulabel.domain.repository.writer.TastingNoteImageWriter;
 import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,8 +38,9 @@ public class TastingNoteService {
     private final AlcoholTypeScentReader alcoholTypeScentReader;
     private final AlcoholTypeFlavorReader alcoholTypeFlavorReader;
     private final AlcoholTypeSensoryReader alcoholTypeSensoryReader;
-
+    private final S3Service s3Service;
     private final TastingNoteWriter tastingNoteWriter;
+    private final TastingNoteImageWriter tastingNoteImageWriter;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -74,7 +77,7 @@ public class TastingNoteService {
     }
 
     @Transactional
-    public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
+    public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request, List<MultipartFile> files) {
         // 1. 입력된 주종 확인
         final Long alcoholTypeId = request.alcoholTypeId();
         final AlcoholType alcoholType = alcoholTypeReader.getById(alcoholTypeId);
@@ -96,6 +99,9 @@ public class TastingNoteService {
                 TastingNoteScent.of(tastingNote, scents),
                 TastingNoteFlavorLevel.of(tastingNote, flavorLevels),
                 TastingNoteSensoryLevel.of(tastingNote, sensoryLevels));
+
+        List<String> imageUrlList = new ArrayList<>();
+        storeImageList(files, imageUrlList, tastingNote);
 
         return TastingNoteWriteResponse.fromEntity(result);
     }
@@ -160,6 +166,29 @@ public class TastingNoteService {
                 request.content(),
                 request.isPrivate()
         );
+    }
+
+    private void storeImageList(
+        final List<MultipartFile> files,
+        final List<String> newImageUrlList,
+        final TastingNote tastingNote
+    ) {
+        if (!Objects.isNull(files) && !files.isEmpty()) {
+            // TODO : 파일 크기 및 확장자 validate
+            validateFileListSize(files);
+
+            for (MultipartFile file : files) {
+                UploadImageInfo uploadImageInfo = s3Service.uploadTastingNoteImage(file);
+                newImageUrlList.add(uploadImageInfo.ImageUrl());
+                tastingNoteImageWriter.store(tastingNote, newImageUrlList.size(), uploadImageInfo.ImageUrl());
+            }
+        }
+    }
+
+    private void validateFileListSize(final List<MultipartFile> nonEmptyFiles) {
+        if (nonEmptyFiles.size() > FileConstants.FILE_MAX_SIZE_COUNT) {
+            throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+        }
     }
 
 }

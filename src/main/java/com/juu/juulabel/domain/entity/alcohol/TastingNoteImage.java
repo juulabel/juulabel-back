@@ -39,4 +39,11 @@ public class TastingNoteImage extends BaseTimeEntity {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static TastingNoteImage create(TastingNote tastingNote, int seq, String imagePath) {
+        return TastingNoteImage.builder()
+            .tastingNote(tastingNote)
+            .seq(seq)
+            .imagePath(imagePath)
+            .build();
+    }
 }
