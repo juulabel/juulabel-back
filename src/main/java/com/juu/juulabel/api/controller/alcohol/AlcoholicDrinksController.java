@@ -3,12 +3,9 @@ package com.juu.juulabel.api.controller.alcohol;
 
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.CategorySearchAlcoholRequest;
-import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
-import com.juu.juulabel.api.dto.response.AlcoholDrinksListResponse;
 import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
 import com.juu.juulabel.api.service.alcohol.AlcoholicDrinksService;
-import com.juu.juulabel.api.service.alcohol.TastingNoteService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -26,9 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = {"/v1/api/shared-space/category"})
 @RequiredArgsConstructor
-public class AlcoholCategorySearchController {
+public class AlcoholicDrinksController {
 
-    private final TastingNoteService tastingNoteService;
     private final AlcoholicDrinksService alcoholicDrinksService;
 
     @Operation(
@@ -44,7 +40,7 @@ public class AlcoholCategorySearchController {
             @LoginMember Member loginMember,
             @Valid CategorySearchAlcoholRequest request
     ) {
-    return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.searchAlcoholTypeList(loginMember,request));
+    return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.searchAlcoholTypeList(loginMember,request));
     }
 
 

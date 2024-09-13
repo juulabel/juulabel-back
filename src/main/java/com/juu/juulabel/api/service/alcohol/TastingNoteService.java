@@ -1,6 +1,5 @@
 package com.juu.juulabel.api.service.alcohol;
 
-import com.juu.juulabel.api.dto.request.CategorySearchAlcoholRequest;
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
 import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
 import com.juu.juulabel.api.dto.response.*;
@@ -9,7 +8,6 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
-import com.juu.juulabel.domain.entity.alcohol.FlavorLevel;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.repository.reader.*;
@@ -38,7 +36,6 @@ public class TastingNoteService {
     private final AlcoholTypeScentReader alcoholTypeScentReader;
     private final AlcoholTypeFlavorReader alcoholTypeFlavorReader;
     private final AlcoholTypeSensoryReader alcoholTypeSensoryReader;
-    private final AlcoholDrinksTypeReader alcoholDrinksTypeReader;
 
     private final TastingNoteWriter tastingNoteWriter;
 
@@ -51,29 +48,6 @@ public class TastingNoteService {
                 alcoholicDrinks.getContent()
         );
     }
-
-    @Transactional(readOnly = true)
-    public AlcoholicCategoryResponse searchAlcoholTypeList(final Member member, final CategorySearchAlcoholRequest request) {
-
-        final Slice<AlcoholSearchSummary> alcoholicDrinks = alcoholDrinksTypeReader.getAlcoholicDrinksByType(member, request.type(),request.pageSize());
-
-        // 검색된 전체 갯수 가져오기
-        long totalCount = alcoholDrinksTypeReader.countByAlcoholType(request.type());
-
-//        return SliceResponseFactory.create(
-//                AlcoholicCategoryResponse.class,
-//                alcoholicDrinks.isLast(),
-//                alcoholicDrinks.getContent(),
-//                totalCount
-//        );
-        return new AlcoholicCategoryResponse(
-                alcoholicDrinks.isLast(),
-                totalCount,
-                alcoholicDrinks.getContent()
-        );
-    }
-
-
 
     @Transactional(readOnly = true)
     public TastingNoteColorListResponse loadTastingNoteColorsList(final Long alcoholTypeId) {
