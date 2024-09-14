@@ -9,6 +9,8 @@ public record CategorySearchAlcoholRequest(
         Long type,
 //        @Schema(description = "마지막 전통주 이름", example = "탁100 네추럴")
 //        String lastAlcoholicDrinksName,
+        @Schema(description = "정렬 종류", example = "name")
+        String arrayType,
         @Schema(description = "페이지 사이즈", example = "1")
         @NotNull(message = "페이지 사이즈가 누락되었습니다.")
         int pageSize

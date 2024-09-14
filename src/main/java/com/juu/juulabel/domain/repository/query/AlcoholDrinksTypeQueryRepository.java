@@ -35,42 +35,46 @@ public class AlcoholDrinksTypeQueryRepository {
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
     QBrewery brewery = QBrewery.brewery;
 
-    public Slice<AlcoholSearchSummary> findByAlcoholType(Member member, Long alcoholTypeId, int pageSize) {
+    public Slice<AlcoholSearchSummary> findByAlcoholType(Long alcoholTypeId, int pageSize, String arrayType) {
         List<AlcoholSearchSummary> alcoholicDrinksList = jpaQueryFactory
-                .select(
-                        Projections.constructor(
-                                AlcoholSearchSummary.class,
-                                alcoholicDrinks.id,
-                                alcoholicDrinks.name,
-                                alcoholicDrinks.image,
-                                brewery.name
-//                                Projections.constructor(
-//                                        BrewerySummary.class,
-//                                        brewery.id,
-//                                        brewery.name,
-//                                        brewery.region
-//                                )
-                                )
-                )
+                .select(Projections.constructor(
+                        AlcoholSearchSummary.class,
+                        alcoholicDrinks.id,
+                        alcoholicDrinks.name,
+                        alcoholicDrinks.image,
+                        brewery.name
+                ))
                 .from(alcoholicDrinks)
                 .innerJoin(alcoholType).on(alcoholicDrinks.alcoholType.eq(alcoholType))
-                .where(eqAlcoholTypeId(alcoholType,alcoholTypeId),
+                .where(
+                        eqAlcoholTypeId(alcoholType, alcoholTypeId),
                         isNotDeleted(alcoholicDrinks)
                 )
-                .orderBy(alcoholicDrinksNameAse(alcoholicDrinks))
-                .limit(pageSize+ 1L )
+                // 동적 정렬 적용
+                .orderBy(getOrderSpecifier(arrayType))
+                .limit(pageSize + 1L)
                 .fetch();
-
-        log.debug("Fetched data size: {}", alcoholicDrinksList.size());
-        log.debug("Fetched data: {}", alcoholicDrinksList);
-
 
         boolean hasNext = alcoholicDrinksList.size() > pageSize;
         if (hasNext) {
             alcoholicDrinksList.remove(pageSize);
         }
+
         return new SliceImpl<>(alcoholicDrinksList, PageRequest.ofSize(pageSize), hasNext);
     }
+
+    // 동적 정렬 로직
+    private OrderSpecifier<?> getOrderSpecifier(String arrayType) {
+        if ("priceLow".equals(arrayType)) {
+            return alcoholicDrinks.price.asc();  // 가격 낮은 순
+        } else if ("priceHigh".equals(arrayType)) {
+            return alcoholicDrinks.price.desc();  // 가격 높은 순
+        } else {
+            return alcoholicDrinks.name.asc();  // 기본 정렬: 이름 순
+        }
+    }
+
+
 
     public long countByAlcoholType(Long alcoholTypeId) {
         return jpaQueryFactory

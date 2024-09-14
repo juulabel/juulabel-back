@@ -21,26 +21,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = {"/v1/api/shared-space/category"})
+@RequestMapping(value = {"/v1/api/alcoholicDrinks"})
 @RequiredArgsConstructor
 public class AlcoholicDrinksController {
 
     private final AlcoholicDrinksService alcoholicDrinksService;
 
+
+    // 주종별 검색 시 정렬 기능
     @Operation(
-            summary = "전통주 주종별 검색",
-            description = ""
+            summary = "전통주 주종별 검색"
     )
     @Parameters(
             @Parameter(name = "request", description = "주종별 검색 요청", required = true)
     )
     @GetMapping("/typeSearch")
     public ResponseEntity<CommonResponse<AlcoholicCategoryResponse>> searchAlcoholDrinksList(
-            @Parameter(hidden = true)
-            @LoginMember Member loginMember,
+            // @Parameter(hidden = true) @LoginMember Member loginMember,
             @Valid CategorySearchAlcoholRequest request
     ) {
-    return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.searchAlcoholTypeList(loginMember,request));
+        return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.searchAlcoholTypeList(request));
     }
 
 
