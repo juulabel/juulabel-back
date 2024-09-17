@@ -117,4 +117,16 @@ public class TastingNoteController {
         return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteList(loginMember, request));
     }
 
+    @Operation(
+        summary = "시음노트 상세 조회",
+        description = "전통주 시음노트 게시글을 상세 조회한다."
+    )
+    @GetMapping("/{tastingNoteId}")
+    public ResponseEntity<CommonResponse<TastingNoteResponse>> loadtastingNote(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long tastingNoteId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNote(loginMember, tastingNoteId));
+    }
+
 }
