@@ -1,6 +1,8 @@
 package com.juu.juulabel.domain.entity.tastingnote;
 
 import com.juu.juulabel.api.annotation.Rating;
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
@@ -103,4 +105,11 @@ public class TastingNote extends BaseTimeEntity {
         this.isPrivate = isPrivate;
     }
 
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_TASTING_NOTE);
+        }
+
+        this.deletedAt = LocalDateTime.now();
+    }
 }
