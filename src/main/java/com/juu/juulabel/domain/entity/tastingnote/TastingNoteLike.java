@@ -1,7 +1,6 @@
 package com.juu.juulabel.domain.entity.tastingnote;
 
 import com.juu.juulabel.domain.base.BaseCreatedTimeEntity;
-import com.juu.juulabel.domain.entity.alcohol.TastingNote;
 import com.juu.juulabel.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;

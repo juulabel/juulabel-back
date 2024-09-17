@@ -1,7 +1,7 @@
 package com.juu.juulabel.domain.repository.query;
 
-import com.juu.juulabel.domain.entity.alcohol.QTastingNote;
-import com.juu.juulabel.domain.entity.alcohol.QTastingNoteImage;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteImage;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
