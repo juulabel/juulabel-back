@@ -1,6 +1,7 @@
 package com.juu.juulabel.domain.repository.reader;
 
 import com.juu.juulabel.domain.annotation.Reader;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNoteImage;
 import com.juu.juulabel.domain.repository.query.TastingNoteImageQueryRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -14,5 +15,9 @@ public class TastingNoteImageReader {
 
     public List<String> getImageUrlList(Long tastingNoteId) {
         return tastingNoteImageQueryRepository.getImageUrlList(tastingNoteId);
+    }
+
+    public List<TastingNoteImage> getImageList(Long tastingNoteId) {
+        return tastingNoteImageQueryRepository.getImageList(tastingNoteId);
     }
 }

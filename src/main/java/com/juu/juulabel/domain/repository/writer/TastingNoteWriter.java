@@ -33,4 +33,17 @@ public class TastingNoteWriter {
         return result;
     }
 
+    public void update(Long tastingNoteId,
+                       List<TastingNoteScent> tastingNoteScents,
+                       List<TastingNoteFlavorLevel> tastingNoteFlavorLevels,
+                       List<TastingNoteSensoryLevel> tastingNoteSensoryLevels
+    ) {
+        tastingNoteScentJpaRepository.deleteByTastingNoteId(tastingNoteId);
+        tastingNoteFlavorLevelJpaRepository.deleteByTastingNoteId(tastingNoteId);
+        tastingNoteSensoryLevelJpaRepository.deleteByTastingNoteId(tastingNoteId);
+
+        tastingNoteScentJpaRepository.saveAll(tastingNoteScents);
+        tastingNoteFlavorLevelJpaRepository.saveAll(tastingNoteFlavorLevels);
+        tastingNoteSensoryLevelJpaRepository.saveAll(tastingNoteSensoryLevels);
+    }
 }

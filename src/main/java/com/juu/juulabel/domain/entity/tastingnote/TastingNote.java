@@ -85,4 +85,22 @@ public class TastingNote extends BaseTimeEntity {
                 .build();
     }
 
+    public void update(
+        AlcoholType alcoholType,
+        AlcoholicDrinks alcoholicDrinks,
+        Color color,
+        AlcoholicDrinksSnapshot alcoholDrinksInfo,
+        Double rating,
+        String content,
+        boolean isPrivate
+        ) {
+        this.alcoholType = alcoholType;
+        this.alcoholicDrinks = alcoholicDrinks;
+        this.color = color;
+        this.alcoholDrinksInfo = alcoholDrinksInfo;
+        this.rating = rating;
+        this.content = content;
+        this.isPrivate = isPrivate;
+    }
+
 }
