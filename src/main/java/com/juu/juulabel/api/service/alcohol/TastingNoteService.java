@@ -228,9 +228,7 @@ public class TastingNoteService {
         List<MultipartFile> files
     ) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
-        if (!member.getId().equals(tastingNote.getMember().getId())) {
-            throw new InvalidParamException(ErrorCode.NOT_TASTING_NOTE_WRITER);
-        }
+        validateTastingNoteWriter(member, tastingNote);
 
         // 입력된 주종 확인
         final Long alcoholTypeId = request.alcoholTypeId();
@@ -265,5 +263,20 @@ public class TastingNoteService {
 
     private TastingNote getTastingNote(Long tastingNoteId) {
         return tastingNoteReader.getById(tastingNoteId);
+    }
+
+    private static void validateTastingNoteWriter(Member member, TastingNote tastingNote) {
+        if (!member.getId().equals(tastingNote.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_TASTING_NOTE_WRITER);
+        }
+    }
+
+    @Transactional
+    public DeleteTastingNoteResponse deleteTastingNote(Member member, Long tastingNoteId) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+        validateTastingNoteWriter(member, tastingNote);
+
+        tastingNote.delete();
+        return new DeleteTastingNoteResponse(tastingNote.getId());
     }
 }

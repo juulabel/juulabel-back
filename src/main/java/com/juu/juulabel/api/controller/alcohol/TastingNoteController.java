@@ -143,4 +143,16 @@ public class TastingNoteController {
         return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, tastingNoteService.updateTastingNote(loginMember, tastingNoteId, request, files));
     }
 
+    @Operation(
+        summary = "시음노트 삭제",
+        description = "전통주 시음노트 게시글을 삭제한다."
+    )
+    @DeleteMapping("/{tastingNoteId}")
+    public ResponseEntity<CommonResponse<DeleteTastingNoteResponse>> deleteTastingNote(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long tastingNoteId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, tastingNoteService.deleteTastingNote(loginMember, tastingNoteId));
+    }
+
 }
