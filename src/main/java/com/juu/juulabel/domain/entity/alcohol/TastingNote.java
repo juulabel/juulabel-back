@@ -61,8 +61,6 @@ public class TastingNote extends BaseTimeEntity {
     @OneToMany(mappedBy = "tastingNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TastingNoteScent> tastingNoteScents = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tastingNote", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TastingNoteImage> tastingNoteImages = new ArrayList<>();
 
     public static TastingNote of(Member member,
                                  AlcoholType alcoholType,

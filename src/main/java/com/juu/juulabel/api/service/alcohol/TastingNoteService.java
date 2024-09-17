@@ -9,8 +9,10 @@ import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.ImageInfo;
 import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.*;
@@ -43,6 +45,7 @@ public class TastingNoteService {
     private final S3Service s3Service;
     private final TastingNoteWriter tastingNoteWriter;
     private final TastingNoteImageWriter tastingNoteImageWriter;
+    private final TastingNoteImageReader tastingNoteImageReader;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -200,6 +203,20 @@ public class TastingNoteService {
             tastingNoteReader.getAllTastingNotes(member, request.lastTastingNoteId(), request.pageSize());
 
         return new TastingNoteListResponse(tastingNoteList);
+    }
+
+    @Transactional(readOnly = true)
+    public TastingNoteResponse loadTastingNote(Member member, Long tastingNoteId) {
+        TastingNoteDetailInfo tastingNoteDetailInfo = tastingNoteReader.getTastingNoteDetailById(tastingNoteId, member);
+        List<String> urlList = tastingNoteImageReader.getImageUrlList(tastingNoteId);
+
+        return new TastingNoteResponse(
+            tastingNoteDetailInfo,
+            tastingNoteReader.getSensoryLevelIds(tastingNoteId),
+            tastingNoteReader.getScentIds(tastingNoteId),
+            tastingNoteReader.getFlavorLevelIds(tastingNoteId),
+            new ImageInfo(urlList, urlList.size())
+        );
     }
 
 }

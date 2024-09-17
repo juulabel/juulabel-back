@@ -1,12 +1,17 @@
 package com.juu.juulabel.domain.repository.query;
 
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholTypeSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
 import com.juu.juulabel.domain.dto.alcohol.BrewerySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteComment;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteLike;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -19,6 +24,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,6 +37,14 @@ public class TastingNoteQueryRepository {
     QBrewery brewery = QBrewery.brewery;
     QTastingNote tastingNote = QTastingNote.tastingNote;
     QTastingNoteImage tastingNoteImage = QTastingNoteImage.tastingNoteImage;
+    QTastingNoteSensoryLevel tastingNoteSensoryLevel = QTastingNoteSensoryLevel.tastingNoteSensoryLevel;
+    QSensoryLevel sensoryLevel = QSensoryLevel.sensoryLevel;
+    QTastingNoteScent tastingNoteScent = QTastingNoteScent.tastingNoteScent;
+    QScent scent = QScent.scent;
+    QTastingNoteFlavorLevel tastingNoteFlavorLevel = QTastingNoteFlavorLevel.tastingNoteFlavorLevel;
+    QFlavorLevel flavorLevel = QFlavorLevel.flavorLevel;
+    QTastingNoteLike tastingNoteLike = QTastingNoteLike.tastingNoteLike;
+    QTastingNoteComment tastingNoteComment = QTastingNoteComment.tastingNoteComment;
 
     public Slice<AlcoholicDrinksSummary> findAllAlcoholicDrinks(String search, String lastAlcoholicDrinksName, int pageSize) {
         List<AlcoholicDrinksSummary> alcoholicDrinksList = jpaQueryFactory
@@ -162,6 +176,105 @@ public class TastingNoteQueryRepository {
             .groupBy(tastingNoteImage.tastingNote)
             .having(tastingNoteImage.count().goe(2))
             .exists();
+    }
+
+    public TastingNoteDetailInfo getTastingNoteDetailById(Long tastingNoteId, Member member) {
+        TastingNoteDetailInfo tastingNoteDetailInfo = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    TastingNoteDetailInfo.class,
+                    tastingNote.id,
+                    Projections.constructor(
+                        MemberInfo.class,
+                        tastingNote.member.id,
+                        tastingNote.member.nickname,
+                        tastingNote.member.profileImage
+                    ),
+                    tastingNote.createdAt,
+                    tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
+                    tastingNote.alcoholDrinksInfo.alcoholTypeName,
+                    tastingNote.alcoholDrinksInfo.alcoholContent,
+                    tastingNote.alcoholDrinksInfo.breweryName,
+                    tastingNote.color.rgb,
+//                    getSensoryLevelIds(tastingNote, tastingNoteSensoryLevel, sensoryLevel),
+//                    getScentIds(tastingNote, tastingNoteScent, scent),
+//                    getFlavorLevelIds(tastingNote, tastingNoteFlavorLevel, flavorLevel),
+                    tastingNote.content,
+                    tastingNote.rating,
+                    tastingNoteLike.countDistinct().as("likeCount"),
+                    tastingNoteComment.count().as("commentCount"),
+                    isLikedSubQuery(tastingNote, member)
+                )
+            )
+            .from(tastingNote)
+            .leftJoin(tastingNoteLike).on(tastingNoteLike.tastingNote.eq(tastingNote))
+            .leftJoin(tastingNoteComment).on(tastingNoteComment.tastingNote.eq(tastingNote))
+            .where(
+                eqId(tastingNote, tastingNoteId),
+                isNotPrivate(tastingNote),
+                isNotDeleted(tastingNote)
+            )
+            .groupBy(tastingNote.id)
+            .fetchOne();
+
+        return Optional.ofNullable(tastingNoteDetailInfo)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
+    }
+
+    public List<Long> getSensoryLevelIds(Long tastingNoteId) {
+        return jpaQueryFactory
+            .select(sensoryLevel.id)
+            .from(tastingNoteSensoryLevel)
+            .join(tastingNoteSensoryLevel.sensoryLevel, sensoryLevel)
+            .where(
+                tastingNoteSensoryLevel.tastingNote.eq(tastingNote),
+                eqId(tastingNote, tastingNoteId),
+                isNotPrivate(tastingNote),
+                isNotDeleted(tastingNote)
+            )
+            .fetch();
+    }
+
+    public List<Long> getScentIds(Long tastingNoteId) {
+        return jpaQueryFactory
+            .select(scent.id)
+            .from(tastingNoteScent)
+            .join(tastingNoteScent.scent, scent)
+            .where(
+                tastingNoteScent.tastingNote.eq(tastingNote),
+                eqId(tastingNote, tastingNoteId),
+                isNotPrivate(tastingNote),
+                isNotDeleted(tastingNote)
+            )
+            .fetch();
+    }
+
+    public List<Long> getFlavorLevelIds(Long tastingNoteId) {
+        return jpaQueryFactory
+            .select(flavorLevel.id)
+            .from(tastingNoteFlavorLevel)
+            .join(tastingNoteFlavorLevel.flavorLevel, flavorLevel)
+            .where(
+                tastingNoteFlavorLevel.tastingNote.eq(tastingNote),
+                eqId(tastingNote, tastingNoteId),
+                isNotPrivate(tastingNote),
+                isNotDeleted(tastingNote)
+            )
+            .fetch();
+    }
+
+    private BooleanExpression isLikedSubQuery(QTastingNote tastingNote, Member member) {
+        return jpaQueryFactory
+            .selectFrom(tastingNoteLike)
+            .where(
+                tastingNoteLike.tastingNote.eq(tastingNote),
+                tastingNoteLike.member.eq(member)
+            )
+            .exists();
+    }
+
+    private BooleanExpression eqId(QTastingNote tastingNote, Long tastingNoteId) {
+        return tastingNote.id.eq(tastingNoteId);
     }
 
 }
