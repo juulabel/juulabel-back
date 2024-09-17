@@ -6,6 +6,7 @@ import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.ImageInfo;
 import com.juu.juulabel.domain.dto.dailylife.*;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
@@ -74,7 +75,7 @@ public class DailyLifeService {
 
         return new DailyLifeResponse(
             dailyLifeDetailInfo,
-            new DailyLifeImageInfo(urlList, urlList.size())
+            new ImageInfo(urlList, urlList.size())
         );
     }
 
