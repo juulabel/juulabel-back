@@ -1,8 +1,8 @@
-package com.juu.juulabel.domain.dto.dailylife;
+package com.juu.juulabel.domain.dto;
 
 import java.util.List;
 
-public record DailyLifeImageInfo(
+public record ImageInfo(
     List<String> imageUrlList,
     int imageCount
 ) {
