@@ -2,6 +2,7 @@ package com.juu.juulabel.api.controller.alcohol;
 
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
+import com.juu.juulabel.api.dto.request.TastingNoteListRequest;
 import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.alcohol.TastingNoteService;
@@ -99,6 +100,21 @@ public class TastingNoteController {
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.write(loginMember, request, files));
+    }
+
+    @Operation(
+        summary = "시음노트 목록 조회",
+        description = "전통주 시음노트 게시글 목록을 조회한다."
+    )
+    @Parameters(
+        @Parameter(name = "request", description = "시음노트 게시글 목록 조회 요청", required = true)
+    )
+    @GetMapping
+    public ResponseEntity<CommonResponse<TastingNoteListResponse>> loadTastingNoteList(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid TastingNoteListRequest request
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteList(loginMember, request));
     }
 
 }
