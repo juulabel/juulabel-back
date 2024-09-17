@@ -1,6 +1,7 @@
 package com.juu.juulabel.api.service.alcohol;
 
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
+import com.juu.juulabel.api.dto.request.TastingNoteListRequest;
 import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
@@ -10,6 +11,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -189,6 +191,15 @@ public class TastingNoteService {
         if (nonEmptyFiles.size() > FileConstants.FILE_MAX_SIZE_COUNT) {
             throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
         }
+    }
+
+
+    @Transactional(readOnly = true)
+    public TastingNoteListResponse loadTastingNoteList(Member member, TastingNoteListRequest request) {
+        Slice<TastingNoteSummary> tastingNoteList =
+            tastingNoteReader.getAllTastingNotes(member, request.lastTastingNoteId(), request.pageSize());
+
+        return new TastingNoteListResponse(tastingNoteList);
     }
 
 }

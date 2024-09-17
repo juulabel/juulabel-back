@@ -2,6 +2,8 @@ package com.juu.juulabel.domain.repository.reader;
 
 import com.juu.juulabel.domain.annotation.Reader;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
+import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.repository.query.TastingNoteQueryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -18,4 +20,7 @@ public class TastingNoteReader {
         return tastingNoteQueryRepository.findAllAlcoholicDrinks(search, lastAlcoholicDrinksName, pageSize);
     }
 
+    public Slice<TastingNoteSummary> getAllTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
+        return tastingNoteQueryRepository.getAllTastingNotes(member, lastTastingNoteId, pageSize);
+    }
 }

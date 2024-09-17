@@ -3,9 +3,10 @@ package com.juu.juulabel.domain.repository.query;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholTypeSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
 import com.juu.juulabel.domain.dto.alcohol.BrewerySummary;
-import com.juu.juulabel.domain.entity.alcohol.QAlcoholType;
-import com.juu.juulabel.domain.entity.alcohol.QAlcoholicDrinks;
-import com.juu.juulabel.domain.entity.alcohol.QBrewery;
+import com.juu.juulabel.domain.dto.member.MemberInfo;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
+import com.juu.juulabel.domain.entity.alcohol.*;
+import com.juu.juulabel.domain.entity.member.Member;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -28,6 +29,8 @@ public class TastingNoteQueryRepository {
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
     QAlcoholicDrinks alcoholicDrinks = QAlcoholicDrinks.alcoholicDrinks;
     QBrewery brewery = QBrewery.brewery;
+    QTastingNote tastingNote = QTastingNote.tastingNote;
+    QTastingNoteImage tastingNoteImage = QTastingNoteImage.tastingNoteImage;
 
     public Slice<AlcoholicDrinksSummary> findAllAlcoholicDrinks(String search, String lastAlcoholicDrinksName, int pageSize) {
         List<AlcoholicDrinksSummary> alcoholicDrinksList = jpaQueryFactory
@@ -70,6 +73,48 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(alcoholicDrinksList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public Slice<TastingNoteSummary> getAllTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
+        List<TastingNoteSummary> tastingNoteSummaryList = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    TastingNoteSummary.class,
+                    tastingNote.id,
+                    tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
+                    Projections.constructor(
+                        MemberInfo.class,
+                        tastingNote.member.id,
+                        tastingNote.member.nickname,
+                        tastingNote.member.profileImage
+                    ),
+                    tastingNoteImage.imagePath.as("thumbnailPath"),
+                    tastingNote.alcoholDrinksInfo.alcoholTypeName,
+                    tastingNote.createdAt,
+                    hasMultipleImagesSubQuery(tastingNote, tastingNoteImage)
+                )
+            )
+            .from(tastingNote)
+            .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
+                .and(tastingNoteImage.seq.eq(1))
+                .and(isNotDeleted(tastingNoteImage)))
+            .where(
+                isNotPrivate(tastingNote),
+                isNotDeleted(tastingNote),
+                noOffsetByTastingNoteId(tastingNote, lastTastingNoteId)
+            )
+            .groupBy(tastingNote.id)
+            .orderBy(tastingNote.id.desc())
+            .limit(pageSize + 1L)
+            .fetch();
+
+        boolean hasNext = tastingNoteSummaryList.size() > pageSize;
+        if (hasNext) {
+            tastingNoteSummaryList.remove(pageSize);
+        }
+
+        return new SliceImpl<>(tastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
+
     private OrderSpecifier<String> alcoholicDrinksNameAsc(QAlcoholicDrinks alcoholicDrinks) {
         return alcoholicDrinks.name.asc();
     }
@@ -91,5 +136,32 @@ public class TastingNoteQueryRepository {
         return alcoholicDrinks.name.gt(lastAlcoholicDrinksName);
     }
 
+    private BooleanExpression noOffsetByTastingNoteId(QTastingNote tastingNote, Long lastTastingNoteId) {
+        return io.jsonwebtoken.lang.Objects.isEmpty(lastTastingNoteId) ? null : tastingNote.id.lt(lastTastingNoteId);
+    }
+
+    private BooleanExpression isNotPrivate(QTastingNote tastingNote) {
+        return tastingNote.isPrivate.isFalse();
+    }
+
+    private BooleanExpression isNotDeleted(QTastingNote tastingNote) {
+        return tastingNote.deletedAt.isNull();
+    }
+
+    private BooleanExpression isNotDeleted(QTastingNoteImage tastingNoteImage) {
+        return tastingNoteImage.deletedAt.isNull();
+    }
+
+    private BooleanExpression hasMultipleImagesSubQuery(QTastingNote tastingNote, QTastingNoteImage tastingNoteImage) {
+        return jpaQueryFactory
+            .selectFrom(tastingNoteImage)
+            .where(
+                tastingNoteImage.tastingNote.eq(tastingNote),
+                isNotDeleted(tastingNoteImage)
+            )
+            .groupBy(tastingNoteImage.tastingNote)
+            .having(tastingNoteImage.count().goe(2))
+            .exists();
+    }
 
 }
