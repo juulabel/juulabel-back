@@ -1,8 +1,11 @@
-package com.juu.juulabel.domain.entity.alcohol;
+package com.juu.juulabel.domain.entity.tastingnote;
 
 import com.juu.juulabel.api.annotation.Rating;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
+import com.juu.juulabel.domain.entity.alcohol.Color;
 import com.juu.juulabel.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;

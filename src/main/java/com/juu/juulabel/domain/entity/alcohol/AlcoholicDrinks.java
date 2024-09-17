@@ -1,10 +1,9 @@
 package com.juu.juulabel.domain.entity.alcohol;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNote;
 import jakarta.persistence.*;
 import lombok.*;
-import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,6 +1,7 @@
-package com.juu.juulabel.domain.entity.alcohol;
+package com.juu.juulabel.domain.entity.tastingnote;
 
 import com.juu.juulabel.domain.base.BaseTimeEntity;
+import com.juu.juulabel.domain.entity.alcohol.FlavorLevel;
 import jakarta.persistence.*;
 import lombok.*;
 
