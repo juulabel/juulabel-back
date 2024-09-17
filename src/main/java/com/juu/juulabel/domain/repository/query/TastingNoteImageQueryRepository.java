@@ -2,6 +2,7 @@ package com.juu.juulabel.domain.repository.query;
 
 import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
 import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteImage;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNoteImage;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,16 @@ public class TastingNoteImageQueryRepository {
         return jpaQueryFactory
             .select(tastingNoteImage.imagePath)
             .from(tastingNoteImage)
+            .where(
+                eqId(tastingNoteImage.tastingNote, tastingNoteId),
+                isNotDeleted(tastingNoteImage)
+            )
+            .fetch();
+    }
+
+    public List<TastingNoteImage> getImageList(Long tastingNoteId) {
+        return jpaQueryFactory
+            .selectFrom(tastingNoteImage)
             .where(
                 eqId(tastingNoteImage.tastingNote, tastingNoteId),
                 isNotDeleted(tastingNoteImage)

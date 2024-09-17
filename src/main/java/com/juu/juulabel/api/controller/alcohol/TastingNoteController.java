@@ -122,11 +122,25 @@ public class TastingNoteController {
         description = "전통주 시음노트 게시글을 상세 조회한다."
     )
     @GetMapping("/{tastingNoteId}")
-    public ResponseEntity<CommonResponse<TastingNoteResponse>> loadtastingNote(
+    public ResponseEntity<CommonResponse<TastingNoteResponse>> loadTastingNote(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @PathVariable Long tastingNoteId
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNote(loginMember, tastingNoteId));
+    }
+
+    @Operation(
+        summary = "시음노트 수정",
+        description = "전통주 시음노트 게시글을 수정한다."
+    )
+    @PutMapping(value = "/{tastingNoteId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<TastingNoteWriteResponse>> updateTastingNote(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid @RequestPart(value = "request") TastingNoteWriteRequest request,
+        @RequestPart(value = "files", required = false) List<MultipartFile> files,
+        @PathVariable Long tastingNoteId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, tastingNoteService.updateTastingNote(loginMember, tastingNoteId, request, files));
     }
 
 }

@@ -17,10 +17,7 @@ import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNote;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteFlavorLevel;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteScent;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteSensoryLevel;
+import com.juu.juulabel.domain.entity.tastingnote.*;
 import com.juu.juulabel.domain.repository.reader.*;
 import com.juu.juulabel.domain.repository.writer.TastingNoteImageWriter;
 import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
@@ -223,4 +220,50 @@ public class TastingNoteService {
         );
     }
 
+    @Transactional
+    public TastingNoteWriteResponse updateTastingNote(
+        Member member,
+        Long tastingNoteId,
+        TastingNoteWriteRequest request,
+        List<MultipartFile> files
+    ) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+        if (!member.getId().equals(tastingNote.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_TASTING_NOTE_WRITER);
+        }
+
+        // 입력된 주종 확인
+        final Long alcoholTypeId = request.alcoholTypeId();
+        final AlcoholType alcoholType = alcoholTypeReader.getById(alcoholTypeId);
+
+        // 전통주 정보 확인 (OD, UD)
+        final AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getByIdOrElseNull(request.alcoholicDrinksId());
+        final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.fromDto(request.alcoholicDrinksDetails());
+
+        // 감각 정보 확인 (시각 정보, 촉각 정보, 미각 정보, 후각 정보)
+        final Color color = getValidColorOrElseThrow(alcoholTypeId, request.colorId());
+        final List<Scent> scents = getValidScentsOrElseThrow(alcoholTypeId, request.scentIds());
+        final List<FlavorLevel> flavorLevels = getValidFlavorLevelsOrElseThrow(alcoholTypeId, request.flavorLevelIds());
+        final List<SensoryLevel> sensoryLevels = getValidSensoryLevelsOrElseThrow(alcoholTypeId, request.sensoryLevelIds());
+
+        tastingNote.update(alcoholType, alcoholicDrinks, color, alcoholicDrinksInfo, request.rating(), request.content(), request.isPrivate());
+        tastingNoteWriter.update(
+            tastingNote.getId(),
+            TastingNoteScent.of(tastingNote, scents),
+            TastingNoteFlavorLevel.of(tastingNote, flavorLevels),
+            TastingNoteSensoryLevel.of(tastingNote, sensoryLevels));
+
+
+        List<TastingNoteImage> tastingNoteImageList = tastingNoteImageReader.getImageList(tastingNote.getId());
+        tastingNoteImageList.forEach(TastingNoteImage::delete);
+
+        List<String> imageUrlList = new ArrayList<>();
+        storeImageList(files, imageUrlList, tastingNote);
+
+        return new TastingNoteWriteResponse(tastingNote.getId());
+    }
+
+    private TastingNote getTastingNote(Long tastingNoteId) {
+        return tastingNoteReader.getById(tastingNoteId);
+    }
 }
