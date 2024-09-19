@@ -116,6 +116,8 @@ public class TastingNoteService {
         List<String> imageUrlList = new ArrayList<>();
         storeImageList(files, imageUrlList, tastingNote);
 
+        alcoholicDrinks.addRating(request.rating());
+
         return TastingNoteWriteResponse.fromEntity(result);
     }
 
@@ -236,6 +238,7 @@ public class TastingNoteService {
     ) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
         validateTastingNoteWriter(member, tastingNote);
+        double rating = tastingNote.getRating();
 
         // 입력된 주종 확인
         final Long alcoholTypeId = request.alcoholTypeId();
@@ -265,6 +268,10 @@ public class TastingNoteService {
         List<String> imageUrlList = new ArrayList<>();
         storeImageList(files, imageUrlList, tastingNote);
 
+        if (rating != request.rating()) {
+            alcoholicDrinks.updateRating(rating, request.rating());
+        }
+
         return new TastingNoteWriteResponse(tastingNote.getId());
     }
 
@@ -282,6 +289,9 @@ public class TastingNoteService {
     public DeleteTastingNoteResponse deleteTastingNote(Member member, Long tastingNoteId) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
         validateTastingNoteWriter(member, tastingNote);
+
+        AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getById(tastingNote.getAlcoholicDrinks().getId());
+        alcoholicDrinks.removeRating(tastingNote.getRating());
 
         tastingNote.delete();
         return new DeleteTastingNoteResponse(tastingNote.getId());

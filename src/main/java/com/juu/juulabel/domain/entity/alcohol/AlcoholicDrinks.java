@@ -1,6 +1,7 @@
 package com.juu.juulabel.domain.entity.alcohol;
 
-import com.juu.juulabel.api.annotation.Rating;
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.entity.tastingnote.TastingNote;
 import jakarta.persistence.*;
@@ -65,5 +66,39 @@ public class AlcoholicDrinks extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "alcoholicDrinks", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TastingNote> tastingNotes = new ArrayList<>();
+
+    public void addRating(Double newRating) {
+        if (newRating == null || newRating < 0 || newRating > 5) {
+            throw new InvalidParamException(ErrorCode.INVALID_RATING);
+        }
+
+        double currentRating = this.rating;
+        int count = this.tastingNoteCount;
+
+        // 새로운 평점을 추가한 후 총점 계산
+        double totalScore = count * currentRating + newRating;
+        this.tastingNoteCount = count + 1;
+
+        // 새로운 평균 계산
+        this.rating = totalScore / this.tastingNoteCount;
+    }
+
+    public void updateRating(Double existingRating, Double newRating) {
+        if (newRating == null || newRating < 0 || newRating > 5) {
+            throw new InvalidParamException(ErrorCode.INVALID_RATING);
+        }
+        double currentRating = this.rating;
+        int count = this.tastingNoteCount;
+        double totalScore = count * currentRating - existingRating + newRating;
+        this.rating = totalScore / this.tastingNoteCount;
+    }
+
+    public void removeRating(Double existingRating) {
+        double currentRating = this.rating;
+        int count = this.tastingNoteCount;
+        double totalScore = count * currentRating - existingRating;
+        this.tastingNoteCount = count - 1;
+        this.rating = totalScore / this.tastingNoteCount;
+    }
 
 }
