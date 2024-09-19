@@ -21,10 +21,7 @@ import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.tastingnote.*;
 import com.juu.juulabel.domain.repository.TastingNoteLikeReader;
 import com.juu.juulabel.domain.repository.reader.*;
-import com.juu.juulabel.domain.repository.writer.TastingNoteCommentWriter;
-import com.juu.juulabel.domain.repository.writer.TastingNoteImageWriter;
-import com.juu.juulabel.domain.repository.writer.TastingNoteLikeWriter;
-import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
+import com.juu.juulabel.domain.repository.writer.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
@@ -55,6 +52,8 @@ public class TastingNoteService {
     private final TastingNoteLikeWriter tastingNoteLikeWriter;
     private final TastingNoteCommentReader tastingNoteCommentReader;
     private final TastingNoteCommentWriter tastingNoteCommentWriter;
+    private final TastingNoteCommentLikeReader tastingNoteCommentLikeReader;
+    private final TastingNoteCommentLikeWriter tastingNoteCommentLikeWriter;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -396,5 +395,25 @@ public class TastingNoteService {
 
         comment.delete();
         return new DeleteCommentResponse(comment.getId());
+    }
+
+    @Transactional
+    public boolean toggleCommentLike(Member member, Long tastingNoteId, Long commentId) {
+        getTastingNote(tastingNoteId);
+        TastingNoteComment comment = getComment(commentId);
+
+        Optional<TastingNoteCommentLike> tastingNoteCommentLike =
+            tastingNoteCommentLikeReader.findByMemberAndTastingNoteComment(member, comment);
+
+        // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
+        return tastingNoteCommentLike
+            .map(like -> {
+                tastingNoteCommentLikeWriter.delete(like);
+                return false;
+            })
+            .orElseGet(() -> {
+                tastingNoteCommentLikeWriter.store(member, comment);
+                return true;
+            });
     }
 }

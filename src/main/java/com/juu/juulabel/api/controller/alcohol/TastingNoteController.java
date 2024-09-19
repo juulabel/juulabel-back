@@ -239,4 +239,18 @@ public class TastingNoteController {
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE, tastingNoteService.deleteComment(loginMember, tastingNoteId, commentId));
     }
 
+    @Operation(
+        summary = "시음노트 댓글 좋아요",
+        description = "전통주 시음노트 게시글에 좋아요를 등록 및 취소한다."
+    )
+    @PostMapping("/{tastingNoteId}/comments/{commentId}/likes")
+    public ResponseEntity<CommonResponse<Void>> toggleCommentLike(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long tastingNoteId,
+        @PathVariable Long commentId
+    ) {
+        boolean isLiked = tastingNoteService.toggleCommentLike(loginMember, tastingNoteId, commentId);
+        return CommonResponse.success(isLiked ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
+    }
+
 }
