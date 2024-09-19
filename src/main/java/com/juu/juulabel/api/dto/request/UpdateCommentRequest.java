@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record UpdateDailyLifeCommentRequest(
+public record UpdateCommentRequest(
     @Schema(example = "이것은 내용입니다...")
     @NotNull(message = "내용이 누락되었습니다.")
     @Size(max = 600, message = "내용은 최대 600글자까지 가능합니다.")

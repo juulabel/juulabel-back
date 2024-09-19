@@ -185,9 +185,9 @@ public class DailyLifeService {
     }
 
     @Transactional
-    public UpdateDailyLifeCommentResponse updateComment(
+    public UpdateCommentResponse updateComment(
         final Member member,
-        final UpdateDailyLifeCommentRequest request,
+        final UpdateCommentRequest request,
         final Long dailyLifeId,
         final Long commentId
     ) {
@@ -198,7 +198,7 @@ public class DailyLifeService {
 
         comment.updateContent(request.content());
 
-        return new UpdateDailyLifeCommentResponse(
+        return new UpdateCommentResponse(
             comment.getContent(),
             new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()));
     }
