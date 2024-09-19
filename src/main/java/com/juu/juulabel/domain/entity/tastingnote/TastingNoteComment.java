@@ -1,7 +1,6 @@
 package com.juu.juulabel.domain.entity.tastingnote;
 
 import com.juu.juulabel.domain.base.BaseTimeEntity;
-import com.juu.juulabel.domain.entity.dailylife.DailyLifeComment;
 import com.juu.juulabel.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,9 +35,26 @@ public class TastingNoteComment extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "parent_id", columnDefinition = "BIGINT UNSIGNED comment '상위 댓글 ID'")
-    private DailyLifeComment parent;
+    private TastingNoteComment parent;
 
     @Column(name = "deleted_at", columnDefinition = "DATETIME comment '삭제 일시'")
     private LocalDateTime deletedAt;
+
+    public static TastingNoteComment createComment(Member member, TastingNote tastingNote, String content) {
+        return TastingNoteComment.builder()
+            .member(member)
+            .tastingNote(tastingNote)
+            .content(content)
+            .build();
+    }
+
+    public static TastingNoteComment createReply(Member member, TastingNote tastingNote, String content, TastingNoteComment parent) {
+        return TastingNoteComment.builder()
+            .member(member)
+            .tastingNote(tastingNote)
+            .content(content)
+            .parent(parent)
+            .build();
+    }
 
 }

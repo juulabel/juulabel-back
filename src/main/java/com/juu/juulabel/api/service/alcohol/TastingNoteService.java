@@ -3,6 +3,7 @@ package com.juu.juulabel.api.service.alcohol;
 import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
 import com.juu.juulabel.api.dto.request.TastingNoteListRequest;
 import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
+import com.juu.juulabel.api.dto.request.WriteTastingNoteCommentRequest;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
 import com.juu.juulabel.api.service.s3.S3Service;
@@ -11,6 +12,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.ImageInfo;
 import com.juu.juulabel.domain.dto.alcohol.*;
+import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
@@ -20,6 +22,7 @@ import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.tastingnote.*;
 import com.juu.juulabel.domain.repository.TastingNoteLikeReader;
 import com.juu.juulabel.domain.repository.reader.*;
+import com.juu.juulabel.domain.repository.writer.TastingNoteCommentWriter;
 import com.juu.juulabel.domain.repository.writer.TastingNoteImageWriter;
 import com.juu.juulabel.domain.repository.writer.TastingNoteLikeWriter;
 import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
@@ -51,6 +54,8 @@ public class TastingNoteService {
     private final TastingNoteImageReader tastingNoteImageReader;
     private final TastingNoteLikeReader tastingNoteLikeReader;
     private final TastingNoteLikeWriter tastingNoteLikeWriter;
+    private final TastingNoteCommentReader tastingNoteCommentReader;
+    private final TastingNoteCommentWriter tastingNoteCommentWriter;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -299,5 +304,32 @@ public class TastingNoteService {
                 tastingNoteLikeWriter.store(member, tastingNote);
                 return true;
             });
+    }
+
+    @Transactional
+    public WriteTastingNoteCommentResponse writeComment(
+        Member member,
+        WriteTastingNoteCommentRequest request,
+        Long tastingNoteId
+    ) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+
+        TastingNoteComment tastingNoteComment = createCommentOrReply(request, member, tastingNote);
+        TastingNoteComment comment = tastingNoteCommentWriter.store(tastingNoteComment);
+
+        return new WriteTastingNoteCommentResponse(
+            comment.getContent(),
+            tastingNote.getId(),
+            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage())
+        );
+    }
+
+    private TastingNoteComment createCommentOrReply(WriteTastingNoteCommentRequest request, Member member, TastingNote tastingNote) {
+        if (Objects.isNull(request.parentCommentId())) {
+            return TastingNoteComment.createComment(member, tastingNote, request.content());
+        } else {
+            TastingNoteComment parentComment = tastingNoteCommentReader.getById(request.parentCommentId());
+            return TastingNoteComment.createReply(member, tastingNote, request.content(), parentComment);
+        }
     }
 }
