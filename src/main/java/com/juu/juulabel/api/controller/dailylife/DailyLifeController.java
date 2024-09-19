@@ -133,7 +133,7 @@ public class DailyLifeController {
     @GetMapping("/{dailyLifeId}/comments")
     public ResponseEntity<CommonResponse<DailyLifeCommentListResponse>> loadCommentList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid DailyLifeCommentListRequest request,
+        @Valid CommentListRequest request,
         @PathVariable Long dailyLifeId
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadCommentList(loginMember, request, dailyLifeId));

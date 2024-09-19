@@ -50,7 +50,7 @@ public class DailyLifeCommentQueryRepository {
                             reply.parent.id.eq(dailyLifeComment.id),
                             isNotDeleted(reply)
                         ),
-                    isLikedSubQuery(dailyLifeComment, member)
+                    isLikedSubQuery(dailyLifeComment, member, dailyLifeCommentLike)
                 )
             )
             .from(dailyLifeComment)
@@ -89,7 +89,7 @@ public class DailyLifeCommentQueryRepository {
                     ),
                     dailyLifeComment.createdAt,
                     dailyLifeCommentLike.count().as("likeCount"),
-                    isLikedSubQuery(dailyLifeComment, member)
+                    isLikedSubQuery(dailyLifeComment, member, dailyLifeCommentLike)
                 )
             )
             .from(dailyLifeComment)
@@ -113,7 +113,7 @@ public class DailyLifeCommentQueryRepository {
         return new SliceImpl<>(dailyLifeReplySummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    private BooleanExpression isLikedSubQuery(QDailyLifeComment dailyLifeComment, Member member) {
+    private BooleanExpression isLikedSubQuery(QDailyLifeComment dailyLifeComment, Member member, QDailyLifeCommentLike dailyLifeCommentLike) {
         return jpaQueryFactory
             .selectFrom(dailyLifeComment)
             .where(
