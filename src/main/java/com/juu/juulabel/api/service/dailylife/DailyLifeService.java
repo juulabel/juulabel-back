@@ -204,7 +204,7 @@ public class DailyLifeService {
     }
 
     @Transactional
-    public DeleteDailyLifeCommentResponse deleteComment(
+    public DeleteCommentResponse deleteComment(
         final Member member,
         final Long dailyLifeId,
         final Long commentId
@@ -215,7 +215,7 @@ public class DailyLifeService {
         validateCommentWriter(member, comment);
 
         comment.delete();
-        return new DeleteDailyLifeCommentResponse(comment.getId());
+        return new DeleteCommentResponse(comment.getId());
     }
 
     @Transactional

@@ -386,4 +386,15 @@ public class TastingNoteService {
             throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
         }
     }
+
+    @Transactional
+    public DeleteCommentResponse deleteComment(Member member, Long tastingNoteId, Long commentId) {
+        getTastingNote(tastingNoteId);
+        TastingNoteComment comment = getComment(commentId);
+
+        validateCommentWriter(member, comment);
+
+        comment.delete();
+        return new DeleteCommentResponse(comment.getId());
+    }
 }
