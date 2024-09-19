@@ -1,7 +1,7 @@
 package com.juu.juulabel.domain.repository.query;
 
-import com.juu.juulabel.domain.dto.dailylife.DailyLifeCommentSummary;
-import com.juu.juulabel.domain.dto.dailylife.DailyLifeReplySummary;
+import com.juu.juulabel.domain.dto.comment.CommentSummary;
+import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.entity.dailylife.QDailyLifeComment;
 import com.juu.juulabel.domain.entity.dailylife.like.QDailyLifeCommentLike;
@@ -28,12 +28,12 @@ public class DailyLifeCommentQueryRepository {
     QDailyLifeComment dailyLifeComment = QDailyLifeComment.dailyLifeComment;
     QDailyLifeCommentLike dailyLifeCommentLike = QDailyLifeCommentLike.dailyLifeCommentLike;
 
-    public Slice<DailyLifeCommentSummary> getAllByDailyLifeId(Member member, Long dailyLifeId, Long lastCommentId, int pageSize) {
+    public Slice<CommentSummary> getAllByDailyLifeId(Member member, Long dailyLifeId, Long lastCommentId, int pageSize) {
         QDailyLifeComment reply = new QDailyLifeComment("reply");
-        List<DailyLifeCommentSummary> dailyLifeCommentSummaryList = jpaQueryFactory
+        List<CommentSummary> commentSummaryList = jpaQueryFactory
             .select(
                 Projections.constructor(
-                    DailyLifeCommentSummary.class,
+                    CommentSummary.class,
                     dailyLifeComment.content,
                     dailyLifeComment.id,
                     Projections.constructor(
@@ -66,19 +66,19 @@ public class DailyLifeCommentQueryRepository {
             .limit(pageSize + 1L)
             .fetch();
 
-        boolean hasNext = dailyLifeCommentSummaryList.size() > pageSize;
+        boolean hasNext = commentSummaryList.size() > pageSize;
         if (hasNext) {
-            dailyLifeCommentSummaryList.remove(pageSize);
+            commentSummaryList.remove(pageSize);
         }
 
-        return new SliceImpl<>(dailyLifeCommentSummaryList, PageRequest.ofSize(pageSize), hasNext);
+        return new SliceImpl<>(commentSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public Slice<DailyLifeReplySummary> getAllRepliesByParentId(Member member, Long dailyLifeId, Long dailyLifeCommentId, Long lastReplyId, int pageSize) {
-        List<DailyLifeReplySummary> dailyLifeReplySummaryList = jpaQueryFactory
+    public Slice<ReplySummary> getAllRepliesByParentId(Member member, Long dailyLifeId, Long dailyLifeCommentId, Long lastReplyId, int pageSize) {
+        List<ReplySummary> replySummaryList = jpaQueryFactory
             .select(
                 Projections.constructor(
-                    DailyLifeReplySummary.class,
+                    ReplySummary.class,
                     dailyLifeComment.content,
                     dailyLifeComment.id,
                     Projections.constructor(
@@ -105,12 +105,12 @@ public class DailyLifeCommentQueryRepository {
             .limit(pageSize + 1L)
             .fetch();
 
-        boolean hasNext = dailyLifeReplySummaryList.size() > pageSize;
+        boolean hasNext = replySummaryList.size() > pageSize;
         if (hasNext) {
-            dailyLifeReplySummaryList.remove(pageSize);
+            replySummaryList.remove(pageSize);
         }
 
-        return new SliceImpl<>(dailyLifeReplySummaryList, PageRequest.ofSize(pageSize), hasNext);
+        return new SliceImpl<>(replySummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
     private BooleanExpression isLikedSubQuery(QDailyLifeComment dailyLifeComment, Member member, QDailyLifeCommentLike dailyLifeCommentLike) {

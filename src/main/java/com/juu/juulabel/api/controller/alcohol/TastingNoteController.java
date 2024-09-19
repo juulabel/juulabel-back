@@ -195,4 +195,21 @@ public class TastingNoteController {
         return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadCommentList(loginMember, request, tastingNoteId));
     }
 
+    @Operation(
+        summary = "시음노트 답글 목록 조회",
+        description = "전통주 시음노트 게시글의 댓글의 답글 목록을 조회한다."
+    )
+    @Parameters(
+        @Parameter(name = "request", description = "시음노트 게시글 답글 목록 조회 요청", required = true)
+    )
+    @GetMapping("/{tastingNoteId}/comments/{tastingNoteCommentId}")
+    public ResponseEntity<CommonResponse<TastingNoteReplyListResponse>> loadReplyList(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid ReplyListRequest request,
+        @PathVariable Long tastingNoteId,
+        @PathVariable Long tastingNoteCommentId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadReplyList(loginMember, request, tastingNoteId, tastingNoteCommentId));
+    }
+
 }

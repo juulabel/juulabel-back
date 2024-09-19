@@ -7,6 +7,8 @@ import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.ImageInfo;
+import com.juu.juulabel.domain.dto.comment.CommentSummary;
+import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.dto.dailylife.*;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
@@ -161,7 +163,7 @@ public class DailyLifeService {
     ) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
 
-        final Slice<DailyLifeCommentSummary> commentList =
+        final Slice<CommentSummary> commentList =
             dailyLifeCommentReader.getAllByDailyLifeId(member, dailyLife.getId(), request.lastCommentId(), request.pageSize());
 
         return new DailyLifeCommentListResponse(commentList);
@@ -170,13 +172,13 @@ public class DailyLifeService {
     @Transactional(readOnly = true)
     public DailyLifeReplyListResponse loadReplyList(
         final Member member,
-        final DailyLifeReplyListRequest request,
+        final ReplyListRequest request,
         final Long dailyLifeId,
         final Long dailyLifeCommentId
     ) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
 
-        final Slice<DailyLifeReplySummary> replyList =
+        final Slice<ReplySummary> replyList =
             dailyLifeCommentReader.getAllRepliesByParentId(member, dailyLife.getId(), dailyLifeCommentId, request.lastReplyId(), request.pageSize());
 
         return new DailyLifeReplyListResponse(replyList);

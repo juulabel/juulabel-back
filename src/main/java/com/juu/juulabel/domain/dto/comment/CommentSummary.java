@@ -1,11 +1,11 @@
-package com.juu.juulabel.domain.dto.dailylife;
+package com.juu.juulabel.domain.dto.comment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 
 import java.time.LocalDateTime;
 
-public record DailyLifeCommentSummary(
+public record CommentSummary(
     String content,
     Long commentId,
     MemberInfo memberInfo,

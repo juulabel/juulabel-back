@@ -3,7 +3,8 @@ package com.juu.juulabel.domain.repository.reader;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.annotation.Reader;
-import com.juu.juulabel.domain.dto.tastingnote.TastingNoteCommentSummary;
+import com.juu.juulabel.domain.dto.comment.CommentSummary;
+import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.tastingnote.TastingNoteComment;
 import com.juu.juulabel.domain.repository.jpa.TastingNoteCommentJpaRepository;
@@ -23,12 +24,28 @@ public class TastingNoteCommentReader {
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT));
     }
 
-    public Slice<TastingNoteCommentSummary> getAllByTastingNoteId(
+    public Slice<CommentSummary> getAllByTastingNoteId(
         Member member,
         Long tastingNoteId,
         Long lastCommentId,
         int pageSize
     ) {
         return tastingNoteCommentQueryRepository.getAllByTastingNoteId(member, tastingNoteId, lastCommentId, pageSize);
+    }
+
+    public Slice<ReplySummary> getAllRepliesByParentId(
+        Member member,
+        Long tastingNoteId,
+        Long tastingNoteCommentId,
+        Long lastReplyId,
+        int pageSize
+    ) {
+        return tastingNoteCommentQueryRepository.getAllRepliesByParentId(
+            member,
+            tastingNoteId,
+            tastingNoteCommentId,
+            lastReplyId,
+            pageSize
+        );
     }
 }

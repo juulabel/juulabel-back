@@ -149,7 +149,7 @@ public class DailyLifeController {
     @GetMapping("/{dailyLifeId}/comments/{dailyLifeCommentId}")
     public ResponseEntity<CommonResponse<DailyLifeReplyListResponse>> loadReplyList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid DailyLifeReplyListRequest request,
+        @Valid ReplyListRequest request,
         @PathVariable Long dailyLifeId,
         @PathVariable Long dailyLifeCommentId
     ) {
