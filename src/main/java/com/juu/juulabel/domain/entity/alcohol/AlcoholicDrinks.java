@@ -1,5 +1,6 @@
 package com.juu.juulabel.domain.entity.alcohol;
 
+import com.juu.juulabel.api.annotation.Rating;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.entity.tastingnote.TastingNote;
 import jakarta.persistence.*;
@@ -52,6 +53,12 @@ public class AlcoholicDrinks extends BaseTimeEntity {
 
     @Column(name = "ingredients", columnDefinition = "text comment '원재료'")
     private String ingredients;
+
+    @Column(name = "tasting_note_count", columnDefinition = "int comment '총 시음노트 개수'")
+    private int tastingNoteCount;
+
+    @Column(name = "rating", nullable = false, columnDefinition = "DECIMAL(3,2) comment '평균 달점 (0.00 - 5.00)'")
+    private Double rating;
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
