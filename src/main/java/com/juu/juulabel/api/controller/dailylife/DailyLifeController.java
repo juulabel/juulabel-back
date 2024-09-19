@@ -161,9 +161,9 @@ public class DailyLifeController {
         description = "전통주 일상생활 게시글의 댓글을 수정한다."
     )
     @PatchMapping("/{dailyLifeId}/comments/{commentId}")
-    public ResponseEntity<CommonResponse<UpdateDailyLifeCommentResponse>> updateComment(
+    public ResponseEntity<CommonResponse<UpdateCommentResponse>> updateComment(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid @RequestBody UpdateDailyLifeCommentRequest request,
+        @Valid @RequestBody UpdateCommentRequest request,
         @PathVariable Long dailyLifeId,
         @PathVariable Long commentId
     ) {

@@ -212,4 +212,18 @@ public class TastingNoteController {
         return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadReplyList(loginMember, request, tastingNoteId, tastingNoteCommentId));
     }
 
+    @Operation(
+        summary = "시음노트 댓글 수정",
+        description = "전통주 시음노트 게시글의 댓글을 수정한다."
+    )
+    @PatchMapping("/{tastingNoteId}/comments/{commentId}")
+    public ResponseEntity<CommonResponse<UpdateCommentResponse>> updateComment(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid @RequestBody UpdateCommentRequest request,
+        @PathVariable Long tastingNoteId,
+        @PathVariable Long commentId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, tastingNoteService.updateComment(loginMember, request, tastingNoteId, commentId));
+    }
+
 }

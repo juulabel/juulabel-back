@@ -342,6 +342,7 @@ public class TastingNoteService {
         return new TastingNoteCommentListResponse(commentList);
     }
 
+    @Transactional(readOnly = true)
     public TastingNoteReplyListResponse loadReplyList(
         Member member,
         ReplyListRequest request,
@@ -359,5 +360,30 @@ public class TastingNoteService {
             );
 
         return new TastingNoteReplyListResponse(replyList);
+    }
+
+    @Transactional
+    public UpdateCommentResponse updateComment(Member member, UpdateCommentRequest request, Long tastingNoteId, Long commentId) {
+        getTastingNote(tastingNoteId);
+        TastingNoteComment comment = getComment(commentId);
+
+        validateCommentWriter(member, comment);
+
+        comment.updateContent(request.content());
+
+        return new UpdateCommentResponse(
+            comment.getContent(),
+            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage())
+        );
+    }
+
+    private TastingNoteComment getComment(Long commentId) {
+        return tastingNoteCommentReader.getById(commentId);
+    }
+
+    private static void validateCommentWriter(Member member, TastingNoteComment comment) {
+        if (!member.getId().equals(comment.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
+        }
     }
 }
