@@ -1,7 +1,8 @@
 package com.juu.juulabel.domain.repository.query;
 
+import com.juu.juulabel.domain.dto.comment.CommentSummary;
+import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
-import com.juu.juulabel.domain.dto.tastingnote.TastingNoteCommentSummary;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteComment;
 import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteCommentLike;
@@ -27,12 +28,12 @@ public class TastingNoteCommentQueryRepository {
     QTastingNoteComment tastingNoteComment = QTastingNoteComment.tastingNoteComment;
     QTastingNoteCommentLike tastingNoteCommentLike = QTastingNoteCommentLike.tastingNoteCommentLike;
 
-    public Slice<TastingNoteCommentSummary> getAllByTastingNoteId(Member member, Long tastingNoteId, Long lastCommentId, int pageSize) {
+    public Slice<CommentSummary> getAllByTastingNoteId(Member member, Long tastingNoteId, Long lastCommentId, int pageSize) {
         QTastingNoteComment reply = new QTastingNoteComment("reply");
-        List<TastingNoteCommentSummary> tastingNoteCommentSummaryList = jpaQueryFactory
+        List<CommentSummary> commentSummaryList = jpaQueryFactory
             .select(
                 Projections.constructor(
-                    TastingNoteCommentSummary.class,
+                    CommentSummary.class,
                     tastingNoteComment.content,
                     tastingNoteComment.id,
                     Projections.constructor(
@@ -65,12 +66,51 @@ public class TastingNoteCommentQueryRepository {
             .limit(pageSize + 1L)
             .fetch();
 
-        boolean hasNext = tastingNoteCommentSummaryList.size() > pageSize;
+        boolean hasNext = commentSummaryList.size() > pageSize;
         if (hasNext) {
-            tastingNoteCommentSummaryList.remove(pageSize);
+            commentSummaryList.remove(pageSize);
         }
 
-        return new SliceImpl<>(tastingNoteCommentSummaryList, PageRequest.ofSize(pageSize), hasNext);
+        return new SliceImpl<>(commentSummaryList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
+    public Slice<ReplySummary> getAllRepliesByParentId(Member member, Long tastingNoteId, Long tastingNoteCommentId, Long lastReplyId, int pageSize) {
+        List<ReplySummary> replySummaryList = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    ReplySummary.class,
+                    tastingNoteComment.content,
+                    tastingNoteComment.id,
+                    Projections.constructor(
+                        MemberInfo.class,
+                        tastingNoteComment.member.id,
+                        tastingNoteComment.member.nickname,
+                        tastingNoteComment.member.profileImage
+                    ),
+                    tastingNoteComment.createdAt,
+                    tastingNoteCommentLike.count().as("likeCount"),
+                    isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike)
+                )
+            )
+            .from(tastingNoteComment)
+            .leftJoin(tastingNoteCommentLike).on(tastingNoteCommentLike.tastingNoteComment.eq(tastingNoteComment))
+            .where(
+                tastingNoteComment.tastingNote.id.eq(tastingNoteId),
+                tastingNoteComment.parent.id.eq(tastingNoteCommentId),
+                isNotDeleted(tastingNoteComment),
+                noOffsetByCommentId(tastingNoteComment, lastReplyId)
+            )
+            .groupBy(tastingNoteComment.id)
+            .orderBy(tastingNoteComment.id.desc())
+            .limit(pageSize + 1L)
+            .fetch();
+
+        boolean hasNext = replySummaryList.size() > pageSize;
+        if (hasNext) {
+            replySummaryList.remove(pageSize);
+        }
+
+        return new SliceImpl<>(replySummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
     private BooleanExpression isNotDeleted(QTastingNoteComment tastingNoteComment) {

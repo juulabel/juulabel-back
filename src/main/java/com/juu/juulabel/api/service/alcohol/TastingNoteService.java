@@ -9,9 +9,10 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.ImageInfo;
 import com.juu.juulabel.domain.dto.alcohol.*;
+import com.juu.juulabel.domain.dto.comment.CommentSummary;
+import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
-import com.juu.juulabel.domain.dto.tastingnote.TastingNoteCommentSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
@@ -335,9 +336,28 @@ public class TastingNoteService {
     public TastingNoteCommentListResponse loadCommentList(Member member, CommentListRequest request, Long tastingNoteId) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
 
-        Slice<TastingNoteCommentSummary> commentList =
+        Slice<CommentSummary> commentList =
             tastingNoteCommentReader.getAllByTastingNoteId(member, tastingNote.getId(), request.lastCommentId(), request.pageSize());
 
         return new TastingNoteCommentListResponse(commentList);
+    }
+
+    public TastingNoteReplyListResponse loadReplyList(
+        Member member,
+        ReplyListRequest request,
+        Long tastingNoteId,
+        Long tastingNoteCommentId
+    ) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+
+        Slice<ReplySummary> replyList = tastingNoteCommentReader.getAllRepliesByParentId(
+                member,
+                tastingNote.getId(),
+                tastingNoteCommentId,
+                request.lastReplyId(),
+                request.pageSize()
+            );
+
+        return new TastingNoteReplyListResponse(replyList);
     }
 }
