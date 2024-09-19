@@ -81,6 +81,11 @@ public enum ErrorCode {
     NOT_FOUND_ALCOHOLIC_DRINKS_TYPE(HttpStatus.BAD_REQUEST, "전통주를 찾을 수 없습니다."),
 
     /**
+     * Brewery
+     */
+    NOT_FOUND_BREWERY(HttpStatus.BAD_REQUEST, "양조장을 찾을 수 없습니다."),
+
+    /**
      * Category
      */
     NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),
