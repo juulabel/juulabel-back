@@ -1,9 +1,7 @@
 package com.juu.juulabel.api.controller.alcohol;
 
 import com.juu.juulabel.api.annotation.LoginMember;
-import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
-import com.juu.juulabel.api.dto.request.TastingNoteListRequest;
-import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
+import com.juu.juulabel.api.dto.request.*;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.alcohol.TastingNoteService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
@@ -166,6 +164,19 @@ public class TastingNoteController {
     ) {
         boolean isLiked = tastingNoteService.toggleTastingNoteLike(loginMember, tastingNoteId);
         return CommonResponse.success(isLiked ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
+    }
+
+    @Operation(
+        summary = "시음노트 댓글 작성",
+        description = "전통주 시음노트 게시글에 댓글을 작성한다."
+    )
+    @PostMapping("/{tastingNoteId}/comments")
+    public ResponseEntity<CommonResponse<WriteTastingNoteCommentResponse>> writeComment(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid @RequestBody WriteTastingNoteCommentRequest request,
+        @PathVariable Long tastingNoteId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, tastingNoteService.writeComment(loginMember, request, tastingNoteId));
     }
 
 }
