@@ -1,9 +1,6 @@
 package com.juu.juulabel.api.service.alcohol;
 
-import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
-import com.juu.juulabel.api.dto.request.TastingNoteListRequest;
-import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
-import com.juu.juulabel.api.dto.request.WriteTastingNoteCommentRequest;
+import com.juu.juulabel.api.dto.request.*;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
 import com.juu.juulabel.api.service.s3.S3Service;
@@ -14,6 +11,7 @@ import com.juu.juulabel.domain.dto.ImageInfo;
 import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteCommentSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
@@ -331,5 +329,15 @@ public class TastingNoteService {
             TastingNoteComment parentComment = tastingNoteCommentReader.getById(request.parentCommentId());
             return TastingNoteComment.createReply(member, tastingNote, request.content(), parentComment);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public TastingNoteCommentListResponse loadCommentList(Member member, CommentListRequest request, Long tastingNoteId) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+
+        Slice<TastingNoteCommentSummary> commentList =
+            tastingNoteCommentReader.getAllByTastingNoteId(member, tastingNote.getId(), request.lastCommentId(), request.pageSize());
+
+        return new TastingNoteCommentListResponse(commentList);
     }
 }

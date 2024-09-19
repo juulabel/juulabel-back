@@ -156,7 +156,7 @@ public class DailyLifeService {
     @Transactional(readOnly = true)
     public DailyLifeCommentListResponse loadCommentList(
         final Member member,
-        final DailyLifeCommentListRequest request,
+        final CommentListRequest request,
         final Long dailyLifeId
     ) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
