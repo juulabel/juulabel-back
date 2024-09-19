@@ -18,8 +18,10 @@ import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.tastingnote.*;
+import com.juu.juulabel.domain.repository.TastingNoteLikeReader;
 import com.juu.juulabel.domain.repository.reader.*;
 import com.juu.juulabel.domain.repository.writer.TastingNoteImageWriter;
+import com.juu.juulabel.domain.repository.writer.TastingNoteLikeWriter;
 import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +49,8 @@ public class TastingNoteService {
     private final TastingNoteWriter tastingNoteWriter;
     private final TastingNoteImageWriter tastingNoteImageWriter;
     private final TastingNoteImageReader tastingNoteImageReader;
+    private final TastingNoteLikeReader tastingNoteLikeReader;
+    private final TastingNoteLikeWriter tastingNoteLikeWriter;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -278,5 +282,22 @@ public class TastingNoteService {
 
         tastingNote.delete();
         return new DeleteTastingNoteResponse(tastingNote.getId());
+    }
+
+    @Transactional
+    public boolean toggleTastingNoteLike(Member member, Long tastingNoteId) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+        Optional<TastingNoteLike> tastingNoteLike = tastingNoteLikeReader.findByMemberAndTastingNote(member, tastingNote);
+
+        // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
+        return tastingNoteLike
+            .map(like -> {
+                tastingNoteLikeWriter.delete(like);
+                return false;
+            })
+            .orElseGet(() -> {
+                tastingNoteLikeWriter.store(member, tastingNote);
+                return true;
+            });
     }
 }
