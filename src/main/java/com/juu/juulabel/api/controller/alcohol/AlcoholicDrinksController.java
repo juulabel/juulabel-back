@@ -4,7 +4,7 @@ package com.juu.juulabel.api.controller.alcohol;
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.CategorySearchAlcoholRequest;
 import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
-import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
+//import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
 import com.juu.juulabel.api.service.alcohol.AlcoholicDrinksService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -44,16 +44,16 @@ public class AlcoholicDrinksController {
     }
 
 
-    @Operation(
-            summary = "전통주 상세 조회",
-            description = ""
-    )
-    @GetMapping("/{alcoholicDrinksId}")
-    public ResponseEntity<CommonResponse<AlcoholicDrinksDetailResponse>> loadAlcoholDrinks(
-            //@Parameter(hidden = true)
-            //@LoginMember Member loginMember,
-            @PathVariable Long alcoholicDrinksId
-    ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.loadAlcoholicDrinks(alcoholicDrinksId));
-    }
+//    @Operation(
+//            summary = "전통주 상세 조회",
+//            description = ""
+//    )
+//    @GetMapping("/{alcoholicDrinksId}")
+//    public ResponseEntity<CommonResponse<AlcoholicDrinksDetailResponse>> loadAlcoholDrinks(
+//            //@Parameter(hidden = true)
+//            //@LoginMember Member loginMember,
+//            @PathVariable Long alcoholicDrinksId
+//    ) {
+//        return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.loadAlcoholicDrinks(alcoholicDrinksId));
+//    }
 }
