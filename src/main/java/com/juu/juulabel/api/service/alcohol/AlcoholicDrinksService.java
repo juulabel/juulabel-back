@@ -30,7 +30,6 @@ public class AlcoholicDrinksService {
          );
     }
 
-
     // 주종별 검색 시 정렬
     @Transactional(readOnly = true)
     public AlcoholicCategoryResponse searchAlcoholTypeList(final CategorySearchAlcoholRequest request) {
