@@ -82,6 +82,11 @@ public enum ErrorCode {
     INVALID_RATING(HttpStatus.BAD_REQUEST, "잘못된 평점입니다. 평점은 0.00에서 5.00 사이여야 합니다."),
 
     /**
+     * Brewery
+     */
+    NOT_FOUND_BREWERY(HttpStatus.BAD_REQUEST, "양조장을 찾을 수 없습니다."),
+
+    /**
      * Category
      */
     NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),

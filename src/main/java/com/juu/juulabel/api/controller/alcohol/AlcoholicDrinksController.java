@@ -4,8 +4,10 @@ package com.juu.juulabel.api.controller.alcohol;
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.CategorySearchAlcoholRequest;
 import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
-//import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
+import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
+import com.juu.juulabel.api.dto.response.BreweryDetailResponse;
 import com.juu.juulabel.api.service.alcohol.AlcoholicDrinksService;
+import com.juu.juulabel.api.service.alcohol.BreweryService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -21,39 +23,51 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = {"/v1/api/shared-space/category"})
+@RequestMapping(value = {"/v1/api/alcoholicDrinks"})
 @RequiredArgsConstructor
 public class AlcoholicDrinksController {
 
     private final AlcoholicDrinksService alcoholicDrinksService;
+    private final BreweryService breweryService;
 
+
+    // 주종별 검색 시 정렬 기능
     @Operation(
-            summary = "전통주 주종별 검색",
-            description = ""
+            summary = "전통주 주종별 검색"
     )
     @Parameters(
             @Parameter(name = "request", description = "주종별 검색 요청", required = true)
     )
     @GetMapping("/typeSearch")
     public ResponseEntity<CommonResponse<AlcoholicCategoryResponse>> searchAlcoholDrinksList(
-            @Parameter(hidden = true)
-            @LoginMember Member loginMember,
+            // @Parameter(hidden = true) @LoginMember Member loginMember,
             @Valid CategorySearchAlcoholRequest request
     ) {
-    return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.searchAlcoholTypeList(loginMember,request));
+        return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.searchAlcoholTypeList(request));
     }
 
 
-//    @Operation(
-//            summary = "전통주 상세 조회",
-//            description = ""
-//    )
-//    @GetMapping("/{alcoholicDrinksId}")
-//    public ResponseEntity<CommonResponse<AlcoholicDrinksDetailResponse>> loadAlcoholDrinks(
-//            //@Parameter(hidden = true)
-//            //@LoginMember Member loginMember,
-//            @PathVariable Long alcoholicDrinksId
-//    ) {
-//        return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.loadAlcoholicDrinks(alcoholicDrinksId));
-//    }
+    @Operation(
+            summary = "전통주 상세 조회",
+            description = ""
+    )
+    @GetMapping("/{alcoholicDrinksId}")
+    public ResponseEntity<CommonResponse<AlcoholicDrinksDetailResponse>> loadAlcoholDrinks(
+            //@Parameter(hidden = true)
+            //@LoginMember Member loginMember,
+            @PathVariable Long alcoholicDrinksId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.loadAlcoholicDrinks(alcoholicDrinksId));
+    }
+
+    @Operation(
+            summary = "양조장 상세 조회",
+            description = "")
+    @GetMapping("/brewery/{breweryId}")
+    public ResponseEntity<CommonResponse<BreweryDetailResponse>> loadDetailBrewery(
+            @PathVariable Long breweryId
+    ){
+        return CommonResponse.success(SuccessCode.SUCCESS,breweryService.loadBreweryDetail(breweryId));
+    }
+
 }
