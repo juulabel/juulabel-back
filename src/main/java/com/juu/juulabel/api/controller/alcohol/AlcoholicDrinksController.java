@@ -1,7 +1,6 @@
 package com.juu.juulabel.api.controller.alcohol;
 
 
-import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.CategorySearchAlcoholRequest;
 import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
@@ -10,7 +9,6 @@ import com.juu.juulabel.api.service.alcohol.AlcoholicDrinksService;
 import com.juu.juulabel.api.service.alcohol.BreweryService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
-import com.juu.juulabel.domain.entity.member.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;

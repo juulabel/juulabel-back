@@ -6,8 +6,6 @@ import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetailInfo;
 import com.juu.juulabel.domain.repository.reader.AlcoholicDrinksReader;
-import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.repository.reader.AlcoholDrinksTypeReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;

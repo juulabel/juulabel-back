@@ -6,7 +6,7 @@ import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.entity.alcohol.QAlcoholType;
 import com.juu.juulabel.domain.entity.alcohol.QAlcoholicDrinks;
 import com.juu.juulabel.domain.entity.alcohol.QBrewery;
-import com.juu.juulabel.domain.entity.alcohol.QTastingNote;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
