@@ -1,27 +1,35 @@
 package com.juu.juulabel.api.service.alcohol;
 
-import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
-import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
+import com.juu.juulabel.api.dto.request.*;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
+import com.juu.juulabel.api.service.s3.S3Service;
+import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.ImageInfo;
 import com.juu.juulabel.domain.dto.alcohol.*;
+import com.juu.juulabel.domain.dto.comment.CommentSummary;
+import com.juu.juulabel.domain.dto.comment.ReplySummary;
+import com.juu.juulabel.domain.dto.member.MemberInfo;
+import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.entity.tastingnote.*;
+import com.juu.juulabel.domain.repository.TastingNoteLikeReader;
 import com.juu.juulabel.domain.repository.reader.*;
-import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
+import com.juu.juulabel.domain.repository.writer.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,8 +44,16 @@ public class TastingNoteService {
     private final AlcoholTypeScentReader alcoholTypeScentReader;
     private final AlcoholTypeFlavorReader alcoholTypeFlavorReader;
     private final AlcoholTypeSensoryReader alcoholTypeSensoryReader;
-
+    private final S3Service s3Service;
     private final TastingNoteWriter tastingNoteWriter;
+    private final TastingNoteImageWriter tastingNoteImageWriter;
+    private final TastingNoteImageReader tastingNoteImageReader;
+    private final TastingNoteLikeReader tastingNoteLikeReader;
+    private final TastingNoteLikeWriter tastingNoteLikeWriter;
+    private final TastingNoteCommentReader tastingNoteCommentReader;
+    private final TastingNoteCommentWriter tastingNoteCommentWriter;
+    private final TastingNoteCommentLikeReader tastingNoteCommentLikeReader;
+    private final TastingNoteCommentLikeWriter tastingNoteCommentLikeWriter;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -74,7 +90,7 @@ public class TastingNoteService {
     }
 
     @Transactional
-    public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request) {
+    public TastingNoteWriteResponse write(final Member loginMember, final TastingNoteWriteRequest request, List<MultipartFile> files) {
         // 1. 입력된 주종 확인
         final Long alcoholTypeId = request.alcoholTypeId();
         final AlcoholType alcoholType = alcoholTypeReader.getById(alcoholTypeId);
@@ -96,6 +112,11 @@ public class TastingNoteService {
                 TastingNoteScent.of(tastingNote, scents),
                 TastingNoteFlavorLevel.of(tastingNote, flavorLevels),
                 TastingNoteSensoryLevel.of(tastingNote, sensoryLevels));
+
+        List<String> imageUrlList = new ArrayList<>();
+        storeImageList(files, imageUrlList, tastingNote);
+
+        alcoholicDrinks.addRating(request.rating());
 
         return TastingNoteWriteResponse.fromEntity(result);
     }
@@ -162,4 +183,247 @@ public class TastingNoteService {
         );
     }
 
+    private void storeImageList(
+        final List<MultipartFile> files,
+        final List<String> newImageUrlList,
+        final TastingNote tastingNote
+    ) {
+        if (!Objects.isNull(files) && !files.isEmpty()) {
+            // TODO : 파일 크기 및 확장자 validate
+            validateFileListSize(files);
+
+            for (MultipartFile file : files) {
+                UploadImageInfo uploadImageInfo = s3Service.uploadTastingNoteImage(file);
+                newImageUrlList.add(uploadImageInfo.ImageUrl());
+                tastingNoteImageWriter.store(tastingNote, newImageUrlList.size(), uploadImageInfo.ImageUrl());
+            }
+        }
+    }
+
+    private void validateFileListSize(final List<MultipartFile> nonEmptyFiles) {
+        if (nonEmptyFiles.size() > FileConstants.FILE_MAX_SIZE_COUNT) {
+            throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+        }
+    }
+
+
+    @Transactional(readOnly = true)
+    public TastingNoteListResponse loadTastingNoteList(Member member, TastingNoteListRequest request) {
+        Slice<TastingNoteSummary> tastingNoteList =
+            tastingNoteReader.getAllTastingNotes(member, request.lastTastingNoteId(), request.pageSize());
+
+        return new TastingNoteListResponse(tastingNoteList);
+    }
+
+    @Transactional(readOnly = true)
+    public TastingNoteResponse loadTastingNote(Member member, Long tastingNoteId) {
+        TastingNoteDetailInfo tastingNoteDetailInfo = tastingNoteReader.getTastingNoteDetailById(tastingNoteId, member);
+        List<String> urlList = tastingNoteImageReader.getImageUrlList(tastingNoteId);
+
+        return new TastingNoteResponse(
+            tastingNoteDetailInfo,
+            tastingNoteReader.getSensoryLevelIds(tastingNoteId),
+            tastingNoteReader.getScentIds(tastingNoteId),
+            tastingNoteReader.getFlavorLevelIds(tastingNoteId),
+            new ImageInfo(urlList, urlList.size())
+        );
+    }
+
+    @Transactional
+    public TastingNoteWriteResponse updateTastingNote(
+        Member member,
+        Long tastingNoteId,
+        TastingNoteWriteRequest request,
+        List<MultipartFile> files
+    ) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+        validateTastingNoteWriter(member, tastingNote);
+        double rating = tastingNote.getRating();
+
+        // 입력된 주종 확인
+        final Long alcoholTypeId = request.alcoholTypeId();
+        final AlcoholType alcoholType = alcoholTypeReader.getById(alcoholTypeId);
+
+        // 전통주 정보 확인 (OD, UD)
+        final AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getByIdOrElseNull(request.alcoholicDrinksId());
+        final AlcoholicDrinksSnapshot alcoholicDrinksInfo = AlcoholicDrinksSnapshot.fromDto(request.alcoholicDrinksDetails());
+
+        // 감각 정보 확인 (시각 정보, 촉각 정보, 미각 정보, 후각 정보)
+        final Color color = getValidColorOrElseThrow(alcoholTypeId, request.colorId());
+        final List<Scent> scents = getValidScentsOrElseThrow(alcoholTypeId, request.scentIds());
+        final List<FlavorLevel> flavorLevels = getValidFlavorLevelsOrElseThrow(alcoholTypeId, request.flavorLevelIds());
+        final List<SensoryLevel> sensoryLevels = getValidSensoryLevelsOrElseThrow(alcoholTypeId, request.sensoryLevelIds());
+
+        tastingNote.update(alcoholType, alcoholicDrinks, color, alcoholicDrinksInfo, request.rating(), request.content(), request.isPrivate());
+        tastingNoteWriter.update(
+            tastingNote.getId(),
+            TastingNoteScent.of(tastingNote, scents),
+            TastingNoteFlavorLevel.of(tastingNote, flavorLevels),
+            TastingNoteSensoryLevel.of(tastingNote, sensoryLevels));
+
+
+        List<TastingNoteImage> tastingNoteImageList = tastingNoteImageReader.getImageList(tastingNote.getId());
+        tastingNoteImageList.forEach(TastingNoteImage::delete);
+
+        List<String> imageUrlList = new ArrayList<>();
+        storeImageList(files, imageUrlList, tastingNote);
+
+        if (rating != request.rating()) {
+            alcoholicDrinks.updateRating(rating, request.rating());
+        }
+
+        return new TastingNoteWriteResponse(tastingNote.getId());
+    }
+
+    private TastingNote getTastingNote(Long tastingNoteId) {
+        return tastingNoteReader.getById(tastingNoteId);
+    }
+
+    private static void validateTastingNoteWriter(Member member, TastingNote tastingNote) {
+        if (!member.getId().equals(tastingNote.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_TASTING_NOTE_WRITER);
+        }
+    }
+
+    @Transactional
+    public DeleteTastingNoteResponse deleteTastingNote(Member member, Long tastingNoteId) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+        validateTastingNoteWriter(member, tastingNote);
+
+        AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getById(tastingNote.getAlcoholicDrinks().getId());
+        alcoholicDrinks.removeRating(tastingNote.getRating());
+
+        tastingNote.delete();
+        return new DeleteTastingNoteResponse(tastingNote.getId());
+    }
+
+    @Transactional
+    public boolean toggleTastingNoteLike(Member member, Long tastingNoteId) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+        Optional<TastingNoteLike> tastingNoteLike = tastingNoteLikeReader.findByMemberAndTastingNote(member, tastingNote);
+
+        // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
+        return tastingNoteLike
+            .map(like -> {
+                tastingNoteLikeWriter.delete(like);
+                return false;
+            })
+            .orElseGet(() -> {
+                tastingNoteLikeWriter.store(member, tastingNote);
+                return true;
+            });
+    }
+
+    @Transactional
+    public WriteTastingNoteCommentResponse writeComment(
+        Member member,
+        WriteTastingNoteCommentRequest request,
+        Long tastingNoteId
+    ) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+
+        TastingNoteComment tastingNoteComment = createCommentOrReply(request, member, tastingNote);
+        TastingNoteComment comment = tastingNoteCommentWriter.store(tastingNoteComment);
+
+        return new WriteTastingNoteCommentResponse(
+            comment.getContent(),
+            tastingNote.getId(),
+            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage())
+        );
+    }
+
+    private TastingNoteComment createCommentOrReply(WriteTastingNoteCommentRequest request, Member member, TastingNote tastingNote) {
+        if (Objects.isNull(request.parentCommentId())) {
+            return TastingNoteComment.createComment(member, tastingNote, request.content());
+        } else {
+            TastingNoteComment parentComment = tastingNoteCommentReader.getById(request.parentCommentId());
+            return TastingNoteComment.createReply(member, tastingNote, request.content(), parentComment);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public TastingNoteCommentListResponse loadCommentList(Member member, CommentListRequest request, Long tastingNoteId) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+
+        Slice<CommentSummary> commentList =
+            tastingNoteCommentReader.getAllByTastingNoteId(member, tastingNote.getId(), request.lastCommentId(), request.pageSize());
+
+        return new TastingNoteCommentListResponse(commentList);
+    }
+
+    @Transactional(readOnly = true)
+    public TastingNoteReplyListResponse loadReplyList(
+        Member member,
+        ReplyListRequest request,
+        Long tastingNoteId,
+        Long tastingNoteCommentId
+    ) {
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
+
+        Slice<ReplySummary> replyList = tastingNoteCommentReader.getAllRepliesByParentId(
+                member,
+                tastingNote.getId(),
+                tastingNoteCommentId,
+                request.lastReplyId(),
+                request.pageSize()
+            );
+
+        return new TastingNoteReplyListResponse(replyList);
+    }
+
+    @Transactional
+    public UpdateCommentResponse updateComment(Member member, UpdateCommentRequest request, Long tastingNoteId, Long commentId) {
+        getTastingNote(tastingNoteId);
+        TastingNoteComment comment = getComment(commentId);
+
+        validateCommentWriter(member, comment);
+
+        comment.updateContent(request.content());
+
+        return new UpdateCommentResponse(
+            comment.getContent(),
+            new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage())
+        );
+    }
+
+    private TastingNoteComment getComment(Long commentId) {
+        return tastingNoteCommentReader.getById(commentId);
+    }
+
+    private static void validateCommentWriter(Member member, TastingNoteComment comment) {
+        if (!member.getId().equals(comment.getMember().getId())) {
+            throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
+        }
+    }
+
+    @Transactional
+    public DeleteCommentResponse deleteComment(Member member, Long tastingNoteId, Long commentId) {
+        getTastingNote(tastingNoteId);
+        TastingNoteComment comment = getComment(commentId);
+
+        validateCommentWriter(member, comment);
+
+        comment.delete();
+        return new DeleteCommentResponse(comment.getId());
+    }
+
+    @Transactional
+    public boolean toggleCommentLike(Member member, Long tastingNoteId, Long commentId) {
+        getTastingNote(tastingNoteId);
+        TastingNoteComment comment = getComment(commentId);
+
+        Optional<TastingNoteCommentLike> tastingNoteCommentLike =
+            tastingNoteCommentLikeReader.findByMemberAndTastingNoteComment(member, comment);
+
+        // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
+        return tastingNoteCommentLike
+            .map(like -> {
+                tastingNoteCommentLikeWriter.delete(like);
+                return false;
+            })
+            .orElseGet(() -> {
+                tastingNoteCommentLikeWriter.store(member, comment);
+                return true;
+            });
+    }
 }

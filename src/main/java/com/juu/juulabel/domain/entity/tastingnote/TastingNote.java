@@ -1,8 +1,13 @@
-package com.juu.juulabel.domain.entity.alcohol;
+package com.juu.juulabel.domain.entity.tastingnote;
 
 import com.juu.juulabel.api.annotation.Rating;
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
+import com.juu.juulabel.domain.entity.alcohol.Color;
 import com.juu.juulabel.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -61,8 +66,6 @@ public class TastingNote extends BaseTimeEntity {
     @OneToMany(mappedBy = "tastingNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TastingNoteScent> tastingNoteScents = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tastingNote", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TastingNoteImage> tastingNoteImages = new ArrayList<>();
 
     public static TastingNote of(Member member,
                                  AlcoholType alcoholType,
@@ -84,4 +87,29 @@ public class TastingNote extends BaseTimeEntity {
                 .build();
     }
 
+    public void update(
+        AlcoholType alcoholType,
+        AlcoholicDrinks alcoholicDrinks,
+        Color color,
+        AlcoholicDrinksSnapshot alcoholDrinksInfo,
+        Double rating,
+        String content,
+        boolean isPrivate
+        ) {
+        this.alcoholType = alcoholType;
+        this.alcoholicDrinks = alcoholicDrinks;
+        this.color = color;
+        this.alcoholDrinksInfo = alcoholDrinksInfo;
+        this.rating = rating;
+        this.content = content;
+        this.isPrivate = isPrivate;
+    }
+
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_TASTING_NOTE);
+        }
+
+        this.deletedAt = LocalDateTime.now();
+    }
 }

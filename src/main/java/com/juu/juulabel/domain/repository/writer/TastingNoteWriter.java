@@ -1,10 +1,10 @@
 package com.juu.juulabel.domain.repository.writer;
 
 import com.juu.juulabel.domain.annotation.Writer;
-import com.juu.juulabel.domain.entity.alcohol.TastingNote;
-import com.juu.juulabel.domain.entity.alcohol.TastingNoteFlavorLevel;
-import com.juu.juulabel.domain.entity.alcohol.TastingNoteScent;
-import com.juu.juulabel.domain.entity.alcohol.TastingNoteSensoryLevel;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNote;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNoteFlavorLevel;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNoteScent;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNoteSensoryLevel;
 import com.juu.juulabel.domain.repository.jpa.TastingNoteFlavorLevelJpaRepository;
 import com.juu.juulabel.domain.repository.jpa.TastingNoteRepository;
 import com.juu.juulabel.domain.repository.jpa.TastingNoteScentJpaRepository;
@@ -33,4 +33,17 @@ public class TastingNoteWriter {
         return result;
     }
 
+    public void update(Long tastingNoteId,
+                       List<TastingNoteScent> tastingNoteScents,
+                       List<TastingNoteFlavorLevel> tastingNoteFlavorLevels,
+                       List<TastingNoteSensoryLevel> tastingNoteSensoryLevels
+    ) {
+        tastingNoteScentJpaRepository.deleteByTastingNoteId(tastingNoteId);
+        tastingNoteFlavorLevelJpaRepository.deleteByTastingNoteId(tastingNoteId);
+        tastingNoteSensoryLevelJpaRepository.deleteByTastingNoteId(tastingNoteId);
+
+        tastingNoteScentJpaRepository.saveAll(tastingNoteScents);
+        tastingNoteFlavorLevelJpaRepository.saveAll(tastingNoteFlavorLevels);
+        tastingNoteSensoryLevelJpaRepository.saveAll(tastingNoteSensoryLevels);
+    }
 }

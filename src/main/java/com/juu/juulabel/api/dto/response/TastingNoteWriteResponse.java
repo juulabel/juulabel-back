@@ -1,6 +1,6 @@
 package com.juu.juulabel.api.dto.response;
 
-import com.juu.juulabel.domain.entity.alcohol.TastingNote;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNote;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "시음노트 작성 응답")

@@ -133,7 +133,7 @@ public class DailyLifeController {
     @GetMapping("/{dailyLifeId}/comments")
     public ResponseEntity<CommonResponse<DailyLifeCommentListResponse>> loadCommentList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid DailyLifeCommentListRequest request,
+        @Valid CommentListRequest request,
         @PathVariable Long dailyLifeId
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadCommentList(loginMember, request, dailyLifeId));
@@ -149,7 +149,7 @@ public class DailyLifeController {
     @GetMapping("/{dailyLifeId}/comments/{dailyLifeCommentId}")
     public ResponseEntity<CommonResponse<DailyLifeReplyListResponse>> loadReplyList(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid DailyLifeReplyListRequest request,
+        @Valid ReplyListRequest request,
         @PathVariable Long dailyLifeId,
         @PathVariable Long dailyLifeCommentId
     ) {
@@ -161,9 +161,9 @@ public class DailyLifeController {
         description = "전통주 일상생활 게시글의 댓글을 수정한다."
     )
     @PatchMapping("/{dailyLifeId}/comments/{commentId}")
-    public ResponseEntity<CommonResponse<UpdateDailyLifeCommentResponse>> updateComment(
+    public ResponseEntity<CommonResponse<UpdateCommentResponse>> updateComment(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @Valid @RequestBody UpdateDailyLifeCommentRequest request,
+        @Valid @RequestBody UpdateCommentRequest request,
         @PathVariable Long dailyLifeId,
         @PathVariable Long commentId
     ) {
@@ -175,7 +175,7 @@ public class DailyLifeController {
         description = "전통주 일상생활 게시글의 댓글을 삭제한다."
     )
     @DeleteMapping("/{dailyLifeId}/comments/{commentId}")
-    public ResponseEntity<CommonResponse<DeleteDailyLifeCommentResponse>> deleteComment(
+    public ResponseEntity<CommonResponse<DeleteCommentResponse>> deleteComment(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @PathVariable Long dailyLifeId,
         @PathVariable Long commentId

@@ -79,6 +79,7 @@ public enum ErrorCode {
      */
     NOT_FOUND_ALCOHOL_TYPE(HttpStatus.BAD_REQUEST, "주종을 찾을 수 없습니다."),
     NOT_FOUND_ALCOHOLIC_DRINKS_TYPE(HttpStatus.BAD_REQUEST, "전통주를 찾을 수 없습니다."),
+    INVALID_RATING(HttpStatus.BAD_REQUEST, "잘못된 평점입니다. 평점은 0.00에서 5.00 사이여야 합니다."),
 
     /**
      * Brewery
@@ -133,7 +134,9 @@ public enum ErrorCode {
     INVALID_FLAVOR_LEVEL(HttpStatus.BAD_REQUEST, "미각 점수를 찾을 수 없습니다."),
     NOT_FOUND_COLOR(HttpStatus.BAD_REQUEST, "색상을 찾을 수 없습니다"),
     TASTING_NOTE_MAX_IMAGE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "이미지는 최대 9장까지 추가할 수 있습니다"),
-
+    NOT_FOUND_TASTING_NOTE(HttpStatus.BAD_REQUEST, "시음노트 게시글을 찾을 수 없습니다."),
+    ALREADY_DELETED_TASTING_NOTE(HttpStatus.BAD_REQUEST, "이미 삭제된 시음노트 게시글입니다."),
+    NOT_TASTING_NOTE_WRITER(HttpStatus.BAD_REQUEST, "게시글 작성자가 아닙니다.")
     ;
 
     private final HttpStatus httpStatus;

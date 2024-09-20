@@ -14,6 +14,7 @@ public class S3Service {
 
     public static final String CATEGORY_MEMBER = "member";
     public static final String CATEGORY_DAILY_LIFE = "daily-life";
+    public static final String CATEGORY_TASTING_NOTE = "tasting-note";
 
     public ImageUploadResponse uploadMemberImage(MultipartFile image) {
         UploadImageInfo uploadImageInfo = s3Uploader.uploadMultipartFileToBucket(CATEGORY_MEMBER, image);
@@ -28,4 +29,7 @@ public class S3Service {
         return s3Uploader.uploadMultipartFileToBucket(CATEGORY_MEMBER, image);
     }
 
+    public UploadImageInfo uploadTastingNoteImage(MultipartFile image) {
+        return s3Uploader.uploadMultipartFileToBucket(CATEGORY_TASTING_NOTE, image);
+    }
 }

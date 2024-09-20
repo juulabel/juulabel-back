@@ -1,10 +1,11 @@
 package com.juu.juulabel.domain.entity.alcohol;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.base.BaseTimeEntity;
+import com.juu.juulabel.domain.entity.tastingnote.TastingNote;
 import jakarta.persistence.*;
 import lombok.*;
-import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,10 +55,50 @@ public class AlcoholicDrinks extends BaseTimeEntity {
     @Column(name = "ingredients", columnDefinition = "text comment '원재료'")
     private String ingredients;
 
+    @Column(name = "tasting_note_count", columnDefinition = "int comment '총 시음노트 개수'")
+    private int tastingNoteCount;
+
+    @Column(name = "rating", nullable = false, columnDefinition = "DECIMAL(3,2) comment '평균 달점 (0.00 - 5.00)'")
+    private Double rating;
+
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "alcoholicDrinks", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TastingNote> tastingNotes = new ArrayList<>();
+
+    public void addRating(Double newRating) {
+        if (newRating == null || newRating < 0 || newRating > 5) {
+            throw new InvalidParamException(ErrorCode.INVALID_RATING);
+        }
+
+        double currentRating = this.rating;
+        int count = this.tastingNoteCount;
+
+        // 새로운 평점을 추가한 후 총점 계산
+        double totalScore = count * currentRating + newRating;
+        this.tastingNoteCount = count + 1;
+
+        // 새로운 평균 계산
+        this.rating = totalScore / this.tastingNoteCount;
+    }
+
+    public void updateRating(Double existingRating, Double newRating) {
+        if (newRating == null || newRating < 0 || newRating > 5) {
+            throw new InvalidParamException(ErrorCode.INVALID_RATING);
+        }
+        double currentRating = this.rating;
+        int count = this.tastingNoteCount;
+        double totalScore = count * currentRating - existingRating + newRating;
+        this.rating = totalScore / this.tastingNoteCount;
+    }
+
+    public void removeRating(Double existingRating) {
+        double currentRating = this.rating;
+        int count = this.tastingNoteCount;
+        double totalScore = count * currentRating - existingRating;
+        this.tastingNoteCount = count - 1;
+        this.rating = totalScore / this.tastingNoteCount;
+    }
 
 }

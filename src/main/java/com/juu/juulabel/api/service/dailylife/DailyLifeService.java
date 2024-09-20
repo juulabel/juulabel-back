@@ -6,6 +6,9 @@ import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.ImageInfo;
+import com.juu.juulabel.domain.dto.comment.CommentSummary;
+import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.dto.dailylife.*;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
@@ -74,7 +77,7 @@ public class DailyLifeService {
 
         return new DailyLifeResponse(
             dailyLifeDetailInfo,
-            new DailyLifeImageInfo(urlList, urlList.size())
+            new ImageInfo(urlList, urlList.size())
         );
     }
 
@@ -155,12 +158,12 @@ public class DailyLifeService {
     @Transactional(readOnly = true)
     public DailyLifeCommentListResponse loadCommentList(
         final Member member,
-        final DailyLifeCommentListRequest request,
+        final CommentListRequest request,
         final Long dailyLifeId
     ) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
 
-        final Slice<DailyLifeCommentSummary> commentList =
+        final Slice<CommentSummary> commentList =
             dailyLifeCommentReader.getAllByDailyLifeId(member, dailyLife.getId(), request.lastCommentId(), request.pageSize());
 
         return new DailyLifeCommentListResponse(commentList);
@@ -169,22 +172,22 @@ public class DailyLifeService {
     @Transactional(readOnly = true)
     public DailyLifeReplyListResponse loadReplyList(
         final Member member,
-        final DailyLifeReplyListRequest request,
+        final ReplyListRequest request,
         final Long dailyLifeId,
         final Long dailyLifeCommentId
     ) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
 
-        final Slice<DailyLifeReplySummary> replyList =
+        final Slice<ReplySummary> replyList =
             dailyLifeCommentReader.getAllRepliesByParentId(member, dailyLife.getId(), dailyLifeCommentId, request.lastReplyId(), request.pageSize());
 
         return new DailyLifeReplyListResponse(replyList);
     }
 
     @Transactional
-    public UpdateDailyLifeCommentResponse updateComment(
+    public UpdateCommentResponse updateComment(
         final Member member,
-        final UpdateDailyLifeCommentRequest request,
+        final UpdateCommentRequest request,
         final Long dailyLifeId,
         final Long commentId
     ) {
@@ -195,13 +198,13 @@ public class DailyLifeService {
 
         comment.updateContent(request.content());
 
-        return new UpdateDailyLifeCommentResponse(
+        return new UpdateCommentResponse(
             comment.getContent(),
             new MemberInfo(member.getId(), member.getNickname(), member.getProfileImage()));
     }
 
     @Transactional
-    public DeleteDailyLifeCommentResponse deleteComment(
+    public DeleteCommentResponse deleteComment(
         final Member member,
         final Long dailyLifeId,
         final Long commentId
@@ -212,7 +215,7 @@ public class DailyLifeService {
         validateCommentWriter(member, comment);
 
         comment.delete();
-        return new DeleteDailyLifeCommentResponse(comment.getId());
+        return new DeleteCommentResponse(comment.getId());
     }
 
     @Transactional
