@@ -5,7 +5,9 @@ import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.CategorySearchAlcoholRequest;
 import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
+import com.juu.juulabel.api.dto.response.BreweryDetailResponse;
 import com.juu.juulabel.api.service.alcohol.AlcoholicDrinksService;
+import com.juu.juulabel.api.service.alcohol.BreweryService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AlcoholicDrinksController {
 
     private final AlcoholicDrinksService alcoholicDrinksService;
+    private final BreweryService breweryService;
 
 
     // 주종별 검색 시 정렬 기능
@@ -56,4 +59,15 @@ public class AlcoholicDrinksController {
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.loadAlcoholicDrinks(alcoholicDrinksId));
     }
+
+    @Operation(
+            summary = "양조장 상세 조회",
+            description = "")
+    @GetMapping("/brewery/{breweryId}")
+    public ResponseEntity<CommonResponse<BreweryDetailResponse>> loadDetailBrewery(
+            @PathVariable Long breweryId
+    ){
+        return CommonResponse.success(SuccessCode.SUCCESS,breweryService.loadBreweryDetail(breweryId));
+    }
+
 }
