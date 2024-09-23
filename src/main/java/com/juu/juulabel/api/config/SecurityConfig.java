@@ -44,7 +44,8 @@ public class SecurityConfig {
         "http://localhost:3000",
         "https://api.juulabel.com",
         "https://juulabel.com",
-        "https://juulabel.shop"
+        "https://juulabel.shop",
+        "https://juulabel-front.vercel.app/"
     };
 
     @Bean
