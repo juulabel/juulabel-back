@@ -6,6 +6,7 @@ import com.juu.juulabel.domain.dto.alcohol.AlcoholTypeSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 
@@ -17,6 +18,6 @@ public record AlcoholicCategoryResponse (
     @Schema(description = "총 검색 결과 개수")
     long totalCount,
     @Schema(description = "전통주 간단 정보")
-    List<AlcoholSearchSummary> alcoholicDrinks
+    Slice<AlcoholSearchSummary> alcoholicDrinks
 ){
 }

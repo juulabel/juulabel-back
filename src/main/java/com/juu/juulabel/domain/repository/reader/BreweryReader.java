@@ -14,10 +14,6 @@ public class BreweryReader {
 
     private final BreweryQueryRepository breweryQueryRepository;
 
-    public List<AlcoholicBrewerySummary> getBreweryDetailById(Long breweryId) {
-        return breweryQueryRepository.getBreweryDetailById(breweryId);
-    }
-
     public BrewerySummary getBreweryById(Long breweryId) {
         return breweryQueryRepository.getBreweryById(breweryId);
     }

@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-    name = "tasting_note_like"
+        name = "tasting_note_like"
 )
 public class TastingNoteLike extends BaseCreatedTimeEntity {
 
@@ -30,9 +30,9 @@ public class TastingNoteLike extends BaseCreatedTimeEntity {
 
     public static TastingNoteLike create(Member member, TastingNote tastingNote) {
         return TastingNoteLike.builder()
-            .member(member)
-            .tastingNote(tastingNote)
-            .build();
+                .member(member)
+                .tastingNote(tastingNote)
+                .build();
     }
 
 }
