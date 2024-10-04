@@ -1,18 +1,23 @@
 package com.juu.juulabel.domain.repository.query;
 
+import com.juu.juulabel.api.service.terms.TermsService;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.*;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import com.juu.juulabel.domain.entity.alcohol.QAlcoholType;
 import com.juu.juulabel.domain.entity.alcohol.QAlcoholicDrinks;
 import com.juu.juulabel.domain.entity.alcohol.QBrewery;
-import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
+import com.juu.juulabel.domain.entity.alcohol.QFlavor;
+import com.juu.juulabel.domain.entity.tastingnote.*;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -21,13 +26,20 @@ import java.util.Optional;
 public class AlcoholDrinksDetailQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final TermsService termsService;
 
     QAlcoholicDrinks alcoholicDrinks = QAlcoholicDrinks.alcoholicDrinks;
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
     QBrewery brewery = QBrewery.brewery;
     QTastingNote tastingNote = QTastingNote.tastingNote;
+    QTastingNoteLike tastingNoteLike = QTastingNoteLike.tastingNoteLike;
+    QTastingNoteFlavorLevel tastingNoteFlavorLevel = QTastingNoteFlavorLevel.tastingNoteFlavorLevel;
+    QFlavor flavor = QFlavor.flavor;
+    QTastingNoteScent tastingNoteScent = QTastingNoteScent.tastingNoteScent;
+
 
     public AlcoholicDrinksDetailInfo findAlcoholDrinksDetailById(Long alcoholDrinksId){
+
         AlcoholicDrinksDetailInfo alcoholicDrinksDetailInfo = jpaQueryFactory
                 .select(
                         Projections.constructor(
@@ -50,25 +62,67 @@ public class AlcoholDrinksDetailQueryRepository {
                                         brewery.name,
                                         brewery.region
                                 )
-//                                Projections.constructor(
-//                                        TastingNoteSummary.class,
-//                                        tastingNote.color,
-//                                        tastingNote.turbidity,
-//                                        tastingNote.carbonation,
-//                                        tastingNote.viscosity,
-//                                        tastingNote.scent
-//                                )
                         )
                 )
                 .from(alcoholicDrinks)
                 .leftJoin(alcoholicDrinks.alcoholType, alcoholType)
                 .leftJoin(alcoholicDrinks.brewery, brewery)
+                // .leftJoin(alcoholicDrinks.tastingNotes, tastingNote)
                 .where(eqAlcoholDrinkId(alcoholDrinksId),
                         isNotDeleted(alcoholicDrinks))
                 .fetchOne();
 
         return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(()-> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE)
         );
+    }
+
+    // 전통주 id에 따른 좋아요 제일 많이 받은 시음노트 id 가져오기
+    public Long findMostLikedTastingNoteId(Long alcoholDrinksId) {
+        return jpaQueryFactory
+                .select(tastingNote.id)
+                .from(tastingNote)
+                .innerJoin(tastingNoteLike)
+                .on(tastingNote.id.eq(tastingNoteLike.tastingNote.id))
+                .where(tastingNote.alcoholicDrinks.id.eq(alcoholDrinksId))
+                .groupBy(tastingNote.id)
+                .orderBy(tastingNoteLike.id.count().desc())
+                .limit(1)
+                .fetchFirst();  // 첫 번째 결과만 가져오기
+
+    }
+
+
+    public TastingNoteSensorSummary getTastingNoteSensor(Long mostLikedTastingNoteId){
+        String rgb = getColor(mostLikedTastingNoteId);
+        List<String> scentList = getScentList(mostLikedTastingNoteId);
+        List<String> flavorList = getFlavorList(mostLikedTastingNoteId);
+
+        return new TastingNoteSensorSummary(mostLikedTastingNoteId,rgb,scentList,flavorList);
+    }
+
+    private String getColor(Long mostLikedTastingNoteId){
+        return jpaQueryFactory
+                .select(tastingNote.color.rgb)
+                .from(tastingNote)
+                .where(tastingNote.id.eq(mostLikedTastingNoteId))
+                .limit(1)
+                .fetchOne();
+    }
+
+    private List<String> getScentList(Long mostLikedTastingNoteId){
+        return jpaQueryFactory
+                .select(tastingNoteScent.scent.name)
+                .from(tastingNoteScent)
+                .where(tastingNoteScent.tastingNote.id.eq(mostLikedTastingNoteId))
+                .fetch();
+    }
+
+    private List<String> getFlavorList(Long mostLikedTastingNoteId){
+        return jpaQueryFactory
+                .select(tastingNoteFlavorLevel.flavorLevel.flavor.name)
+                .from(tastingNoteFlavorLevel)
+                .where(tastingNoteFlavorLevel.tastingNote.id.eq(mostLikedTastingNoteId))
+                .fetch();
     }
 
     private BooleanExpression eqAlcoholDrinkId(Long alcoholDrinksId){
@@ -78,5 +132,21 @@ public class AlcoholDrinksDetailQueryRepository {
     private BooleanExpression isNotDeleted(QAlcoholicDrinks alcoholicDrinks){
         return alcoholicDrinks.deletedAt.isNull();
     }
+
+
+
+    // 시음노트별로 좋아요 갯수
+    // TEST
+    public List<Tuple> findTastingNoteLikesCount(Long alcoholDrinksId) {
+        return jpaQueryFactory
+                .select(tastingNote.id, tastingNoteLike.id.count())
+                .from(tastingNote)
+                .leftJoin(tastingNoteLike)
+                .on(tastingNote.id.eq(tastingNoteLike.tastingNote.id))
+                .where(tastingNote.alcoholicDrinks.id.eq(alcoholDrinksId))
+                .groupBy(tastingNote.id)
+                .fetch();
+    }
+
 
 }
