@@ -5,10 +5,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
-import com.juu.juulabel.domain.entity.alcohol.QAlcoholType;
-import com.juu.juulabel.domain.entity.alcohol.QAlcoholicDrinks;
-import com.juu.juulabel.domain.entity.alcohol.QBrewery;
-import com.juu.juulabel.domain.entity.alcohol.QFlavor;
+import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.tastingnote.*;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
@@ -36,7 +33,9 @@ public class AlcoholDrinksDetailQueryRepository {
     QTastingNoteFlavorLevel tastingNoteFlavorLevel = QTastingNoteFlavorLevel.tastingNoteFlavorLevel;
     QFlavor flavor = QFlavor.flavor;
     QTastingNoteScent tastingNoteScent = QTastingNoteScent.tastingNoteScent;
-
+    QTastingNoteSensoryLevel tastingNoteSensoryLevel = QTastingNoteSensoryLevel.tastingNoteSensoryLevel;
+    QSensoryLevel sensoryLevel = QSensoryLevel.sensoryLevel;
+    QSensory sensory = QSensory.sensory;
 
     public AlcoholicDrinksDetailInfo findAlcoholDrinksDetailById(Long alcoholDrinksId){
 
@@ -96,8 +95,10 @@ public class AlcoholDrinksDetailQueryRepository {
         String rgb = getColor(mostLikedTastingNoteId);
         List<String> scentList = getScentList(mostLikedTastingNoteId);
         List<String> flavorList = getFlavorList(mostLikedTastingNoteId);
+        List<SensoryDetail> senseryList = getSenseryList(mostLikedTastingNoteId);
 
-        return new TastingNoteSensorSummary(mostLikedTastingNoteId,rgb,scentList,flavorList);
+
+        return new TastingNoteSensorSummary(mostLikedTastingNoteId,rgb,scentList,flavorList,senseryList);
     }
 
     private String getColor(Long mostLikedTastingNoteId){
@@ -122,6 +123,21 @@ public class AlcoholDrinksDetailQueryRepository {
                 .select(tastingNoteFlavorLevel.flavorLevel.flavor.name)
                 .from(tastingNoteFlavorLevel)
                 .where(tastingNoteFlavorLevel.tastingNote.id.eq(mostLikedTastingNoteId))
+                .fetch();
+    }
+
+    private List<SensoryDetail> getSenseryList(Long mostLikedTastingNoteId){
+        return jpaQueryFactory
+                //.select(tastingNoteSensoryLevel.sensoryLevel.sensory.name)
+                .select(Projections.constructor(
+                        SensoryDetail.class,
+                        sensory.name,
+                        sensoryLevel.description,
+                        sensoryLevel.score
+                ))
+                .from(tastingNoteSensoryLevel)
+                .join(sensoryLevel.sensory, sensory)
+                .where(tastingNoteSensoryLevel.tastingNote.id.eq(mostLikedTastingNoteId))
                 .fetch();
     }
 
