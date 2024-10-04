@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record AlcoholicDrinksDetailResponse(
         @Schema(description = "전통주 상세 정보")
         AlcoholicDrinksDetailInfo alcoholicDrinksDetailInfo,
+        @Schema(description = "시음노트 달점")
+        Double rating,
         @Schema(description = "전통주 감각 정보")
         TastingNoteSensorSummary tastingNoteSensorSummary
 ) {

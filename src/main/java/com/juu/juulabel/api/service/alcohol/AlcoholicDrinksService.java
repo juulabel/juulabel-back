@@ -30,17 +30,22 @@ public class AlcoholicDrinksService {
 
     private final AlcoholicDrinksReader alcoholDrinksReader;
     private final AlcoholDrinksDetailQueryRepository alcoholDrinksDetailQueryRepository; // test
+    private final TastingNoteService tastingNoteService;
 
 
     // 전통주 상세보기
     @Transactional(readOnly = true)
     public AlcoholicDrinksDetailResponse loadAlcoholicDrinks(final long alcoholicId) {
 
-      final AlcoholicDrinksDetailInfo alcoholicDrinksDetailInfo = alcoholDrinksReader.getAlcoholDrinksDetailById(alcoholicId);
-      final TastingNoteSensorSummary tastingNoteSensorSummary = alcoholDrinksReader.getTastingNoteSensor(alcoholicId);
+       AlcoholicDrinksDetailInfo alcoholicDrinksDetailInfo = alcoholDrinksReader.getAlcoholDrinksDetailById(alcoholicId);
+
+       Double averageRating = alcoholDrinksReader.getAverageRating(alcoholicId);
+
+       TastingNoteSensorSummary tastingNoteSensorSummary = alcoholDrinksReader.getTastingNoteSensor(alcoholicId);
 
          return new AlcoholicDrinksDetailResponse(
                 alcoholicDrinksDetailInfo,
+                 averageRating,
                  tastingNoteSensorSummary
          );
     }
