@@ -69,6 +69,10 @@ public class AlcoholicDrinksReader {
         return alcoholDrinksDetailQueryRepository.getAverageRating(alcoholTypeId);
     }
 
+    public Long getTastingNoteCount(Long alcoholTypeId){
+        return alcoholDrinksDetailQueryRepository.getTastingNoteCount(alcoholTypeId);
+    }
+
     // 테스트임
     public Long getMostLikedTastingNoteId(Long alcoholDrinksId) {
         return alcoholDrinksDetailQueryRepository.findMostLikedTastingNoteId(alcoholDrinksId);

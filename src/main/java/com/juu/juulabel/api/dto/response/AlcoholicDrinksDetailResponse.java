@@ -11,6 +11,8 @@ public record AlcoholicDrinksDetailResponse(
         AlcoholicDrinksDetailInfo alcoholicDrinksDetailInfo,
         @Schema(description = "시음노트 달점")
         Double rating,
+        @Schema(description = "시음노트 갯수")
+        Long tastingNoteCount,
         @Schema(description = "전통주 감각 정보")
         TastingNoteSensorSummary tastingNoteSensorSummary
 ) {
