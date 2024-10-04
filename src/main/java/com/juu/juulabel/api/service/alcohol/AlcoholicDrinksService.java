@@ -41,11 +41,14 @@ public class AlcoholicDrinksService {
 
        Double averageRating = alcoholDrinksReader.getAverageRating(alcoholicId);
 
+       Long tastingNoteCount = alcoholDrinksReader.getTastingNoteCount(alcoholicId);
+
        TastingNoteSensorSummary tastingNoteSensorSummary = alcoholDrinksReader.getTastingNoteSensor(alcoholicId);
 
          return new AlcoholicDrinksDetailResponse(
                 alcoholicDrinksDetailInfo,
                  averageRating,
+                 tastingNoteCount,
                  tastingNoteSensorSummary
          );
     }

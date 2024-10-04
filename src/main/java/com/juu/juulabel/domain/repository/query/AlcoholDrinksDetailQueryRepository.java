@@ -107,6 +107,15 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetchOne();
     }
 
+    public Long getTastingNoteCount(Long alcoholDrinksId){
+        return jpaQueryFactory
+                .select(tastingNote.count())
+                .from(tastingNote)
+                .where(tastingNote.alcoholicDrinks.id.eq(alcoholDrinksId)
+                        .and(tastingNote.deletedAt.isNull()))
+                .fetchOne();
+    }
+
     private String getColor(Long mostLikedTastingNoteId){
         return jpaQueryFactory
                 .select(tastingNote.color.rgb)
