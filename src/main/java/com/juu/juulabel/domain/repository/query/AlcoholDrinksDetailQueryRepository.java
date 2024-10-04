@@ -87,9 +87,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 .orderBy(tastingNoteLike.id.count().desc())
                 .limit(1)
                 .fetchFirst();  // 첫 번째 결과만 가져오기
-
     }
-
 
     public TastingNoteSensorSummary getTastingNoteSensor(Long mostLikedTastingNoteId){
         String rgb = getColor(mostLikedTastingNoteId);
@@ -97,8 +95,16 @@ public class AlcoholDrinksDetailQueryRepository {
         List<String> flavorList = getFlavorList(mostLikedTastingNoteId);
         List<SensoryDetail> senseryList = getSenseryList(mostLikedTastingNoteId);
 
-
         return new TastingNoteSensorSummary(mostLikedTastingNoteId,rgb,scentList,flavorList,senseryList);
+    }
+
+    public Double getAverageRating(Long alcoholDrinksId){
+        return jpaQueryFactory
+                .select(tastingNote.rating.avg())
+                .from(tastingNote)
+                .where(tastingNote.alcoholicDrinks.id.eq(alcoholDrinksId)
+                        .and(tastingNote.deletedAt.isNull()))
+                .fetchOne();
     }
 
     private String getColor(Long mostLikedTastingNoteId){
