@@ -4,8 +4,10 @@ import com.juu.juulabel.api.service.terms.TermsService;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.alcohol.*;
+import com.juu.juulabel.domain.dto.tastingnote.LikeTopTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import com.juu.juulabel.domain.entity.alcohol.*;
+import com.juu.juulabel.domain.entity.member.QMember;
 import com.juu.juulabel.domain.entity.tastingnote.*;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
@@ -37,6 +39,7 @@ public class AlcoholDrinksDetailQueryRepository {
     QTastingNoteSensoryLevel tastingNoteSensoryLevel = QTastingNoteSensoryLevel.tastingNoteSensoryLevel;
     QSensoryLevel sensoryLevel = QSensoryLevel.sensoryLevel;
     QSensory sensory = QSensory.sensory;
+    QMember member = QMember.member;
 
     public AlcoholicDrinksDetailInfo findAlcoholDrinksDetailById(Long alcoholDrinksId){
 
@@ -158,6 +161,25 @@ public class AlcoholDrinksDetailQueryRepository {
                 .from(tastingNoteSensoryLevel)
                 .join(sensoryLevel.sensory, sensory)
                 .where(tastingNoteSensoryLevel.tastingNote.id.eq(mostLikedTastingNoteId))
+                .fetch();
+    }
+
+    public List<LikeTopTastingNoteSummary> getTastingNoteList(Long alcoholDrinksId){
+        return jpaQueryFactory
+                .select(Projections.constructor(
+                        LikeTopTastingNoteSummary.class,
+                        member.profileImage,
+                        member.nickname,
+                        tastingNoteLike.tastingNote.id.count().as("count"),
+                        tastingNote.content
+                ))
+                .from(tastingNoteLike)
+                .join(tastingNoteLike.tastingNote,tastingNote)
+                .join(tastingNote.member,member)
+                .where(tastingNote.alcoholicDrinks.id.eq(alcoholDrinksId))
+                .groupBy(tastingNote.id)
+                .orderBy(tastingNoteLike.tastingNote.id.count().desc())
+                .limit(2)
                 .fetch();
     }
 
