@@ -13,13 +13,9 @@ public record TastingNoteSensorSummary(
         String rgb,
         @Schema(description = "전통주 향")
         List<String> scent,
-//        @Schema(description = "전통주 맛")
-//        List<String> flavor,
         @Schema(description = "전통주 맛")
         List<FlavorDetail> flavor,
         @Schema(description = "전통주 촉각")
         List<SensoryDetail> sensory
-//        List<String> sensory
-
 ) {
 }

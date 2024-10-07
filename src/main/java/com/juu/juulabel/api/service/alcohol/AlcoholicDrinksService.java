@@ -5,6 +5,7 @@ import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetailInfo;
+import com.juu.juulabel.domain.dto.tastingnote.LikeTopTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
 import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteLike;
@@ -45,11 +46,14 @@ public class AlcoholicDrinksService {
 
        TastingNoteSensorSummary tastingNoteSensorSummary = alcoholDrinksReader.getTastingNoteSensor(alcoholicId);
 
+        List<LikeTopTastingNoteSummary> tastingNoteSummary = alcoholDrinksReader.getTastingNote(alcoholicId);
+
          return new AlcoholicDrinksDetailResponse(
                 alcoholicDrinksDetailInfo,
                  averageRating,
                  tastingNoteCount,
-                 tastingNoteSensorSummary
+                 tastingNoteSensorSummary,
+                 tastingNoteSummary
          );
     }
 

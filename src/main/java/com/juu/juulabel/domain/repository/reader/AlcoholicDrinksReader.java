@@ -7,6 +7,7 @@ import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicBrewerySummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetailInfo;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
+import com.juu.juulabel.domain.dto.tastingnote.LikeTopTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -59,6 +60,10 @@ public class AlcoholicDrinksReader {
     public TastingNoteSensorSummary getTastingNoteSensor(Long alcoholDrinksId) {
         Long mostLikedTastingNoteId = alcoholDrinksDetailQueryRepository.findMostLikedTastingNoteId(alcoholDrinksId);
         return alcoholDrinksDetailQueryRepository.getTastingNoteSensor(mostLikedTastingNoteId);
+    }
+
+    public List<LikeTopTastingNoteSummary> getTastingNote(Long alcoholDrinksId) {
+        return alcoholDrinksDetailQueryRepository.getTastingNoteList(alcoholDrinksId);
     }
 
     public Slice<AlcoholSearchSummary> getAlcoholicDrinksByType(Long alcoholTypeId, int pageSize, String arrayType){
