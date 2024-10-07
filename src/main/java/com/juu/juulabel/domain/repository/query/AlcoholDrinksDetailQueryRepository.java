@@ -32,6 +32,7 @@ public class AlcoholDrinksDetailQueryRepository {
     QTastingNoteLike tastingNoteLike = QTastingNoteLike.tastingNoteLike;
     QTastingNoteFlavorLevel tastingNoteFlavorLevel = QTastingNoteFlavorLevel.tastingNoteFlavorLevel;
     QFlavor flavor = QFlavor.flavor;
+    QFlavorLevel flavorLevel = QFlavorLevel.flavorLevel;
     QTastingNoteScent tastingNoteScent = QTastingNoteScent.tastingNoteScent;
     QTastingNoteSensoryLevel tastingNoteSensoryLevel = QTastingNoteSensoryLevel.tastingNoteSensoryLevel;
     QSensoryLevel sensoryLevel = QSensoryLevel.sensoryLevel;
@@ -92,7 +93,7 @@ public class AlcoholDrinksDetailQueryRepository {
     public TastingNoteSensorSummary getTastingNoteSensor(Long mostLikedTastingNoteId){
         String rgb = getColor(mostLikedTastingNoteId);
         List<String> scentList = getScentList(mostLikedTastingNoteId);
-        List<String> flavorList = getFlavorList(mostLikedTastingNoteId);
+        List<FlavorDetail> flavorList = getFlavorList(mostLikedTastingNoteId);
         List<SensoryDetail> senseryList = getSenseryList(mostLikedTastingNoteId);
 
         return new TastingNoteSensorSummary(mostLikedTastingNoteId,rgb,scentList,flavorList,senseryList);
@@ -133,10 +134,15 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetch();
     }
 
-    private List<String> getFlavorList(Long mostLikedTastingNoteId){
+    private List<FlavorDetail> getFlavorList(Long mostLikedTastingNoteId){
         return jpaQueryFactory
-                .select(tastingNoteFlavorLevel.flavorLevel.flavor.name)
+                .select(Projections.constructor(
+                        FlavorDetail.class,
+                        flavor.name,
+                        flavorLevel.score
+                ))
                 .from(tastingNoteFlavorLevel)
+                .join(flavorLevel.flavor, flavor)
                 .where(tastingNoteFlavorLevel.tastingNote.id.eq(mostLikedTastingNoteId))
                 .fetch();
     }
@@ -147,7 +153,6 @@ public class AlcoholDrinksDetailQueryRepository {
                 .select(Projections.constructor(
                         SensoryDetail.class,
                         sensory.name,
-                        sensoryLevel.description,
                         sensoryLevel.score
                 ))
                 .from(tastingNoteSensoryLevel)
