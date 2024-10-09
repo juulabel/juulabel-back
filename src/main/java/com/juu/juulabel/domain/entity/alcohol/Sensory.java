@@ -21,4 +21,7 @@ public class Sensory {
     @Column(name = "name", columnDefinition = "varchar(20) comment '촉각 이름(한국어)'")
     private String name;
 
+    @Column(name = "description", columnDefinition = "varchar(40) comment '촉각 설명'")
+    private String description;
+
 }
