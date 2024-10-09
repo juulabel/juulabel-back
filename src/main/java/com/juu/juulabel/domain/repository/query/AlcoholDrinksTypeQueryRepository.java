@@ -2,6 +2,7 @@ package com.juu.juulabel.domain.repository.query;
 
 import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
 import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholTypeSummary;
@@ -28,12 +29,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AlcoholDrinksTypeQueryRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(AlcoholDrinksTypeQueryRepository.class);
     private final JPAQueryFactory jpaQueryFactory;
 
     QAlcoholicDrinks alcoholicDrinks = QAlcoholicDrinks.alcoholicDrinks;
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
     QBrewery brewery = QBrewery.brewery;
+    QTastingNote tastingNote = QTastingNote.tastingNote;
 
     public Slice<AlcoholSearchSummary> findByAlcoholType(Long alcoholTypeId, int pageSize, String arrayType) {
         List<AlcoholSearchSummary> alcoholicDrinksList = jpaQueryFactory
@@ -42,16 +43,19 @@ public class AlcoholDrinksTypeQueryRepository {
                         alcoholicDrinks.id,
                         alcoholicDrinks.name,
                         alcoholicDrinks.image,
-                        brewery.name
+                        brewery.name,
+                        tastingNote.rating.avg().as("averageRating")
                 ))
                 .from(alcoholicDrinks)
+                .leftJoin(tastingNote).on(tastingNote.alcoholicDrinks.eq(alcoholicDrinks))
                 .innerJoin(alcoholType).on(alcoholicDrinks.alcoholType.eq(alcoholType))
                 .where(
                         eqAlcoholTypeId(alcoholType, alcoholTypeId),
                         isNotDeleted(alcoholicDrinks)
                 )
                 // 동적 정렬 적용
-                .orderBy(getOrderSpecifier(arrayType))
+                .orderBy(getOrderSpecifier(arrayType, tastingNote))
+                .groupBy(alcoholicDrinks.id)
                 .limit(pageSize + 1L)
                 .fetch();
 
@@ -64,12 +68,19 @@ public class AlcoholDrinksTypeQueryRepository {
     }
 
     // 동적 정렬 로직
-    private OrderSpecifier<?> getOrderSpecifier(String arrayType) {
+    private OrderSpecifier<?> getOrderSpecifier(String arrayType, QTastingNote tastingNote) {
         if ("priceLow".equals(arrayType)) {
             return alcoholicDrinks.price.asc();  // 가격 낮은 순
         } else if ("priceHigh".equals(arrayType)) {
             return alcoholicDrinks.price.desc();  // 가격 높은 순
-        } else {
+        }
+        else if ("ratingHigh".equals(arrayType)) {// 평균 평점 높은 순
+            return tastingNote.rating.avg().desc();
+        }
+        else if ("tastingNoteCount".equals(arrayType)) { // 시음노트 갯수 많은 순
+            return tastingNote.id.count().desc();
+        }
+        else {
             return alcoholicDrinks.name.asc();  // 기본 정렬: 이름 순
         }
     }
