@@ -10,9 +10,9 @@ public record AlcoholSearchSummary (
         String name,
         @Schema(description = "전통주 썸네일 URL")
         String thumbnail,
-//        @Schema(description = "전통주 도수")
-//        Double alcoholContent,
         @Schema(description = "양조장 간단 정보")
-        String breweryName
+        String breweryName,
+        @Schema(description = "전통주 별 평균 별점")
+        Double averageRating
          ){
 }
