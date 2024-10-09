@@ -39,6 +39,7 @@ public class AlcoholTypeSensoryQueryRepository {
                 .select(
                         sensory.id,
                         sensory.name,
+                        sensory.description,
                         sensoryLevel.id,
                         sensoryLevel.score,
                         sensoryLevel.description
@@ -63,7 +64,8 @@ public class AlcoholTypeSensoryQueryRepository {
                     id -> new SensoryLevelInfo(
                             new SensoryInfo(
                                     sensoryId,
-                                    s.get(this.sensory.name)
+                                    s.get(this.sensory.name),
+                                    s.get(this.sensory.description)
                             ),
                             new ArrayList<>()
                     ));
