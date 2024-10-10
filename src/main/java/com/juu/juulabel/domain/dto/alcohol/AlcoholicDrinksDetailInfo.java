@@ -1,7 +1,6 @@
 package com.juu.juulabel.domain.dto.alcohol;
 
 
-import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "전통주 상세 정보")
@@ -20,10 +19,13 @@ public record AlcoholicDrinksDetailInfo(
         Double alcoholicPrice,
         @Schema(description = "전통주 원재료")
         String ingredients,
+        @Schema(description = "평균 달점")
+        Double rating,
+        @Schema(description = "평균 시음노트 총 개수")
+        int tastingNoteCount,
         @Schema(description = "주종 간단 정보")
         AlcoholTypeSummary alcoholType,
         @Schema(description = "양조장 간단 정보")
         BrewerySummary brewery
-){
-
+) {
 }
