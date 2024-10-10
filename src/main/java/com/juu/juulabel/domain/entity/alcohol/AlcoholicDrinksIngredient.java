@@ -13,7 +13,7 @@ public class AlcoholicDrinksIngredient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '선호전통주 주종 고유 번호'")
+    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '전통주 원재료 매핑 고유 번호'")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
