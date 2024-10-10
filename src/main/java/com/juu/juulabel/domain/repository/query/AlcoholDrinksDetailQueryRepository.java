@@ -41,7 +41,7 @@ public class AlcoholDrinksDetailQueryRepository {
     QSensory sensory = QSensory.sensory;
     QMember member = QMember.member;
 
-    public AlcoholicDrinksDetailInfo findAlcoholDrinksDetailById(Long alcoholDrinksId){
+    public AlcoholicDrinksDetailInfo findAlcoholDrinksDetailById(Long alcoholDrinksId) {
 
         AlcoholicDrinksDetailInfo alcoholicDrinksDetailInfo = jpaQueryFactory
                 .select(
@@ -54,6 +54,8 @@ public class AlcoholDrinksDetailQueryRepository {
                                 alcoholicDrinks.volume,
                                 alcoholicDrinks.price,
                                 alcoholicDrinks.ingredients,
+                                alcoholicDrinks.rating,
+                                alcoholicDrinks.tastingNoteCount,
                                 Projections.constructor(
                                         AlcoholTypeSummary.class,
                                         alcoholType.id,
@@ -75,7 +77,7 @@ public class AlcoholDrinksDetailQueryRepository {
                         isNotDeleted(alcoholicDrinks))
                 .fetchOne();
 
-        return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(()-> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE)
+        return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE)
         );
     }
 
@@ -84,7 +86,7 @@ public class AlcoholDrinksDetailQueryRepository {
         return jpaQueryFactory
                 .select(tastingNote.id)
                 .from(tastingNote)
-                .innerJoin(tastingNoteLike)
+                .leftJoin(tastingNoteLike)
                 .on(tastingNote.id.eq(tastingNoteLike.tastingNote.id))
                 .where(tastingNote.alcoholicDrinks.id.eq(alcoholDrinksId))
                 .groupBy(tastingNote.id)
@@ -93,16 +95,16 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetchFirst();  // 첫 번째 결과만 가져오기
     }
 
-    public TastingNoteSensorSummary getTastingNoteSensor(Long mostLikedTastingNoteId){
+    public TastingNoteSensorSummary getTastingNoteSensor(Long mostLikedTastingNoteId) {
         String rgb = getColor(mostLikedTastingNoteId);
         List<String> scentList = getScentList(mostLikedTastingNoteId);
         List<FlavorDetail> flavorList = getFlavorList(mostLikedTastingNoteId);
         List<SensoryDetail> senseryList = getSenseryList(mostLikedTastingNoteId);
 
-        return new TastingNoteSensorSummary(mostLikedTastingNoteId,rgb,scentList,flavorList,senseryList);
+        return new TastingNoteSensorSummary(mostLikedTastingNoteId, rgb, scentList, flavorList, senseryList);
     }
 
-    public Double getAverageRating(Long alcoholDrinksId){
+    public Double getAverageRating(Long alcoholDrinksId) {
         return jpaQueryFactory
                 .select(tastingNote.rating.avg())
                 .from(tastingNote)
@@ -111,7 +113,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetchOne();
     }
 
-    public Long getTastingNoteCount(Long alcoholDrinksId){
+    public Long getTastingNoteCount(Long alcoholDrinksId) {
         return jpaQueryFactory
                 .select(tastingNote.count())
                 .from(tastingNote)
@@ -120,7 +122,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetchOne();
     }
 
-    private String getColor(Long mostLikedTastingNoteId){
+    private String getColor(Long mostLikedTastingNoteId) {
         return jpaQueryFactory
                 .select(tastingNote.color.rgb)
                 .from(tastingNote)
@@ -129,7 +131,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetchOne();
     }
 
-    private List<String> getScentList(Long mostLikedTastingNoteId){
+    private List<String> getScentList(Long mostLikedTastingNoteId) {
         return jpaQueryFactory
                 .select(tastingNoteScent.scent.name)
                 .from(tastingNoteScent)
@@ -137,7 +139,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetch();
     }
 
-    private List<FlavorDetail> getFlavorList(Long mostLikedTastingNoteId){
+    private List<FlavorDetail> getFlavorList(Long mostLikedTastingNoteId) {
         return jpaQueryFactory
                 .select(Projections.constructor(
                         FlavorDetail.class,
@@ -150,7 +152,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetch();
     }
 
-    private List<SensoryDetail> getSenseryList(Long mostLikedTastingNoteId){
+    private List<SensoryDetail> getSenseryList(Long mostLikedTastingNoteId) {
         return jpaQueryFactory
                 //.select(tastingNoteSensoryLevel.sensoryLevel.sensory.name)
                 .select(Projections.constructor(
@@ -164,7 +166,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetch();
     }
 
-    public List<LikeTopTastingNoteSummary> getTastingNoteList(Long alcoholDrinksId){
+    public List<LikeTopTastingNoteSummary> getTastingNoteList(Long alcoholDrinksId) {
         return jpaQueryFactory
                 .select(Projections.constructor(
                         LikeTopTastingNoteSummary.class,
@@ -174,8 +176,8 @@ public class AlcoholDrinksDetailQueryRepository {
                         tastingNote.content
                 ))
                 .from(tastingNoteLike)
-                .join(tastingNoteLike.tastingNote,tastingNote)
-                .join(tastingNote.member,member)
+                .leftJoin(tastingNoteLike.tastingNote, tastingNote)
+                .leftJoin(tastingNote.member, member)
                 .where(tastingNote.alcoholicDrinks.id.eq(alcoholDrinksId))
                 .groupBy(tastingNote.id)
                 .orderBy(tastingNoteLike.tastingNote.id.count().desc())
@@ -183,14 +185,13 @@ public class AlcoholDrinksDetailQueryRepository {
                 .fetch();
     }
 
-    private BooleanExpression eqAlcoholDrinkId(Long alcoholDrinksId){
+    private BooleanExpression eqAlcoholDrinkId(Long alcoholDrinksId) {
         return alcoholicDrinks.id.eq(alcoholDrinksId);
     }
 
-    private BooleanExpression isNotDeleted(QAlcoholicDrinks alcoholicDrinks){
+    private BooleanExpression isNotDeleted(QAlcoholicDrinks alcoholicDrinks) {
         return alcoholicDrinks.deletedAt.isNull();
     }
-
 
 
     // 시음노트별로 좋아요 갯수
