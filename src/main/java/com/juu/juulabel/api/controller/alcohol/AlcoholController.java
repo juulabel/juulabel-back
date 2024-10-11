@@ -1,6 +1,7 @@
 package com.juu.juulabel.api.controller.alcohol;
 
 import com.juu.juulabel.api.dto.response.AlcoholTypeListResponse;
+import com.juu.juulabel.api.dto.response.FlavorListResponse;
 import com.juu.juulabel.api.dto.response.SensoryListResponse;
 import com.juu.juulabel.api.service.alcohol.AlcoholService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
@@ -34,6 +35,12 @@ public class AlcoholController {
     @GetMapping("/sensory")
     public ResponseEntity<CommonResponse<SensoryListResponse>> loadUsedSensoryList() {
         return CommonResponse.success(SuccessCode.SUCCESS, alcoholService.loadUsedSensoryList());
+    }
+
+    @Operation(summary = "술 맛 정보 조회")
+    @GetMapping("/flavor")
+    public ResponseEntity<CommonResponse<FlavorListResponse>> loadUsedFlavorList() {
+        return CommonResponse.success(SuccessCode.SUCCESS, alcoholService.loadUsedFlavorList());
     }
 
 }
