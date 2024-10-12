@@ -5,8 +5,10 @@ import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetailInfo;
+import com.juu.juulabel.domain.dto.alcohol.IngredientSummary;
 import com.juu.juulabel.domain.dto.tastingnote.LikeTopTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
+import com.juu.juulabel.domain.enums.sort.SortType;
 import com.juu.juulabel.domain.repository.reader.AlcoholicDrinksReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +31,16 @@ public class AlcoholicDrinksService {
 
         AlcoholicDrinksDetailInfo alcoholicDrinksDetailInfo = alcoholDrinksReader.getAlcoholDrinksDetailById(alcoholicId);
 
+        List<IngredientSummary> ingredientSummaryList = alcoholDrinksReader.getAlcoholDrinksIngredients(alcoholicId);
+
         TastingNoteSensorSummary tastingNoteSensorSummary = alcoholDrinksReader.getTastingNoteSensor(alcoholicId);
 
         List<LikeTopTastingNoteSummary> tastingNoteSummary = alcoholDrinksReader.getTastingNote(alcoholicId);
 
+
         return new AlcoholicDrinksDetailResponse(
                 alcoholicDrinksDetailInfo,
+                ingredientSummaryList,
                 tastingNoteSensorSummary,
                 tastingNoteSummary
         );
@@ -45,9 +51,9 @@ public class AlcoholicDrinksService {
     public AlcoholicCategoryResponse loadAlcoholDrinksList(final CategorySearchAlcoholRequest request) {
 
         // arrayType 이 null 이면 기본 정렬 "name" == 가나다순
-        String arrayType = request.arrayType() == null || request.arrayType().isBlank() ? "name" : request.arrayType();
+        SortType sortType = request.sortType() == null ? SortType.NAME: request.sortType();
 
-        final Slice<AlcoholSearchSummary> alcoholicDrinks = alcoholDrinksReader.getAlcoholicDrinksByType(request.type(), request.pageSize(), arrayType);
+        final Slice<AlcoholSearchSummary> alcoholicDrinks = alcoholDrinksReader.getAlcoholicDrinksByType(request.type(), request.pageSize(), sortType);
 
         // 검색된 전체 갯수 가져오기
         long totalCount = alcoholDrinksReader.countByAlcoholType(request.type());
