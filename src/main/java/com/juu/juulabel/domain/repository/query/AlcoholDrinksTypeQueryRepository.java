@@ -3,6 +3,7 @@ package com.juu.juulabel.domain.repository.query;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
+import com.juu.juulabel.domain.enums.sort.SortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholTypeSummary;
@@ -36,7 +37,7 @@ public class AlcoholDrinksTypeQueryRepository {
     QBrewery brewery = QBrewery.brewery;
     QTastingNote tastingNote = QTastingNote.tastingNote;
 
-    public Slice<AlcoholSearchSummary> findByAlcoholType(Long alcoholTypeId, int pageSize, String arrayType) {
+    public Slice<AlcoholSearchSummary> findByAlcoholType(Long alcoholTypeId, int pageSize, SortType sortType) {
         List<AlcoholSearchSummary> alcoholicDrinksList = jpaQueryFactory
                 .select(Projections.constructor(
                         AlcoholSearchSummary.class,
@@ -54,7 +55,7 @@ public class AlcoholDrinksTypeQueryRepository {
                         isNotDeleted(alcoholicDrinks)
                 )
                 // 동적 정렬 적용
-                .orderBy(getOrderSpecifier(arrayType, tastingNote))
+                .orderBy(getOrderSpecifier(sortType))
                 .groupBy(alcoholicDrinks.id)
                 .limit(pageSize + 1L)
                 .fetch();
@@ -68,43 +69,40 @@ public class AlcoholDrinksTypeQueryRepository {
     }
 
     // 동적 정렬 로직
-    private OrderSpecifier<?> getOrderSpecifier(String arrayType, QTastingNote tastingNote) {
-        if ("priceLow".equals(arrayType)) {
-            return alcoholicDrinks.price.asc();  // 가격 낮은 순
-        } else if ("priceHigh".equals(arrayType)) {
-            return alcoholicDrinks.price.desc();  // 가격 높은 순
-        }
-        else if ("ratingHigh".equals(arrayType)) {// 평균 평점 높은 순
-            return tastingNote.rating.avg().desc();
-        }
-        else if ("tastingNoteCount".equals(arrayType)) { // 시음노트 갯수 많은 순
-            return tastingNote.id.count().desc();
-        }
-        else {
-            return alcoholicDrinks.name.asc();  // 기본 정렬: 이름 순
+    private OrderSpecifier<?> getOrderSpecifier(SortType sortType) {
+        switch (sortType) {
+            case PRICE_LOW:
+                return alcoholicDrinks.price.asc();  // 가격 낮은 순
+            case PRICE_HIGH:
+                return alcoholicDrinks.price.desc();  // 가격 높은 순
+            case RATING_HIGH:// 평균 평점 높은 순
+                return alcoholicDrinks.rating.desc();
+            case TASTING_NOTE_COUNT_HIGH: // 시음노트 갯수 많은 순
+                return alcoholicDrinks.tastingNoteCount.desc();
+            default:
+                return alcoholicDrinks.name.asc();  // 기본 정렬: 이름 순
         }
     }
 
 
+        public long countByAlcoholType (Long alcoholTypeId){
+            return jpaQueryFactory
+                    .select(alcoholicDrinks.count())
+                    .from(alcoholicDrinks)
+                    .innerJoin(alcoholType).on(alcoholicDrinks.alcoholType.eq(alcoholType))
+                    .where(eqAlcoholTypeId(alcoholType, alcoholTypeId), isNotDeleted(alcoholicDrinks))
+                    .fetchOne();
+        }
 
-    public long countByAlcoholType(Long alcoholTypeId) {
-        return jpaQueryFactory
-                .select(alcoholicDrinks.count())
-                .from(alcoholicDrinks)
-                .innerJoin(alcoholType).on(alcoholicDrinks.alcoholType.eq(alcoholType))
-                .where(eqAlcoholTypeId(alcoholType,alcoholTypeId), isNotDeleted(alcoholicDrinks))
-                .fetchOne();
-    }
+        private OrderSpecifier<String> alcoholicDrinksNameAse (QAlcoholicDrinks alcoholicDrinks){
+            return alcoholicDrinks.name.asc();
+        }
 
-    private OrderSpecifier<String> alcoholicDrinksNameAse(QAlcoholicDrinks alcoholicDrinks){
-        return alcoholicDrinks.name.asc();
-    }
+        private BooleanExpression eqAlcoholTypeId (QAlcoholType AlcoholType, Long alcoholTypeId){
+            return alcoholType.id.eq(alcoholTypeId);
+        }
 
-    private BooleanExpression eqAlcoholTypeId(QAlcoholType AlcoholType, Long alcoholTypeId) {
-        return alcoholType.id.eq(alcoholTypeId);
+        private BooleanExpression isNotDeleted (QAlcoholicDrinks alcoholicDrinks){
+            return alcoholicDrinks.deletedAt.isNull();
+        }
     }
-
-    private BooleanExpression isNotDeleted(QAlcoholicDrinks alcoholicDrinks) {
-        return alcoholicDrinks.deletedAt.isNull();
-    }
-}

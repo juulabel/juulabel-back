@@ -10,8 +10,10 @@ import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.QMember;
 import com.juu.juulabel.domain.entity.tastingnote.*;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -40,6 +42,8 @@ public class AlcoholDrinksDetailQueryRepository {
     QSensoryLevel sensoryLevel = QSensoryLevel.sensoryLevel;
     QSensory sensory = QSensory.sensory;
     QMember member = QMember.member;
+    QIngredient ingredient = QIngredient.ingredient;
+    QAlcoholicDrinksIngredient alcoholicDrinksIngredient = QAlcoholicDrinksIngredient.alcoholicDrinksIngredient;
 
     public AlcoholicDrinksDetailInfo findAlcoholDrinksDetailById(Long alcoholDrinksId) {
 
@@ -53,7 +57,6 @@ public class AlcoholDrinksDetailQueryRepository {
                                 alcoholicDrinks.alcoholContent,
                                 alcoholicDrinks.volume,
                                 alcoholicDrinks.price,
-                                alcoholicDrinks.ingredients,
                                 alcoholicDrinks.rating,
                                 alcoholicDrinks.tastingNoteCount,
                                 Projections.constructor(
@@ -80,6 +83,19 @@ public class AlcoholDrinksDetailQueryRepository {
         return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE)
         );
     }
+
+    public List<IngredientSummary> getIngredientSummary(Long alcoholDrinksId) {
+        return jpaQueryFactory
+                .select(Projections.constructor(
+                        IngredientSummary.class,
+                        alcoholicDrinksIngredient.ingredient.id,
+                        alcoholicDrinksIngredient.ingredient.name
+                ))
+                .from(alcoholicDrinksIngredient)
+                .where(alcoholicDrinksIngredient.alcoholicDrinks.id.eq(alcoholDrinksId))
+                .fetch();
+    }
+
 
     // 전통주 id에 따른 좋아요 제일 많이 받은 시음노트 id 가져오기
     public Long findMostLikedTastingNoteId(Long alcoholDrinksId) {

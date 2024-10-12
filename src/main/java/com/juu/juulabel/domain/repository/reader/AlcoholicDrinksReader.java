@@ -3,14 +3,12 @@ package com.juu.juulabel.domain.repository.reader;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.annotation.Reader;
-import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
-import com.juu.juulabel.domain.dto.alcohol.AlcoholicBrewerySummary;
-import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetailInfo;
-import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
+import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.dto.tastingnote.LikeTopTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
 import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.enums.sort.SortType;
 import com.juu.juulabel.domain.repository.query.AlcoholDrinksDetailQueryRepository;
 import com.juu.juulabel.domain.repository.query.AlcoholDrinksTypeQueryRepository;
 import com.juu.juulabel.domain.repository.query.AlcoholicDrinksQueryRepository;
@@ -57,6 +55,10 @@ public class AlcoholicDrinksReader {
         return alcoholDrinksDetailQueryRepository.findAlcoholDrinksDetailById(alcoholDrinksId);
     }
 
+    public List<IngredientSummary> getAlcoholDrinksIngredients(Long alcoholDrinksId) {
+        return alcoholDrinksDetailQueryRepository.getIngredientSummary(alcoholDrinksId);
+    }
+
     public TastingNoteSensorSummary getTastingNoteSensor(Long alcoholDrinksId) {
         Long mostLikedTastingNoteId = alcoholDrinksDetailQueryRepository.findMostLikedTastingNoteId(alcoholDrinksId);
         return alcoholDrinksDetailQueryRepository.getTastingNoteSensor(mostLikedTastingNoteId);
@@ -66,8 +68,8 @@ public class AlcoholicDrinksReader {
         return alcoholDrinksDetailQueryRepository.getTastingNoteList(alcoholDrinksId);
     }
 
-    public Slice<AlcoholSearchSummary> getAlcoholicDrinksByType(Long alcoholTypeId, int pageSize, String arrayType){
-        return alcoholDrinksTypeQueryRepository.findByAlcoholType(alcoholTypeId,pageSize,arrayType);
+    public Slice<AlcoholSearchSummary> getAlcoholicDrinksByType(Long alcoholTypeId, int pageSize, SortType sortType){
+        return alcoholDrinksTypeQueryRepository.findByAlcoholType(alcoholTypeId,pageSize,sortType);
     }
 
     public Double getAverageRating(Long alcoholTypeId){
