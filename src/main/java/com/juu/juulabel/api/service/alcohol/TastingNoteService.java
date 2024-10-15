@@ -19,7 +19,7 @@ import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.tastingnote.*;
-import com.juu.juulabel.domain.repository.TastingNoteLikeReader;
+import com.juu.juulabel.domain.repository.reader.TastingNoteLikeReader;
 import com.juu.juulabel.domain.repository.reader.*;
 import com.juu.juulabel.domain.repository.writer.*;
 import lombok.RequiredArgsConstructor;
