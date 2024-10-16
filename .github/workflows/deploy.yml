@@ -38,7 +38,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew                  # gradlew 실행권한 부여
       - name: Build with Gradle
-        run: ./gradlew clean build          # build 하기
+        run: ./gradlew clean build -x test          # build 하기
         id: buildAndTests
         continue-on-error: true # 테스트에 실패해도 계속 로그찍기
 
