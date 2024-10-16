@@ -44,7 +44,7 @@ jobs:
 
       - name: Archive test results if tests failed # 테스트가 실패하면 결과 아카이빙
         if: steps.buildAndTests.outcome == 'failure'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-results   # 해당 URL에 테스트 결과 아카이빙
           path: |
