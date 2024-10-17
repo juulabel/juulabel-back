@@ -18,7 +18,7 @@ spring:
   jpa:
     open-in-view: true   # 트래픽이 많은 서비스에서는 명시적으로 세션 열고 닫는 게 나음
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
