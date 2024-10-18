@@ -1,5 +1,5 @@
 package com.juu.juulabel.domain.enums.notification;
 
 public enum NotificationType {
-    VOTE, COMMENT, ADMIN_NOTIFY
+    POST_LIKE, COMMENT_LIKE, COMMENT, RECOMMENDATION, ADMIN_NOTIFY
 }
