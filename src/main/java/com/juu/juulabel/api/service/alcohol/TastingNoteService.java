@@ -116,7 +116,9 @@ public class TastingNoteService {
         List<String> imageUrlList = new ArrayList<>();
         storeImageList(files, imageUrlList, tastingNote);
 
-        alcoholicDrinks.addRating(request.rating());
+        if (!Objects.isNull(alcoholicDrinks)) {
+            alcoholicDrinks.addRating(request.rating());
+        }
 
         return TastingNoteWriteResponse.fromEntity(result);
     }
@@ -268,7 +270,7 @@ public class TastingNoteService {
         List<String> imageUrlList = new ArrayList<>();
         storeImageList(files, imageUrlList, tastingNote);
 
-        if (rating != request.rating()) {
+        if (rating != request.rating() && !Objects.isNull(alcoholicDrinks)) {
             alcoholicDrinks.updateRating(rating, request.rating());
         }
 
