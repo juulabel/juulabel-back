@@ -79,4 +79,16 @@ public class NotificationController {
         return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
+    @Operation(
+        summary = "모든 알림 읽음 처리",
+        description = "사용자의 모든 알림을 읽음 처리 합니다."
+    )
+    @PostMapping("/read-all")
+    public ResponseEntity<CommonResponse<Void>> setAllNotificationAsRead(
+        @Parameter(hidden = true) @LoginMember Member loginMember
+    ) {
+        notificationService.setAllNotificationsAsRead(loginMember);
+        return CommonResponse.success(SuccessCode.SUCCESS);
+    }
+
 }

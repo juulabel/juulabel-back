@@ -140,4 +140,9 @@ public class NotificationService {
     public void setNotificationsAsRead(Member member, Long notificationId) {
         notificationReader.setNotificationsAsRead(member, notificationId);
     }
+
+    @Transactional
+    public void setAllNotificationsAsRead(Member member) {
+        notificationReader.setAllNotificationsAsRead(member);
+    }
 }

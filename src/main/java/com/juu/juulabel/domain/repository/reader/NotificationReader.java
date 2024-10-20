@@ -21,4 +21,8 @@ public class NotificationReader {
     public void setNotificationsAsRead(Member member, Long notificationId) {
         notificationQueryRepository.setNotificationsAsRead(member, notificationId);
     }
+
+    public void setAllNotificationsAsRead(Member member) {
+        notificationQueryRepository.setAllNotificationsAsRead(member);
+    }
 }
