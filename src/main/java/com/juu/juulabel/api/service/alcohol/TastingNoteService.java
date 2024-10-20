@@ -3,6 +3,7 @@ package com.juu.juulabel.api.service.alcohol;
 import com.juu.juulabel.api.dto.request.*;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
+import com.juu.juulabel.api.service.notification.NotificationService;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
@@ -54,6 +55,7 @@ public class TastingNoteService {
     private final TastingNoteCommentWriter tastingNoteCommentWriter;
     private final TastingNoteCommentLikeReader tastingNoteCommentLikeReader;
     private final TastingNoteCommentLikeWriter tastingNoteCommentLikeWriter;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -303,15 +305,20 @@ public class TastingNoteService {
     public boolean toggleTastingNoteLike(Member member, Long tastingNoteId) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
         Optional<TastingNoteLike> tastingNoteLike = tastingNoteLikeReader.findByMemberAndTastingNote(member, tastingNote);
+        String notificationRelatedUrl = "/v1/api/shared-space/tasting-notes/" + tastingNoteId;
 
         // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
         return tastingNoteLike
             .map(like -> {
                 tastingNoteLikeWriter.delete(like);
+
+                notificationService.deletePostLikeNotification(tastingNote.getMember(), member, notificationRelatedUrl);
                 return false;
             })
             .orElseGet(() -> {
                 tastingNoteLikeWriter.store(member, tastingNote);
+
+                notificationService.sendPostLikeNotification(tastingNote.getMember(), member, notificationRelatedUrl);
                 return true;
             });
     }
