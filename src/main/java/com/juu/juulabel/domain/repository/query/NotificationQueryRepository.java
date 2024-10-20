@@ -70,6 +70,20 @@ public class NotificationQueryRepository {
         }
     }
 
+    public void setAllNotificationsAsRead(Member member) {
+        long updatedCount = jpaQueryFactory
+            .update(notification)
+            .set(notification.isRead, true)
+            .where(
+                notification.receiver.id.eq(member.getId())
+            )
+            .execute();
+
+        if (updatedCount == 0) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
+        }
+    }
+
     private BooleanExpression noOffsetByNotificationId(QNotification notification, Long lastNotificationId) {
         return Objects.isEmpty(lastNotificationId) ? null : notification.id.lt(lastNotificationId);
     }
