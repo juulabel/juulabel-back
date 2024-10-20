@@ -4,7 +4,6 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.notification.NotificationSummary;
 import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.entity.notification.Notification;
 import com.juu.juulabel.domain.entity.notification.QNotification;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -101,5 +100,18 @@ public class NotificationQueryRepository {
 
     private BooleanExpression noOffsetByNotificationId(QNotification notification, Long lastNotificationId) {
         return Objects.isEmpty(lastNotificationId) ? null : notification.id.lt(lastNotificationId);
+    }
+
+    public void deleteAllByMember(Member member) {
+        long deleteCount = jpaQueryFactory
+            .delete(notification)
+            .where(
+                notification.receiver.id.eq(member.getId())
+            )
+            .execute();
+
+        if (deleteCount == 0) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
+        }
     }
 }
