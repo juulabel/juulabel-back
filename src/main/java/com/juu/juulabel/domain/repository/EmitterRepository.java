@@ -39,4 +39,8 @@ public class EmitterRepository {
     public void saveEventCache(String eventCacheId, Object event) {
         eventCache.put(eventCacheId, event);
     }
+
+    public void deleteEventCache(String cacheKey) {
+        eventCache.remove(cacheKey);
+    }
 }
