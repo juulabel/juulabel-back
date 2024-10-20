@@ -131,17 +131,16 @@ public class NotificationService {
     }
 
     @Transactional
-    public void sendDailyLifeLikeNotification(Member author, Member liker, Long dailyLifeId) {
+    public void sendPostLikeNotification(Member author, Member liker, String relatedUrl) {
         String message = liker.getNickname() + "님이 내 게시물에 좋아요를 눌렀어요.";
-        NotificationType type = NotificationType.DAILY_LIFE_LIKE;
-        String relatedUrl = "/v1/api/daily-lives/" + dailyLifeId;
+        NotificationType type = NotificationType.POST_LIKE;
 
         send(author, type, message, relatedUrl);
     }
 
-    public void deleteDailyLifeLikeNotification(Member author, Member liker, Long dailyLifeId) {
+    @Transactional
+    public void deletePostLikeNotification(Member author, Member liker, String relatedUrl) {
         String content = liker.getNickname() + "님이 내 게시물에 좋아요를 눌렀어요.";
-        String relatedUrl = "/v1/api/daily-lives/" + dailyLifeId;
 
         notificationWriter.deleteByReceiverAndContentAndRelatedUrl(author, content, relatedUrl);
         emitterRepository.deleteEventCache(author.getId() + "_" + relatedUrl);

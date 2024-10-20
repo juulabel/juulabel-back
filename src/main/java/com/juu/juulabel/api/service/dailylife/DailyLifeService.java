@@ -127,19 +127,20 @@ public class DailyLifeService {
     public boolean toggleDailyLifeLike(final Member member, final Long dailyLifeId) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
         Optional<DailyLifeLike> dailyLifeLike = dailyLifeLikeReader.findByMemberAndDailyLife(member, dailyLife);
+        String notificationRelatedUrl = "/v1/api/daily-lives/" + dailyLifeId;
 
         // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
         return dailyLifeLike
             .map(like -> {
                 dailyLifeLikeWriter.delete(like);
 
-                notificationService.deleteDailyLifeLikeNotification(dailyLife.getMember(), member, dailyLife.getId());
+                notificationService.deletePostLikeNotification(dailyLife.getMember(), member, notificationRelatedUrl);
                 return false;
             })
             .orElseGet(() -> {
                 dailyLifeLikeWriter.store(member, dailyLife);
 
-                notificationService.sendDailyLifeLikeNotification(dailyLife.getMember(), member, dailyLife.getId());
+                notificationService.sendPostLikeNotification(dailyLife.getMember(), member, notificationRelatedUrl);
                 return true;
             });
     }
