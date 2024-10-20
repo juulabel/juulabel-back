@@ -29,4 +29,14 @@ public class EmitterRepository {
             .filter(entry -> entry.getKey().startsWith(memberId)) // memberId로 시작하는 이벤트들 필터링
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // 필터링된 이벤트를 Map으로 반환
     }
+
+    public Map<String, SseEmitter> findAllEmitterStartWithByMemberId(String memberId) {
+        return emitters.entrySet().stream()
+            .filter(entry -> entry.getKey().startsWith(memberId))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public void saveEventCache(String eventCacheId, Object event) {
+        eventCache.put(eventCacheId, event);
+    }
 }

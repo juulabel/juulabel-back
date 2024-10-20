@@ -1,20 +1,37 @@
 package com.juu.juulabel.api.service.notification;
 
+import com.juu.juulabel.api.dto.request.CreateNotificationRequest;
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.domain.dto.notification.NotificationSummary;
 import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.entity.notification.Notification;
+import com.juu.juulabel.domain.enums.member.MemberRole;
+import com.juu.juulabel.domain.enums.notification.NotificationType;
 import com.juu.juulabel.domain.repository.EmitterRepository;
+import com.juu.juulabel.domain.repository.reader.MemberReader;
+import com.juu.juulabel.domain.repository.writer.NotificationWriter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
     private final EmitterRepository emitterRepository;
+    private final MemberReader memberReader;
+    private final NotificationWriter notificationWriter;
 
     public SseEmitter subscribe(Member member, String lastEventId) {
         Long memberId = member.getId();
@@ -63,5 +80,48 @@ public class NotificationService {
 
     private String makeTimeIncludeId(Long memberId) { // (3)
         return memberId + "_" + System.currentTimeMillis();
+    }
+
+    @Transactional
+    public void sendNotificationToAllUsers(Member loginMember, CreateNotificationRequest request) {
+        validateAdmin(loginMember);
+        List<Member> allMembers = memberReader.getActiveMembers();
+        allMembers.forEach(member -> CompletableFuture.runAsync(
+            () -> sendAsync(member, request.notificationType(), request.content(), request.url())));
+    }
+
+    private void validateAdmin(Member loginMember) {
+        if (loginMember.getRole() != MemberRole.ROLE_ADMIN) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_ADMIN);
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendAsync(Member receiver, NotificationType notificationType, String content, String url) {
+        send(receiver, notificationType, content, url);
+        log.info("Thread: {}, Notification sent to user: {}, type: {}, content: {}, url: {}",
+            Thread.currentThread().getName(), receiver.getId(), notificationType, content, url);
+    }
+
+    @Transactional
+    public void send(Member receiver, NotificationType notificationType, String content, String url) {
+        Notification notification = notificationWriter.save(Notification.create(receiver, notificationType, content, url));
+        Long receiverId = receiver.getId();
+        String eventId = makeTimeIncludeId(receiverId);
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(String.valueOf(receiverId));
+        emitters.forEach(
+            (key, emitter) -> {
+                emitterRepository.saveEventCache(key, notification);
+                sendToClient(emitter, eventId,
+                    new NotificationSummary(
+                        notification.getId(),
+                        notification.getRelatedUrl(),
+                        notification.getContent(),
+                        notification.getNotificationType(),
+                        notification.isRead(),
+                        notification.getCreatedAt()
+                    ));
+            }
+        );
     }
 }
