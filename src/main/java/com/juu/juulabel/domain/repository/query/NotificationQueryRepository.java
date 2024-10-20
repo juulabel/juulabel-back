@@ -87,4 +87,18 @@ public class NotificationQueryRepository {
     private BooleanExpression noOffsetByNotificationId(QNotification notification, Long lastNotificationId) {
         return Objects.isEmpty(lastNotificationId) ? null : notification.id.lt(lastNotificationId);
     }
+
+    public void deleteNotifications(Member member, List<Long> notificationIds) {
+        long deletedCount = jpaQueryFactory
+            .delete(notification)
+            .where(
+                notification.id.in(notificationIds),
+                notification.receiver.id.eq(member.getId())
+            )
+            .execute();
+
+        if (deletedCount != notificationIds.size()) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.juu.juulabel.api.controller.notification;
 
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.CreateNotificationRequest;
+import com.juu.juulabel.api.dto.request.DeleteNotificationsRequest;
 import com.juu.juulabel.api.dto.request.NotificationListRequest;
 import com.juu.juulabel.api.dto.response.NotificationListResponse;
 import com.juu.juulabel.api.service.notification.NotificationService;
@@ -89,6 +90,19 @@ public class NotificationController {
     ) {
         notificationService.setAllNotificationsAsRead(loginMember);
         return CommonResponse.success(SuccessCode.SUCCESS);
+    }
+
+    @Operation(
+        summary = "알림 삭제",
+        description = "사용자가 선택한 알림을 삭제합니다."
+    )
+    @DeleteMapping()
+    public ResponseEntity<CommonResponse<Void>> deleteNotifications(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @RequestBody DeleteNotificationsRequest request
+    ) {
+        notificationService.deleteNotifications(loginMember, request.notificationIds());
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }
 
 }
