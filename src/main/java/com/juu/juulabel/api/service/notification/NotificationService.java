@@ -147,7 +147,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void deleteNotifications(Member member, List<Long> notificationIds) {
-        notificationWriter.deleteNotifications(member, notificationIds);
+    public void deleteNotification(Member member, Long notificationId) {
+        notificationWriter.deleteNotification(member, notificationId);
     }
 }

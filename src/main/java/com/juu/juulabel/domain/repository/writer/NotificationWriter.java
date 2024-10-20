@@ -7,8 +7,6 @@ import com.juu.juulabel.domain.repository.jpa.NotificationJpaRepository;
 import com.juu.juulabel.domain.repository.query.NotificationQueryRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 @Writer
 @RequiredArgsConstructor
 public class NotificationWriter {
@@ -20,7 +18,7 @@ public class NotificationWriter {
         return notificationJpaRepository.save(notification);
     }
 
-    public void deleteNotifications(Member member, List<Long> notificationIds) {
-        notificationQueryRepository.deleteNotifications(member, notificationIds);
+    public void deleteNotification(Member member, Long notificationId) {
+        notificationQueryRepository.deleteNotification(member, notificationId);
     }
 }

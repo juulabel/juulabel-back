@@ -4,6 +4,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.notification.NotificationSummary;
 import com.juu.juulabel.domain.entity.member.Member;
+import com.juu.juulabel.domain.entity.notification.Notification;
 import com.juu.juulabel.domain.entity.notification.QNotification;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -84,21 +85,21 @@ public class NotificationQueryRepository {
         }
     }
 
-    private BooleanExpression noOffsetByNotificationId(QNotification notification, Long lastNotificationId) {
-        return Objects.isEmpty(lastNotificationId) ? null : notification.id.lt(lastNotificationId);
-    }
-
-    public void deleteNotifications(Member member, List<Long> notificationIds) {
-        long deletedCount = jpaQueryFactory
+    public void deleteNotification(Member member, Long notificationId) {
+        long deleteCount = jpaQueryFactory
             .delete(notification)
             .where(
-                notification.id.in(notificationIds),
-                notification.receiver.id.eq(member.getId())
+                notification.receiver.id.eq(member.getId()),
+                notification.id.eq(notificationId)
             )
             .execute();
 
-        if (deletedCount != notificationIds.size()) {
+        if (deleteCount == 0) {
             throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
         }
+    }
+
+    private BooleanExpression noOffsetByNotificationId(QNotification notification, Long lastNotificationId) {
+        return Objects.isEmpty(lastNotificationId) ? null : notification.id.lt(lastNotificationId);
     }
 }
