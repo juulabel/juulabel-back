@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public record NotificationSummary(
     Long id,
-    String url,
+    String relatedUrl,
     String content,
     NotificationType notificationType,
     boolean isRead,

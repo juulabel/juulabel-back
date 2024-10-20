@@ -1,6 +1,8 @@
 package com.juu.juulabel.api.service.notification;
 
 import com.juu.juulabel.api.dto.request.CreateNotificationRequest;
+import com.juu.juulabel.api.dto.request.NotificationListRequest;
+import com.juu.juulabel.api.dto.response.NotificationListResponse;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.notification.NotificationSummary;
@@ -10,9 +12,11 @@ import com.juu.juulabel.domain.enums.member.MemberRole;
 import com.juu.juulabel.domain.enums.notification.NotificationType;
 import com.juu.juulabel.domain.repository.EmitterRepository;
 import com.juu.juulabel.domain.repository.reader.MemberReader;
+import com.juu.juulabel.domain.repository.reader.NotificationReader;
 import com.juu.juulabel.domain.repository.writer.NotificationWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +36,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final MemberReader memberReader;
     private final NotificationWriter notificationWriter;
+    private final NotificationReader notificationReader;
 
     public SseEmitter subscribe(Member member, String lastEventId) {
         Long memberId = member.getId();
@@ -123,5 +128,11 @@ public class NotificationService {
                     ));
             }
         );
+    }
+
+    public NotificationListResponse getNotifications(Member member, NotificationListRequest request) {
+        Slice<NotificationSummary> notificationList =
+            notificationReader.getAllByMemberId(member.getId(), request.lastNotificationId(), request.pageSize());
+        return new NotificationListResponse(notificationList);
     }
 }
