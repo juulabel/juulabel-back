@@ -25,4 +25,8 @@ public class NotificationWriter {
     public void deleteAllByMember(Member member) {
         notificationQueryRepository.deleteAllByMember(member);
     }
+
+    public void deleteByReceiverAndContentAndRelatedUrl(Member author, String content, String url) {
+        notificationJpaRepository.deleteByReceiverAndContentAndRelatedUrl(author, content, url);
+    }
 }

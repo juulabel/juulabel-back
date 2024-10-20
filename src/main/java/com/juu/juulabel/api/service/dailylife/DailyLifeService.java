@@ -2,6 +2,7 @@ package com.juu.juulabel.api.service.dailylife;
 
 import com.juu.juulabel.api.dto.request.*;
 import com.juu.juulabel.api.dto.response.*;
+import com.juu.juulabel.api.service.notification.NotificationService;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
@@ -47,6 +48,7 @@ public class DailyLifeService {
     private final DailyLifeLikeReader dailyLifeLikeReader;
     private final DailyLifeCommentLikeWriter dailyLifeCommentLikeWriter;
     private final DailyLifeCommentLikeReader dailyLifeCommentLikeReader;
+    private final NotificationService notificationService;
     private final S3Service s3Service;
 
     @Transactional
@@ -130,10 +132,14 @@ public class DailyLifeService {
         return dailyLifeLike
             .map(like -> {
                 dailyLifeLikeWriter.delete(like);
+
+                notificationService.deleteDailyLifeLikeNotification(dailyLife.getMember(), member, dailyLife.getId());
                 return false;
             })
             .orElseGet(() -> {
                 dailyLifeLikeWriter.store(member, dailyLife);
+
+                notificationService.sendDailyLifeLikeNotification(dailyLife.getMember(), member, dailyLife.getId());
                 return true;
             });
     }
