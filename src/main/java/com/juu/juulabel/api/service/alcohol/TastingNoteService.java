@@ -305,7 +305,7 @@ public class TastingNoteService {
     public boolean toggleTastingNoteLike(Member member, Long tastingNoteId) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
         Optional<TastingNoteLike> tastingNoteLike = tastingNoteLikeReader.findByMemberAndTastingNote(member, tastingNote);
-        String notificationRelatedUrl = "/v1/api/shared-space/tasting-notes/" + tastingNoteId;
+        String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
 
         // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
         return tastingNoteLike
@@ -330,9 +330,18 @@ public class TastingNoteService {
         Long tastingNoteId
     ) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
-
         TastingNoteComment tastingNoteComment = createCommentOrReply(request, member, tastingNote);
         TastingNoteComment comment = tastingNoteCommentWriter.store(tastingNoteComment);
+
+        String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
+        String notificationMessage;
+        if (Objects.isNull(request.parentCommentId())) {
+            notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
+            notificationService.sendCommentNotification(tastingNote.getMember(), notificationRelatedUrl, notificationMessage, comment.getId());
+        } else {
+            notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
+            notificationService.sendCommentNotification(comment.getMember(), notificationRelatedUrl, notificationMessage, comment.getId());
+        }
 
         return new WriteTastingNoteCommentResponse(
             comment.getContent(),
@@ -407,24 +416,33 @@ public class TastingNoteService {
 
     @Transactional
     public DeleteCommentResponse deleteComment(Member member, Long tastingNoteId, Long commentId) {
-        getTastingNote(tastingNoteId);
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
         TastingNoteComment comment = getComment(commentId);
-
         validateCommentWriter(member, comment);
-
         comment.delete();
+
+        String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
+        String notificationMessage;
+        if (Objects.isNull(comment.getParent())) {
+            notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
+            notificationService.deleteCommentNotification(tastingNote.getMember(), notificationRelatedUrl, notificationMessage, commentId);
+        } else {
+            notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
+            notificationService.deleteCommentNotification(comment.getMember(), notificationRelatedUrl, notificationMessage, commentId);
+        }
+
         return new DeleteCommentResponse(comment.getId());
     }
 
     @Transactional
     public boolean toggleCommentLike(Member member, Long tastingNoteId, Long commentId) {
-        TastingNote tastingNote = getTastingNote(tastingNoteId);
+        getTastingNote(tastingNoteId);
         TastingNoteComment comment = getComment(commentId);
 
         Optional<TastingNoteCommentLike> tastingNoteCommentLike =
             tastingNoteCommentLikeReader.findByMemberAndTastingNoteComment(member, comment);
 
-        String notificationRelatedUrl = "/v1/api/shared-space/tasting-notes/" + tastingNote.getId();
+        String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
         String notificationMessage;
         if (Objects.isNull(comment.getParent())) {
             notificationMessage = member.getNickname() + "님이 내 댓글에 좋아요를 눌렀어요.";
@@ -444,5 +462,9 @@ public class TastingNoteService {
                 notificationService.sendCommentLikeNotification(comment.getMember(), notificationRelatedUrl, notificationMessage);
                 return true;
             });
+    }
+
+    private static String getRelatedUrl(Long tastingNoteId) {
+        return "/v1/api/shared-space/tasting-notes/" + tastingNoteId;
     }
 }
