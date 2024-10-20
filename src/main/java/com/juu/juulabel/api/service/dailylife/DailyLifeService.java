@@ -227,20 +227,32 @@ public class DailyLifeService {
 
     @Transactional
     public boolean toggleCommentLike(final Member member, final Long dailyLifeId, final Long commentId) {
-        getDailyLife(dailyLifeId);
+        DailyLife dailyLife = getDailyLife(dailyLifeId);
         final DailyLifeComment comment = getComment(commentId);
 
         Optional<DailyLifeCommentLike> dailyLifeCommentLike =
             dailyLifeCommentLikeReader.findByMemberAndDailyLifeComment(member, comment);
 
+        String notificationRelatedUrl = "/v1/api/daily-lives/" + dailyLife.getId();
+        String notificationMessage;
+        if (Objects.isNull(comment.getParent())) {
+            notificationMessage = member.getNickname() + "님이 내 댓글에 좋아요를 눌렀어요.";
+        } else {
+            notificationMessage = member.getNickname() + "님이 내 답글에 좋아요를 눌렀어요.";
+        }
+
         // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
         return dailyLifeCommentLike
             .map(like -> {
                 dailyLifeCommentLikeWriter.delete(like);
+
+                notificationService.deleteCommentLikeNotification(comment.getMember(), notificationRelatedUrl, notificationMessage);
                 return false;
             })
             .orElseGet(() -> {
                 dailyLifeCommentLikeWriter.store(member, comment);
+
+                notificationService.sendCommentLikeNotification(comment.getMember(), notificationRelatedUrl, notificationMessage);
                 return true;
             });
     }
