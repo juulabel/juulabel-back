@@ -29,4 +29,8 @@ public class NotificationWriter {
     public void deleteByReceiverAndContentAndRelatedUrl(Member author, String content, String url) {
         notificationJpaRepository.deleteByReceiverAndContentAndRelatedUrl(author, content, url);
     }
+
+    public void deleteByReceiverAndContentAndRelatedUrlAndCommentId(Member author, String content, String url, Long commentId) {
+        notificationJpaRepository.deleteByReceiverAndContentAndRelatedUrlAndCommentId(author, content, url, commentId);
+    }
 }

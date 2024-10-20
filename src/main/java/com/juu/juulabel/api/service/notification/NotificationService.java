@@ -111,7 +111,11 @@ public class NotificationService {
     @Transactional
     public void send(Member receiver, NotificationType notificationType, String content, String url) {
         Notification notification = notificationWriter.save(Notification.create(receiver, notificationType, content, url));
-        Long receiverId = receiver.getId();
+        sendNotification(receiver, notification);
+    }
+
+    private void sendNotification(Member author, Notification notification) {
+        Long receiverId = author.getId();
         String eventId = makeTimeIncludeId(receiverId);
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(String.valueOf(receiverId));
         emitters.forEach(
@@ -128,6 +132,20 @@ public class NotificationService {
                     ));
             }
         );
+    }
+
+    @Transactional
+    public void sendCommentNotification(Member author, String relatedUrl, String message, Long commentId) {
+        Notification notification = notificationWriter.save(
+            Notification.createWithCommentId(author, NotificationType.COMMENT, message, relatedUrl, commentId)
+        );
+        sendNotification(author, notification);
+    }
+
+    @Transactional
+    public void deleteCommentNotification(Member author, String relatedUrl, String message, Long commentId) {
+        notificationWriter.deleteByReceiverAndContentAndRelatedUrlAndCommentId(author, message, relatedUrl, commentId);
+        emitterRepository.deleteEventCache(author.getId() + "_" + relatedUrl + "_" + commentId);
     }
 
     @Transactional

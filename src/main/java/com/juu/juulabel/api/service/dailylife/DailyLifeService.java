@@ -127,7 +127,7 @@ public class DailyLifeService {
     public boolean toggleDailyLifeLike(final Member member, final Long dailyLifeId) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
         Optional<DailyLifeLike> dailyLifeLike = dailyLifeLikeReader.findByMemberAndDailyLife(member, dailyLife);
-        String notificationRelatedUrl = "/v1/api/daily-lives/" + dailyLifeId;
+        String notificationRelatedUrl = getRelatedUrl(dailyLifeId);
 
         // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
         return dailyLifeLike
@@ -152,9 +152,18 @@ public class DailyLifeService {
         final Long dailyLifeId
     ) {
         final DailyLife dailyLife = getDailyLife(dailyLifeId);
-
         final DailyLifeComment dailyLifeComment = createCommentOrReply(request, member, dailyLife);
         final DailyLifeComment comment = dailyLifeCommentWriter.store(dailyLifeComment);
+
+        String notificationRelatedUrl = getRelatedUrl(dailyLifeId);
+        String notificationMessage;
+        if (Objects.isNull(request.parentCommentId())) {
+            notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
+            notificationService.sendCommentNotification(dailyLife.getMember(), notificationRelatedUrl, notificationMessage, comment.getId());
+        } else {
+            notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
+            notificationService.sendCommentNotification(comment.getMember(), notificationRelatedUrl, notificationMessage, comment.getId());
+        }
 
         return new WriteDailyLifeCommentResponse(
             comment.getContent(),
@@ -216,24 +225,33 @@ public class DailyLifeService {
         final Long dailyLifeId,
         final Long commentId
     ) {
-        getDailyLife(dailyLifeId);
+        DailyLife dailyLife = getDailyLife(dailyLifeId);
         DailyLifeComment comment = getComment(commentId);
-
         validateCommentWriter(member, comment);
-
         comment.delete();
+
+        String notificationRelatedUrl = getRelatedUrl(dailyLifeId);
+        String notificationMessage;
+        if (Objects.isNull(comment.getParent())) {
+            notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
+            notificationService.deleteCommentNotification(dailyLife.getMember(), notificationRelatedUrl, notificationMessage, commentId);
+        } else {
+            notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
+            notificationService.deleteCommentNotification(comment.getMember(), notificationRelatedUrl, notificationMessage, commentId);
+        }
+
         return new DeleteCommentResponse(comment.getId());
     }
 
     @Transactional
     public boolean toggleCommentLike(final Member member, final Long dailyLifeId, final Long commentId) {
-        DailyLife dailyLife = getDailyLife(dailyLifeId);
+        getDailyLife(dailyLifeId);
         final DailyLifeComment comment = getComment(commentId);
 
         Optional<DailyLifeCommentLike> dailyLifeCommentLike =
             dailyLifeCommentLikeReader.findByMemberAndDailyLifeComment(member, comment);
 
-        String notificationRelatedUrl = "/v1/api/daily-lives/" + dailyLife.getId();
+        String notificationRelatedUrl = getRelatedUrl(dailyLifeId);
         String notificationMessage;
         if (Objects.isNull(comment.getParent())) {
             notificationMessage = member.getNickname() + "님이 내 댓글에 좋아요를 눌렀어요.";
@@ -255,6 +273,10 @@ public class DailyLifeService {
                 notificationService.sendCommentLikeNotification(comment.getMember(), notificationRelatedUrl, notificationMessage);
                 return true;
             });
+    }
+
+    private static String getRelatedUrl(Long dailyLifeId) {
+        return "/v1/api/daily-lives/" + dailyLifeId;
     }
 
     private static void validateCommentWriter(final Member member, final DailyLifeComment comment) {

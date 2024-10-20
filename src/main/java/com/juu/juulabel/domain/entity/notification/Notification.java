@@ -21,6 +21,9 @@ public class Notification extends BaseCreatedTimeEntity {
     @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '알림 고유 번호'")
     private Long id;
 
+    @Column(name = "comment_id", columnDefinition = "BIGINT UNSIGNED comment '댓글 고유 번호'")
+    private Long commentId;
+
     @Column(name = "content", nullable = false, columnDefinition = "varchar(100) comment '내용'")
     private String content;
 
@@ -40,6 +43,21 @@ public class Notification extends BaseCreatedTimeEntity {
 
     public static Notification create(Member receiver, NotificationType notificationType, String content, String relatedUrl) {
         return Notification.builder()
+            .receiver(receiver)
+            .notificationType(notificationType)
+            .content(content)
+            .relatedUrl(relatedUrl)
+            .isRead(false)
+            .build();
+    }
+
+    public static Notification createWithCommentId(Member receiver,
+                                                   NotificationType notificationType,
+                                                   String content,
+                                                   String relatedUrl,
+                                                   Long commentId) {
+        return Notification.builder()
+            .commentId(commentId)
             .receiver(receiver)
             .notificationType(notificationType)
             .content(content)
