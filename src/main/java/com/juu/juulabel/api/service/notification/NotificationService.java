@@ -146,6 +146,18 @@ public class NotificationService {
         emitterRepository.deleteEventCache(author.getId() + "_" + relatedUrl);
     }
 
+    @Transactional
+    public void sendCommentLikeNotification(Member author, String relatedUrl, String message) {
+        NotificationType type = NotificationType.COMMENT_LIKE;
+        send(author, type, message, relatedUrl);
+    }
+
+    @Transactional
+    public void deleteCommentLikeNotification(Member author, String relatedUrl, String message) {
+        notificationWriter.deleteByReceiverAndContentAndRelatedUrl(author, message, relatedUrl);
+        emitterRepository.deleteEventCache(author.getId() + "_" + relatedUrl);
+    }
+
     @Transactional(readOnly = true)
     public NotificationListResponse getNotifications(Member member, NotificationListRequest request) {
         Slice<NotificationSummary> notificationList =
