@@ -135,4 +135,9 @@ public class NotificationService {
             notificationReader.getAllByMemberId(member.getId(), request.lastNotificationId(), request.pageSize());
         return new NotificationListResponse(notificationList);
     }
+
+    @Transactional
+    public void setNotificationsAsRead(Member member, Long notificationId) {
+        notificationReader.setNotificationsAsRead(member, notificationId);
+    }
 }

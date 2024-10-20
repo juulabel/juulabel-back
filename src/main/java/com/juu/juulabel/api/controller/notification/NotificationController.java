@@ -66,4 +66,17 @@ public class NotificationController {
         return CommonResponse.success(SuccessCode.SUCCESS, notificationService.getNotifications(loginMember, request));
     }
 
+    @Operation(
+        summary = "알림 읽음 처리",
+        description = "사용자가 클릭한 알림을 읽음 처리 합니다."
+    )
+    @PostMapping("/{notificationId}/read")
+    public ResponseEntity<CommonResponse<Void>> setNotificationAsRead(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long notificationId
+    ) {
+        notificationService.setNotificationsAsRead(loginMember, notificationId);
+        return CommonResponse.success(SuccessCode.SUCCESS);
+    }
+
 }
