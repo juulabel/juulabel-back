@@ -2,6 +2,8 @@ package com.juu.juulabel.api.controller.notification;
 
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.CreateNotificationRequest;
+import com.juu.juulabel.api.dto.request.NotificationListRequest;
+import com.juu.juulabel.api.dto.response.NotificationListResponse;
 import com.juu.juulabel.api.service.notification.NotificationService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -50,6 +52,18 @@ public class NotificationController {
     ) {
         notificationService.sendNotificationToAllUsers(loginMember, request);
         return CommonResponse.success(SuccessCode.SUCCESS);
+    }
+
+    @Operation(
+        summary = "알림 목록 조회",
+        description = "사용자의 모든 알림 메시지를 조회합니다."
+    )
+    @GetMapping()
+    public ResponseEntity<CommonResponse<NotificationListResponse>> getNotifications(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid NotificationListRequest request
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, notificationService.getNotifications(loginMember, request));
     }
 
 }
