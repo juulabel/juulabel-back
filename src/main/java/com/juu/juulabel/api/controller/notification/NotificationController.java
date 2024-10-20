@@ -104,4 +104,16 @@ public class NotificationController {
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }
 
+    @Operation(
+        summary = "모든 알림 삭제",
+        description = "사용자의 모든 알림을 삭제합니다."
+    )
+    @DeleteMapping("delete-all")
+    public ResponseEntity<CommonResponse<Void>> deleteAllNotifications(
+        @Parameter(hidden = true) @LoginMember Member loginMember
+    ) {
+        notificationService.deleteAllNotifications(loginMember);
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
+    }
+
 }

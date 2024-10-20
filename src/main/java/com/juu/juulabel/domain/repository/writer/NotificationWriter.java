@@ -21,4 +21,8 @@ public class NotificationWriter {
     public void deleteNotification(Member member, Long notificationId) {
         notificationQueryRepository.deleteNotification(member, notificationId);
     }
+
+    public void deleteAllByMember(Member member) {
+        notificationQueryRepository.deleteAllByMember(member);
+    }
 }

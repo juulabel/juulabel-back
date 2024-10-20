@@ -130,6 +130,7 @@ public class NotificationService {
         );
     }
 
+    @Transactional(readOnly = true)
     public NotificationListResponse getNotifications(Member member, NotificationListRequest request) {
         Slice<NotificationSummary> notificationList =
             notificationReader.getAllByMemberId(member.getId(), request.lastNotificationId(), request.pageSize());
@@ -149,5 +150,10 @@ public class NotificationService {
     @Transactional
     public void deleteNotification(Member member, Long notificationId) {
         notificationWriter.deleteNotification(member, notificationId);
+    }
+
+    @Transactional
+    public void deleteAllNotifications(Member member) {
+        notificationWriter.deleteAllByMember(member);
     }
 }
