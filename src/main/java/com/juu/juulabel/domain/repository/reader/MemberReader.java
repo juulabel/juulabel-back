@@ -9,6 +9,8 @@ import com.juu.juulabel.domain.repository.jpa.MemberJpaRepository;
 import com.juu.juulabel.domain.repository.query.MemberQueryRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Reader
 @RequiredArgsConstructor
 public class MemberReader {
@@ -38,4 +40,7 @@ public class MemberReader {
         return memberQueryRepository.existActiveNickname(nickname);
     }
 
+    public List<Member> getActiveMembers() {
+        return memberQueryRepository.getActiveMembers();
+    }
 }

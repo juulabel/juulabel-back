@@ -37,4 +37,14 @@ public class Notification extends BaseCreatedTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '회원 고유 번호'")
     private Member receiver;
+
+    public static Notification create(Member receiver, NotificationType notificationType, String content, String relatedUrl) {
+        return Notification.builder()
+            .receiver(receiver)
+            .notificationType(notificationType)
+            .content(content)
+            .relatedUrl(relatedUrl)
+            .isRead(false)
+            .build();
+    }
 }

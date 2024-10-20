@@ -1,17 +1,19 @@
 package com.juu.juulabel.api.controller.notification;
 
 import com.juu.juulabel.api.annotation.LoginMember;
+import com.juu.juulabel.api.dto.request.CreateNotificationRequest;
 import com.juu.juulabel.api.service.notification.NotificationService;
+import com.juu.juulabel.common.exception.code.SuccessCode;
+import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.domain.entity.member.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Tag(
@@ -35,6 +37,19 @@ public class NotificationController {
         @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId
     ) {
         return notificationService.subscribe(loginMember, lastEventId);
+    }
+
+    @Operation(
+        summary = "전체 사용자 알림 전송",
+        description = "관리자가 모든 사용자에게 알림 메시지를 전송합니다."
+    )
+    @PostMapping("/users")
+    public ResponseEntity<CommonResponse<Void>> sendToAllUsers(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @RequestBody @Valid CreateNotificationRequest request
+    ) {
+        notificationService.sendNotificationToAllUsers(loginMember, request);
+        return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
 }

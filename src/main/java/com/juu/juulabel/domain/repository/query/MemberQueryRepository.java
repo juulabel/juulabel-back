@@ -1,10 +1,13 @@
 package com.juu.juulabel.domain.repository.query;
 
+import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.member.QMember;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,6 +37,15 @@ public class MemberQueryRepository {
                 isNotWithdrawal(member)
             )
             .fetchFirst() != null;
+    }
+
+    public List<Member> getActiveMembers() {
+        return jpaQueryFactory
+            .selectFrom(member)
+            .where(
+                isNotWithdrawal(member)
+            )
+            .fetch();
     }
 
     private BooleanExpression eqEmail(QMember member, String email) {
