@@ -1,6 +1,9 @@
 package com.juu.juulabel.domain.repository.query;
 
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.notification.NotificationSummary;
+import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.notification.QNotification;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -50,6 +53,21 @@ public class NotificationQueryRepository {
         }
 
         return new SliceImpl<>(notificationSummaryList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
+    public void setNotificationsAsRead(Member member, Long notificationId) {
+        long updatedCount = jpaQueryFactory
+            .update(notification)
+            .set(notification.isRead, true)
+            .where(
+                notification.id.eq(notificationId),
+                notification.receiver.id.eq(member.getId())
+            )
+            .execute();
+
+        if (updatedCount == 0) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
+        }
     }
 
     private BooleanExpression noOffsetByNotificationId(QNotification notification, Long lastNotificationId) {

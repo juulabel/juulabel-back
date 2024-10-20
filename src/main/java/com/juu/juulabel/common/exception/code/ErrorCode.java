@@ -87,6 +87,11 @@ public enum ErrorCode {
     NOT_FOUND_BREWERY(HttpStatus.BAD_REQUEST, "양조장을 찾을 수 없습니다."),
 
     /**
+     * Notification
+     */
+    NOT_FOUND_NOTIFICATION(HttpStatus.BAD_REQUEST, "해당 알림이 존재하지 않거나, 권한이 없습니다."),
+
+    /**
      * Category
      */
     NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),
