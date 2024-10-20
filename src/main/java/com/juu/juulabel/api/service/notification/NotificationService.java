@@ -145,4 +145,9 @@ public class NotificationService {
     public void setAllNotificationsAsRead(Member member) {
         notificationReader.setAllNotificationsAsRead(member);
     }
+
+    @Transactional
+    public void deleteNotifications(Member member, List<Long> notificationIds) {
+        notificationWriter.deleteNotifications(member, notificationIds);
+    }
 }
