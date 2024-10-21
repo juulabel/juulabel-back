@@ -127,6 +127,18 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(tastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public long getMyTastingNoteCount(Member member) {
+        Long tastingNoteCount = jpaQueryFactory
+            .select(tastingNote.count())
+            .from(tastingNote)
+            .where(
+                tastingNote.member.eq(member)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(tastingNoteCount)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
+    }
 
     private OrderSpecifier<String> alcoholicDrinksNameAsc(QAlcoholicDrinks alcoholicDrinks) {
         return alcoholicDrinks.name.asc();

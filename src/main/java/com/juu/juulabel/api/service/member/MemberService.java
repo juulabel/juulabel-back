@@ -59,6 +59,7 @@ public class MemberService {
     private final AlcoholicDrinksReader alcoholicDrinksReader;
     private final MemberAlcoholicDrinksReader memberAlcoholicDrinksReader;
     private final MemberAlcoholicDrinksWriter memberAlcoholicDrinksWriter;
+    private final TastingNoteReader tastingNoteReader;
 
 
     @Transactional
@@ -232,11 +233,16 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MySpaceResponse getMySpace(Member member) {
+        long tastingNoteCount = tastingNoteReader.getMyTastingNoteCount(member);
+        long dailyLifeCount = dailyLifeReader.getMyDailyLifeCount(member);
         return new MySpaceResponse(
-                member.getProfileImage(),
-                member.getNickname(),
-                member.getIntroduction()
-                );
+            member.getProfileImage(),
+            member.getNickname(),
+            member.getIntroduction(),
+            tastingNoteCount,
+            dailyLifeCount,
+            0 // TODO : 시음노트 저장 기능 추가 시 수정 필요
+        );
     }
 
     @Transactional(readOnly = true)

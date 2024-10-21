@@ -47,4 +47,8 @@ public class DailyLifeReader {
                                                             int pageSize) {
         return dailyLifeQueryRepository.getAllDailyLivesByMember(loginMember, memberId, lastDailyLifeId, pageSize);
     }
+
+    public long getMyDailyLifeCount(Member member) {
+        return dailyLifeQueryRepository.getMyDailyLifeCount(member);
+    }
 }

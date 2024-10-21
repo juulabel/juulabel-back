@@ -52,4 +52,8 @@ public class TastingNoteReader {
         return tastingNoteJpaRepository.findByIdAndDeletedAtIsNull(tastingNoteId)
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
     }
+
+    public long getMyTastingNoteCount(Member member) {
+        return tastingNoteQueryRepository.getMyTastingNoteCount(member);
+    }
 }
