@@ -92,4 +92,8 @@ public class AlcoholicDrinksReader {
     public List<AlcoholicBrewerySummary> getAllByBreweryId(Long breweryId) {
         return breweryQueryRepository.getBreweryDetailById(breweryId);
     }
+
+    public List<String> getRelatedSearch(String keyword){
+        return alcoholicDrinksQueryRepository.getRelatedSearchByKeyword(keyword);
+    }
 }

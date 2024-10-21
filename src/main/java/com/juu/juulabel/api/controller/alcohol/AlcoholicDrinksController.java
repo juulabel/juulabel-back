@@ -5,6 +5,7 @@ import com.juu.juulabel.api.dto.request.CategorySearchAlcoholRequest;
 import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
 import com.juu.juulabel.api.dto.response.BreweryDetailResponse;
+import com.juu.juulabel.api.dto.response.RelationSearchResponse;
 import com.juu.juulabel.api.service.alcohol.AlcoholicDrinksService;
 import com.juu.juulabel.api.service.alcohol.BreweryService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
@@ -16,10 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(
         name = "전통주 API",
@@ -70,6 +68,16 @@ public class AlcoholicDrinksController {
             @PathVariable Long breweryId
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, breweryService.loadBreweryDetail(breweryId));
+    }
+
+    @Operation(
+            summary = "연관 검색어 조회"
+    )
+    @GetMapping("/related-search")
+    public ResponseEntity<CommonResponse<RelationSearchResponse>> loadRelatedSearch(
+            @RequestParam String keyword
+    ){
+        return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.loadRelatedSearch(keyword));
     }
 
 }
