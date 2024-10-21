@@ -1,18 +1,11 @@
 package com.juu.juulabel.domain.repository.query;
 
 import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
-import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
-import com.juu.juulabel.domain.enums.sort.SortType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.juu.juulabel.domain.dto.alcohol.AlcoholTypeSummary;
-import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
-import com.juu.juulabel.domain.dto.alcohol.BrewerySummary;
-import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
 import com.juu.juulabel.domain.entity.alcohol.QAlcoholType;
 import com.juu.juulabel.domain.entity.alcohol.QAlcoholicDrinks;
 import com.juu.juulabel.domain.entity.alcohol.QBrewery;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
+import com.juu.juulabel.domain.enums.sort.SortType;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -21,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.expression.spel.ast.Projection;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -72,9 +64,9 @@ public class AlcoholDrinksTypeQueryRepository {
     private OrderSpecifier<?> getOrderSpecifier(SortType sortType) {
         switch (sortType) {
             case PRICE_LOW:
-                return alcoholicDrinks.price.asc();  // 가격 낮은 순
+                return alcoholicDrinks.discountPrice.asc();  // 가격 낮은 순
             case PRICE_HIGH:
-                return alcoholicDrinks.price.desc();  // 가격 높은 순
+                return alcoholicDrinks.discountPrice.desc();  // 가격 높은 순
             case RATING_HIGH:// 평균 평점 높은 순
                 return alcoholicDrinks.rating.desc();
             case TASTING_NOTE_COUNT_HIGH: // 시음노트 갯수 많은 순

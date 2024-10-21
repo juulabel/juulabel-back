@@ -3,8 +3,6 @@ package com.juu.juulabel.domain.dto.alcohol;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.util.List;
-
 @Schema(description = "전통주 상세 정보")
 public record AlcoholicDrinksDetailInfo(
         @Schema(description = "전통주 고유 번호")
@@ -16,9 +14,11 @@ public record AlcoholicDrinksDetailInfo(
         @Schema(description = "전통주 도수")
         Double alcoholContent,
         @Schema(description = "전통주 용량")
-        Double alcoholicVolume,
-        @Schema(description = "전통주 가격")
-        Double alcoholicPrice,
+        int alcoholicVolume,
+        @Schema(description = "전통주 할인가")
+        int discountPrice,
+        @Schema(description = "전통주 정가")
+        int regularPrice,
         @Schema(description = "평균 달점")
         Double rating,
         @Schema(description = "평균 시음노트 총 개수")
