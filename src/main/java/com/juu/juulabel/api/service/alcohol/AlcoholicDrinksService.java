@@ -3,6 +3,7 @@ package com.juu.juulabel.api.service.alcohol;
 import com.juu.juulabel.api.dto.request.CategorySearchAlcoholRequest;
 import com.juu.juulabel.api.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.api.dto.response.AlcoholicDrinksDetailResponse;
+import com.juu.juulabel.api.dto.response.RelationSearchResponse;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetailInfo;
 import com.juu.juulabel.domain.dto.alcohol.IngredientSummary;
@@ -63,6 +64,12 @@ public class AlcoholicDrinksService {
                 totalCount,
                 alcoholicDrinks
         );
+    }
+
+    @Transactional
+    public RelationSearchResponse loadRelatedSearch(final String keyword) {
+        List<String> relatedSearch = alcoholDrinksReader.getRelatedSearch(keyword);
+        return new RelationSearchResponse(relatedSearch);
     }
 
 }

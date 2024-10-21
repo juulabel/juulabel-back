@@ -85,6 +85,16 @@ public class AlcoholicDrinksQueryRepository {
         return new SliceImpl<>(myAlcoholicDrinksList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public List<String> getRelatedSearchByKeyword(String keyword) {
+        return jpaQueryFactory
+                .select(alcoholicDrinks.name.concat(" ")
+                    .concat(alcoholicDrinks.volume.stringValue())
+                    .concat("ml"))
+                .from(alcoholicDrinks)
+                .where(alcoholicDrinks.name.contains(keyword), isNotDeleted(alcoholicDrinks))
+                .fetch();
+    }
+
     private BooleanExpression noOffsetByAlcoholicDrinksId(QAlcoholicDrinks alcoholicDrinks, Long lastAlcoholicDrinksId) {
         return Objects.isEmpty(lastAlcoholicDrinksId) ? null : alcoholicDrinks.id.lt(lastAlcoholicDrinksId);
     }
