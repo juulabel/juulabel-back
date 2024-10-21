@@ -8,6 +8,7 @@ import com.juu.juulabel.domain.entity.dailylife.like.QDailyLifeCommentLike;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.jsonwebtoken.lang.Objects;
@@ -50,7 +51,10 @@ public class DailyLifeCommentQueryRepository {
                             reply.parent.id.eq(dailyLifeComment.id),
                             isNotDeleted(reply)
                         ),
-                    isLikedSubQuery(dailyLifeComment, member, dailyLifeCommentLike)
+                    isLikedSubQuery(dailyLifeComment, member, dailyLifeCommentLike),
+                    new CaseBuilder()
+                        .when(dailyLifeComment.deletedAt.isNotNull()).then(true)
+                        .otherwise(false)
                 )
             )
             .from(dailyLifeComment)
@@ -58,7 +62,6 @@ public class DailyLifeCommentQueryRepository {
             .where(
                 dailyLifeComment.dailyLife.id.eq(dailyLifeId),
                 isNotReply(dailyLifeComment),
-                isNotDeleted(dailyLifeComment),
                 noOffsetByCommentId(dailyLifeComment, lastCommentId)
             )
             .groupBy(dailyLifeComment.id)
@@ -89,7 +92,10 @@ public class DailyLifeCommentQueryRepository {
                     ),
                     dailyLifeComment.createdAt,
                     dailyLifeCommentLike.count().as("likeCount"),
-                    isLikedSubQuery(dailyLifeComment, member, dailyLifeCommentLike)
+                    isLikedSubQuery(dailyLifeComment, member, dailyLifeCommentLike),
+                    new CaseBuilder()
+                        .when(dailyLifeComment.deletedAt.isNotNull()).then(true)
+                        .otherwise(false)
                 )
             )
             .from(dailyLifeComment)
@@ -97,7 +103,6 @@ public class DailyLifeCommentQueryRepository {
             .where(
                 dailyLifeComment.dailyLife.id.eq(dailyLifeId),
                 dailyLifeComment.parent.id.eq(dailyLifeCommentId),
-                isNotDeleted(dailyLifeComment),
                 noOffsetByCommentId(dailyLifeComment, lastReplyId)
             )
             .groupBy(dailyLifeComment.id)

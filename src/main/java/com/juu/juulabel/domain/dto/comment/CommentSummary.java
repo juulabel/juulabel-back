@@ -13,6 +13,7 @@ public record CommentSummary(
     LocalDateTime createdAt,
     long likeCount,
     long replyCount,
-    boolean isLiked
+    boolean isLiked,
+    boolean isDeleted
 ) {
 }

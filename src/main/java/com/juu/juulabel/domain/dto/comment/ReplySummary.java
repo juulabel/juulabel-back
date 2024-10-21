@@ -12,6 +12,7 @@ public record ReplySummary(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "Asia/Seoul")
     LocalDateTime createdAt,
     long likeCount,
-    boolean isLiked
+    boolean isLiked,
+    boolean isDeleted
 ) {
 }
