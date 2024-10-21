@@ -10,10 +10,8 @@ import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.QMember;
 import com.juu.juulabel.domain.entity.tastingnote.*;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -27,7 +25,6 @@ import java.util.Optional;
 public class AlcoholDrinksDetailQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
-    private final TermsService termsService;
 
     QAlcoholicDrinks alcoholicDrinks = QAlcoholicDrinks.alcoholicDrinks;
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
@@ -42,7 +39,6 @@ public class AlcoholDrinksDetailQueryRepository {
     QSensoryLevel sensoryLevel = QSensoryLevel.sensoryLevel;
     QSensory sensory = QSensory.sensory;
     QMember member = QMember.member;
-    QIngredient ingredient = QIngredient.ingredient;
     QAlcoholicDrinksIngredient alcoholicDrinksIngredient = QAlcoholicDrinksIngredient.alcoholicDrinksIngredient;
 
     public AlcoholicDrinksDetailInfo findAlcoholDrinksDetailById(Long alcoholDrinksId) {
@@ -56,7 +52,8 @@ public class AlcoholDrinksDetailQueryRepository {
                                 alcoholicDrinks.image,
                                 alcoholicDrinks.alcoholContent,
                                 alcoholicDrinks.volume,
-                                alcoholicDrinks.price,
+                                alcoholicDrinks.discountPrice,
+                                alcoholicDrinks.regularPrice,
                                 alcoholicDrinks.rating,
                                 alcoholicDrinks.tastingNoteCount,
                                 Projections.constructor(
