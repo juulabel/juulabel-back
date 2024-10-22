@@ -19,7 +19,7 @@ public class MemberReader {
     private final MemberQueryRepository memberQueryRepository;
 
     public Member getById(final Long id) {
-        return memberJpaRepository.findById(id)
+        return memberJpaRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
     }
 

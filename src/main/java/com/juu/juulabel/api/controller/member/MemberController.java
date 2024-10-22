@@ -105,6 +105,15 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMyInfo(loginMember));
     }
 
+    @Operation(summary = "타 유저 프로필 조회")
+    @GetMapping("/{memberId}/profile")
+    public ResponseEntity<CommonResponse<MemberProfileResponse>> getMemberProfile(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long memberId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMemberProfile(loginMember, memberId));
+    }
+
     @Operation(summary = "특정 회원이 작성한 일상생활 목록 조회")
     @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 일상생활 목록 조회 요청", required = true))
     @GetMapping("/{memberId}/daily-lives")
