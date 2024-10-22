@@ -4,6 +4,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.annotation.Reader;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
+import com.juu.juulabel.domain.dto.tastingnote.MyTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -59,5 +60,9 @@ public class TastingNoteReader {
 
     public long getTastingNoteCountByMemberId(Long memberId) {
         return tastingNoteQueryRepository.getTastingNoteCountByMemberId(memberId);
+    }
+
+    public Slice<MyTastingNoteSummary> getAllMyTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
+        return tastingNoteQueryRepository.getAllMyTastingNotes(member, lastTastingNoteId, pageSize);
     }
 }

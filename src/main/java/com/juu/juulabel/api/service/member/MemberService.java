@@ -15,6 +15,7 @@ import com.juu.juulabel.domain.dto.member.OAuthLoginInfo;
 import com.juu.juulabel.domain.dto.member.OAuthUser;
 import com.juu.juulabel.domain.dto.member.OAuthUserInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
+import com.juu.juulabel.domain.dto.tastingnote.MyTastingNoteSummary;
 import com.juu.juulabel.domain.dto.terms.TermsAgreement;
 import com.juu.juulabel.domain.dto.token.Token;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
@@ -203,6 +204,14 @@ public class MemberService {
             dailyLifeReader.getAllMyDailyLives(member, request.lastDailyLifeId(), request.pageSize());
 
         return new MyDailyLifeListResponse(myDailyLifeList);
+    }
+
+    @Transactional(readOnly = true)
+    public MyTastingNoteListResponse loadMyTastingNoteList(Member member, TastingNoteListRequest request) {
+        Slice<MyTastingNoteSummary> myTastingNoteList =
+            tastingNoteReader.getAllMyTastingNotes(member, request.lastTastingNoteId(), request.pageSize());
+
+        return new MyTastingNoteListResponse(myTastingNoteList);
     }
 
     @Transactional
