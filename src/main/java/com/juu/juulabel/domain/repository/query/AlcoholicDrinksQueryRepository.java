@@ -88,8 +88,7 @@ public class AlcoholicDrinksQueryRepository {
     public List<String> getRelatedSearchByKeyword(String keyword) {
         return jpaQueryFactory
                 .select(alcoholicDrinks.name.concat(" ")
-                    .concat(alcoholicDrinks.volume.stringValue())
-                    .concat("ml"))
+                        .concat(alcoholicDrinks.volume.stringValue()))
                 .from(alcoholicDrinks)
                 .where(alcoholicDrinks.name.contains(keyword), isNotDeleted(alcoholicDrinks))
                 .fetch();
