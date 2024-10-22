@@ -15,6 +15,8 @@ import com.juu.juulabel.domain.dto.member.OAuthLoginInfo;
 import com.juu.juulabel.domain.dto.member.OAuthUser;
 import com.juu.juulabel.domain.dto.member.OAuthUserInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
+import com.juu.juulabel.domain.dto.tastingnote.MyTastingNoteSummary;
+import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.dto.terms.TermsAgreement;
 import com.juu.juulabel.domain.dto.token.Token;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
@@ -59,6 +61,7 @@ public class MemberService {
     private final AlcoholicDrinksReader alcoholicDrinksReader;
     private final MemberAlcoholicDrinksReader memberAlcoholicDrinksReader;
     private final MemberAlcoholicDrinksWriter memberAlcoholicDrinksWriter;
+    private final TastingNoteReader tastingNoteReader;
 
 
     @Transactional
@@ -204,6 +207,14 @@ public class MemberService {
         return new MyDailyLifeListResponse(myDailyLifeList);
     }
 
+    @Transactional(readOnly = true)
+    public MyTastingNoteListResponse loadMyTastingNoteList(Member member, TastingNoteListRequest request) {
+        Slice<MyTastingNoteSummary> myTastingNoteList =
+            tastingNoteReader.getAllMyTastingNotes(member, request.lastTastingNoteId(), request.pageSize());
+
+        return new MyTastingNoteListResponse(myTastingNoteList);
+    }
+
     @Transactional
     public boolean saveAlcoholicDrinks(Member member, Long alcoholicDrinksId) {
         AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getById(alcoholicDrinksId);
@@ -232,11 +243,16 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MySpaceResponse getMySpace(Member member) {
+        long tastingNoteCount = tastingNoteReader.getMyTastingNoteCount(member);
+        long dailyLifeCount = dailyLifeReader.getMyDailyLifeCount(member);
         return new MySpaceResponse(
-                member.getProfileImage(),
-                member.getNickname(),
-                member.getIntroduction()
-                );
+            member.getProfileImage(),
+            member.getNickname(),
+            member.getIntroduction(),
+            tastingNoteCount,
+            dailyLifeCount,
+            0 // TODO : 시음노트 저장 기능 추가 시 수정 필요
+        );
     }
 
     @Transactional(readOnly = true)
@@ -259,6 +275,31 @@ public class MemberService {
             dailyLifeReader.getAllDailyLivesByMember(loginMember, memberId, request.lastDailyLifeId(), request.pageSize());
 
         return new DailyLifeListResponse(dailyLifeList);
+    }
+
+    @Transactional(readOnly = true)
+    public TastingNoteListResponse loadMemberTastingNoteList(Member loginMember, TastingNoteListRequest request, Long memberId) {
+        // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
+        Slice<TastingNoteSummary> tastingNoteList =
+            tastingNoteReader.getAllTastingNotesByMember(memberId, request.lastTastingNoteId(), request.pageSize());
+
+        return new TastingNoteListResponse(tastingNoteList);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberProfileResponse getMemberProfile(Member loginMember, Long memberId) {
+        // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
+        Member member = memberReader.getById(memberId);
+        long tastingNoteCount = tastingNoteReader.getTastingNoteCountByMemberId(memberId);
+        long dailyLifeCount = dailyLifeReader.getDailyLifeCountByMemberId(memberId);
+        return new MemberProfileResponse(
+            member.getId(),
+            member.getNickname(),
+            member.getProfileImage(),
+            member.getIntroduction(),
+            tastingNoteCount,
+            dailyLifeCount
+        );
     }
 
     private void validateNickname(String nickname) {

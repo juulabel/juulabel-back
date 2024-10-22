@@ -4,6 +4,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.annotation.Reader;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
+import com.juu.juulabel.domain.dto.tastingnote.MyTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -51,5 +52,21 @@ public class TastingNoteReader {
     public TastingNote getById(Long tastingNoteId) {
         return tastingNoteJpaRepository.findByIdAndDeletedAtIsNull(tastingNoteId)
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
+    }
+
+    public long getMyTastingNoteCount(Member member) {
+        return tastingNoteQueryRepository.getMyTastingNoteCount(member);
+    }
+
+    public long getTastingNoteCountByMemberId(Long memberId) {
+        return tastingNoteQueryRepository.getTastingNoteCountByMemberId(memberId);
+    }
+
+    public Slice<MyTastingNoteSummary> getAllMyTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
+        return tastingNoteQueryRepository.getAllMyTastingNotes(member, lastTastingNoteId, pageSize);
+    }
+
+    public Slice<TastingNoteSummary> getAllTastingNotesByMember(Long memberId, Long lastTastingNoteId, int pageSize) {
+        return tastingNoteQueryRepository.getAllTastingNotesByMember(memberId, lastTastingNoteId, pageSize);
     }
 }

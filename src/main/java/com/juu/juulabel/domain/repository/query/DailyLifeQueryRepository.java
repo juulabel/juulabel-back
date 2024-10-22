@@ -211,6 +211,35 @@ public class DailyLifeQueryRepository {
         return new SliceImpl<>(dailyLifeSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public long getMyDailyLifeCount(Member member) {
+        Long dailyLifeCount = jpaQueryFactory
+            .select(dailyLife.count())
+            .from(dailyLife)
+            .where(
+                dailyLife.member.eq(member),
+                isNotDeleted(dailyLife)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(dailyLifeCount)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_DAILY_LIFE));
+    }
+
+    public long getDailyLifeCountByMemberId(Long memberId) {
+        Long dailyLifeCount = jpaQueryFactory
+            .select(dailyLife.count())
+            .from(dailyLife)
+            .where(
+                dailyLife.member.id.eq(memberId),
+                isNotDeleted(dailyLife),
+                isNotPrivate(dailyLife)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(dailyLifeCount)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_DAILY_LIFE));
+    }
+
     private BooleanExpression noOffsetByDailyLifeId(QDailyLife dailyLife, Long lastDailyLifeId) {
         return Objects.isEmpty(lastDailyLifeId) ? null : dailyLife.id.lt(lastDailyLifeId);
     }

@@ -73,7 +73,17 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyDailyLifeList(loginMember, request));
     }
 
-    @Operation(summary = "전통주 저장")
+    @Operation(summary = "내가 작성한 시음노트 목록 조회")
+    @Parameters(@Parameter(name = "request", description = "내가 작성한 시음노트 목록 조회 요청", required = true))
+    @GetMapping("/tasting_notes/my")
+    public ResponseEntity<CommonResponse<MyTastingNoteListResponse>> loadMyTastingNoteList(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid TastingNoteListRequest request
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyTastingNoteList(loginMember, request));
+    }
+
+    @Operation(hidden = true, summary = "전통주 저장")
     @PostMapping("/{alcoholicDrinksId}/save")
     public ResponseEntity<CommonResponse<Void>> saveAlcoholicDrinks(
         @Parameter(hidden = true) @LoginMember Member loginMember,
@@ -83,7 +93,7 @@ public class MemberController {
         return CommonResponse.success(isSaved ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
     }
 
-    @Operation(summary = "내가 저장한 전통주 목록 조회")
+    @Operation(hidden = true, summary = "내가 저장한 전통주 목록 조회")
     @Parameters(@Parameter(name = "request", description = "내가 저장한 전통주 목록 조회 요청", required = true))
     @GetMapping("/alcoholic-drinks/my")
     public ResponseEntity<CommonResponse<MyAlcoholicDrinksListResponse>> loadMyAlcoholicDrinks(
@@ -103,6 +113,26 @@ public class MemberController {
     @GetMapping("/my-info")
     public ResponseEntity<CommonResponse<MyInfoResponse>> getMyInfo(@Parameter(hidden = true) @LoginMember Member loginMember) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMyInfo(loginMember));
+    }
+
+    @Operation(summary = "타 유저 프로필 조회")
+    @GetMapping("/{memberId}/profile")
+    public ResponseEntity<CommonResponse<MemberProfileResponse>> getMemberProfile(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @PathVariable Long memberId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMemberProfile(loginMember, memberId));
+    }
+
+    @Operation(summary = "특정 회원이 작성한 시음노트 목록 조회")
+    @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 시음노트 목록 조회 요청", required = true))
+    @GetMapping("/{memberId}/tasting_notes")
+    public ResponseEntity<CommonResponse<TastingNoteListResponse>> loadMemberTastingNoteList(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid TastingNoteListRequest request,
+        @PathVariable Long memberId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMemberTastingNoteList(loginMember, request, memberId));
     }
 
     @Operation(summary = "특정 회원이 작성한 일상생활 목록 조회")

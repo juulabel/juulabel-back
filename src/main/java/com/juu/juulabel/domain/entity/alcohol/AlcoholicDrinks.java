@@ -43,17 +43,17 @@ public class AlcoholicDrinks extends BaseTimeEntity {
     @Column(name = "alcohol_content", columnDefinition = "decimal(4,2) comment '알코올 도수'")
     private Double alcoholContent;
 
-    @Column(name = "volume", columnDefinition = "decimal(10,2) comment '용량'")
-    private double volume;
+    @Column(name = "volume", columnDefinition = "int comment '용량'")
+    private int volume;
 
-    @Column(name = "price", columnDefinition = "DECIMAL(12,2) comment '가격'")
-    private double price;
+    @Column(name = "discount_price", columnDefinition = "int comment '할인가'")
+    private int discountPrice;
+
+    @Column(name = "regular_price", columnDefinition = "int comment '정가'")
+    private int regularPrice;
 
     @Column(name = "image", columnDefinition = "varchar(255) comment '이미지'")
     private String image;
-
-    @Column(name = "ingredients", columnDefinition = "text comment '원재료'")
-    private String ingredients;
 
     @Column(name = "tasting_note_count", columnDefinition = "int comment '총 시음노트 개수'")
     private int tastingNoteCount;

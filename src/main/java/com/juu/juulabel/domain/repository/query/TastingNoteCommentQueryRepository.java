@@ -8,6 +8,7 @@ import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteComment;
 import com.juu.juulabel.domain.entity.tastingnote.QTastingNoteCommentLike;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.jsonwebtoken.lang.Objects;
@@ -50,7 +51,10 @@ public class TastingNoteCommentQueryRepository {
                             reply.parent.id.eq(tastingNoteComment.id),
                             isNotDeleted(reply)
                         ),
-                    isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike)
+                    isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike),
+                    new CaseBuilder()
+                        .when(tastingNoteComment.deletedAt.isNotNull()).then(true)
+                        .otherwise(false)
                 )
             )
             .from(tastingNoteComment)
@@ -58,7 +62,6 @@ public class TastingNoteCommentQueryRepository {
             .where(
                 tastingNoteComment.tastingNote.id.eq(tastingNoteId),
                 isNotReply(tastingNoteComment),
-                isNotDeleted(tastingNoteComment),
                 noOffsetByCommentId(tastingNoteComment, lastCommentId)
             )
             .groupBy(tastingNoteComment.id)
@@ -89,7 +92,10 @@ public class TastingNoteCommentQueryRepository {
                     ),
                     tastingNoteComment.createdAt,
                     tastingNoteCommentLike.count().as("likeCount"),
-                    isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike)
+                    isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike),
+                    new CaseBuilder()
+                        .when(tastingNoteComment.deletedAt.isNotNull()).then(true)
+                        .otherwise(false)
                 )
             )
             .from(tastingNoteComment)
@@ -97,7 +103,6 @@ public class TastingNoteCommentQueryRepository {
             .where(
                 tastingNoteComment.tastingNote.id.eq(tastingNoteId),
                 tastingNoteComment.parent.id.eq(tastingNoteCommentId),
-                isNotDeleted(tastingNoteComment),
                 noOffsetByCommentId(tastingNoteComment, lastReplyId)
             )
             .groupBy(tastingNoteComment.id)

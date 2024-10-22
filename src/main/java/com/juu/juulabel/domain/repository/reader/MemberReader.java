@@ -9,6 +9,8 @@ import com.juu.juulabel.domain.repository.jpa.MemberJpaRepository;
 import com.juu.juulabel.domain.repository.query.MemberQueryRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Reader
 @RequiredArgsConstructor
 public class MemberReader {
@@ -17,7 +19,7 @@ public class MemberReader {
     private final MemberQueryRepository memberQueryRepository;
 
     public Member getById(final Long id) {
-        return memberJpaRepository.findById(id)
+        return memberJpaRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
     }
 
@@ -38,4 +40,7 @@ public class MemberReader {
         return memberQueryRepository.existActiveNickname(nickname);
     }
 
+    public List<Member> getActiveMembers() {
+        return memberQueryRepository.getActiveMembers();
+    }
 }

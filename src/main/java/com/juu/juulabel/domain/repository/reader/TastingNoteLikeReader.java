@@ -1,4 +1,4 @@
-package com.juu.juulabel.domain.repository;
+package com.juu.juulabel.domain.repository.reader;
 
 import com.juu.juulabel.domain.annotation.Reader;
 import com.juu.juulabel.domain.entity.member.Member;

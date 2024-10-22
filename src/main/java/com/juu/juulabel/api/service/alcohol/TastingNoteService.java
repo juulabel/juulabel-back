@@ -3,6 +3,7 @@ package com.juu.juulabel.api.service.alcohol;
 import com.juu.juulabel.api.dto.request.*;
 import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.factory.SliceResponseFactory;
+import com.juu.juulabel.api.service.notification.NotificationService;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
@@ -19,7 +20,7 @@ import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.tastingnote.*;
-import com.juu.juulabel.domain.repository.TastingNoteLikeReader;
+import com.juu.juulabel.domain.repository.reader.TastingNoteLikeReader;
 import com.juu.juulabel.domain.repository.reader.*;
 import com.juu.juulabel.domain.repository.writer.*;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,7 @@ public class TastingNoteService {
     private final TastingNoteCommentWriter tastingNoteCommentWriter;
     private final TastingNoteCommentLikeReader tastingNoteCommentLikeReader;
     private final TastingNoteCommentLikeWriter tastingNoteCommentLikeWriter;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
@@ -116,7 +118,9 @@ public class TastingNoteService {
         List<String> imageUrlList = new ArrayList<>();
         storeImageList(files, imageUrlList, tastingNote);
 
-        alcoholicDrinks.addRating(request.rating());
+        if (!Objects.isNull(alcoholicDrinks)) {
+            alcoholicDrinks.addRating(request.rating());
+        }
 
         return TastingNoteWriteResponse.fromEntity(result);
     }
@@ -268,7 +272,7 @@ public class TastingNoteService {
         List<String> imageUrlList = new ArrayList<>();
         storeImageList(files, imageUrlList, tastingNote);
 
-        if (rating != request.rating()) {
+        if (rating != request.rating() && !Objects.isNull(alcoholicDrinks)) {
             alcoholicDrinks.updateRating(rating, request.rating());
         }
 
@@ -301,15 +305,20 @@ public class TastingNoteService {
     public boolean toggleTastingNoteLike(Member member, Long tastingNoteId) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
         Optional<TastingNoteLike> tastingNoteLike = tastingNoteLikeReader.findByMemberAndTastingNote(member, tastingNote);
+        String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
 
         // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
         return tastingNoteLike
             .map(like -> {
                 tastingNoteLikeWriter.delete(like);
+
+                notificationService.deletePostLikeNotification(tastingNote.getMember(), member, notificationRelatedUrl);
                 return false;
             })
             .orElseGet(() -> {
                 tastingNoteLikeWriter.store(member, tastingNote);
+
+                notificationService.sendPostLikeNotification(tastingNote.getMember(), member, notificationRelatedUrl);
                 return true;
             });
     }
@@ -321,9 +330,18 @@ public class TastingNoteService {
         Long tastingNoteId
     ) {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
-
         TastingNoteComment tastingNoteComment = createCommentOrReply(request, member, tastingNote);
         TastingNoteComment comment = tastingNoteCommentWriter.store(tastingNoteComment);
+
+        String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
+        String notificationMessage;
+        if (Objects.isNull(request.parentCommentId())) {
+            notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
+            notificationService.sendCommentNotification(tastingNote.getMember(), notificationRelatedUrl, notificationMessage, comment.getId());
+        } else {
+            notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
+            notificationService.sendCommentNotification(comment.getMember(), notificationRelatedUrl, notificationMessage, comment.getId());
+        }
 
         return new WriteTastingNoteCommentResponse(
             comment.getContent(),
@@ -398,12 +416,21 @@ public class TastingNoteService {
 
     @Transactional
     public DeleteCommentResponse deleteComment(Member member, Long tastingNoteId, Long commentId) {
-        getTastingNote(tastingNoteId);
+        TastingNote tastingNote = getTastingNote(tastingNoteId);
         TastingNoteComment comment = getComment(commentId);
-
         validateCommentWriter(member, comment);
-
         comment.delete();
+
+        String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
+        String notificationMessage;
+        if (Objects.isNull(comment.getParent())) {
+            notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
+            notificationService.deleteCommentNotification(tastingNote.getMember(), notificationRelatedUrl, notificationMessage, commentId);
+        } else {
+            notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
+            notificationService.deleteCommentNotification(comment.getMember(), notificationRelatedUrl, notificationMessage, commentId);
+        }
+
         return new DeleteCommentResponse(comment.getId());
     }
 
@@ -415,15 +442,29 @@ public class TastingNoteService {
         Optional<TastingNoteCommentLike> tastingNoteCommentLike =
             tastingNoteCommentLikeReader.findByMemberAndTastingNoteComment(member, comment);
 
+        String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
+        String notificationMessage;
+        if (Objects.isNull(comment.getParent())) {
+            notificationMessage = member.getNickname() + "님이 내 댓글에 좋아요를 눌렀어요.";
+        } else {
+            notificationMessage = member.getNickname() + "님이 내 답글에 좋아요를 눌렀어요.";
+        }
+
         // 좋아요가 등록되어 있다면 삭제, 등록되어 있지 않다면 등록
         return tastingNoteCommentLike
             .map(like -> {
                 tastingNoteCommentLikeWriter.delete(like);
+                notificationService.deleteCommentLikeNotification(comment.getMember(), notificationRelatedUrl, notificationMessage);
                 return false;
             })
             .orElseGet(() -> {
                 tastingNoteCommentLikeWriter.store(member, comment);
+                notificationService.sendCommentLikeNotification(comment.getMember(), notificationRelatedUrl, notificationMessage);
                 return true;
             });
+    }
+
+    private static String getRelatedUrl(Long tastingNoteId) {
+        return "/v1/api/shared-space/tasting-notes/" + tastingNoteId;
     }
 }
