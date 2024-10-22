@@ -65,4 +65,8 @@ public class TastingNoteReader {
     public Slice<MyTastingNoteSummary> getAllMyTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
         return tastingNoteQueryRepository.getAllMyTastingNotes(member, lastTastingNoteId, pageSize);
     }
+
+    public Slice<TastingNoteSummary> getAllTastingNotesByMember(Long memberId, Long lastTastingNoteId, int pageSize) {
+        return tastingNoteQueryRepository.getAllTastingNotesByMember(memberId, lastTastingNoteId, pageSize);
+    }
 }
