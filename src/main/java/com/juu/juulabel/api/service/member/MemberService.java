@@ -267,6 +267,22 @@ public class MemberService {
         return new DailyLifeListResponse(dailyLifeList);
     }
 
+    @Transactional(readOnly = true)
+    public MemberProfileResponse getMemberProfile(Member loginMember, Long memberId) {
+        // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
+        Member member = memberReader.getById(memberId);
+        long tastingNoteCount = tastingNoteReader.getTastingNoteCountByMemberId(memberId);
+        long dailyLifeCount = dailyLifeReader.getDailyLifeCountByMemberId(memberId);
+        return new MemberProfileResponse(
+            member.getId(),
+            member.getNickname(),
+            member.getProfileImage(),
+            member.getIntroduction(),
+            tastingNoteCount,
+            dailyLifeCount
+        );
+    }
+
     private void validateNickname(String nickname) {
         if (memberReader.existActiveNickname(nickname)) {
             throw new InvalidParamException(ErrorCode.EXIST_NICKNAME);

@@ -51,4 +51,8 @@ public class DailyLifeReader {
     public long getMyDailyLifeCount(Member member) {
         return dailyLifeQueryRepository.getMyDailyLifeCount(member);
     }
+
+    public long getDailyLifeCountByMemberId(Long memberId) {
+        return dailyLifeQueryRepository.getDailyLifeCountByMemberId(memberId);
+    }
 }

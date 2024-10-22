@@ -132,7 +132,23 @@ public class TastingNoteQueryRepository {
             .select(tastingNote.count())
             .from(tastingNote)
             .where(
-                tastingNote.member.eq(member)
+                tastingNote.member.eq(member),
+                isNotDeleted(tastingNote)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(tastingNoteCount)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
+    }
+
+    public long getTastingNoteCountByMemberId(Long memberId) {
+        Long tastingNoteCount = jpaQueryFactory
+            .select(tastingNote.count())
+            .from(tastingNote)
+            .where(
+                tastingNote.member.id.eq(memberId),
+                isNotPrivate(tastingNote),
+                isNotDeleted(tastingNote)
             )
             .fetchOne();
 

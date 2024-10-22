@@ -56,4 +56,8 @@ public class TastingNoteReader {
     public long getMyTastingNoteCount(Member member) {
         return tastingNoteQueryRepository.getMyTastingNoteCount(member);
     }
+
+    public long getTastingNoteCountByMemberId(Long memberId) {
+        return tastingNoteQueryRepository.getTastingNoteCountByMemberId(memberId);
+    }
 }
