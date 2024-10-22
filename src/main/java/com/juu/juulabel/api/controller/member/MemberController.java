@@ -83,7 +83,7 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyTastingNoteList(loginMember, request));
     }
 
-    @Operation(summary = "전통주 저장")
+    @Operation(hidden = true, summary = "전통주 저장")
     @PostMapping("/{alcoholicDrinksId}/save")
     public ResponseEntity<CommonResponse<Void>> saveAlcoholicDrinks(
         @Parameter(hidden = true) @LoginMember Member loginMember,
@@ -93,7 +93,7 @@ public class MemberController {
         return CommonResponse.success(isSaved ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
     }
 
-    @Operation(summary = "내가 저장한 전통주 목록 조회")
+    @Operation(hidden = true, summary = "내가 저장한 전통주 목록 조회")
     @Parameters(@Parameter(name = "request", description = "내가 저장한 전통주 목록 조회 요청", required = true))
     @GetMapping("/alcoholic-drinks/my")
     public ResponseEntity<CommonResponse<MyAlcoholicDrinksListResponse>> loadMyAlcoholicDrinks(
