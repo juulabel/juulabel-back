@@ -124,6 +124,17 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMemberProfile(loginMember, memberId));
     }
 
+    @Operation(summary = "특정 회원이 작성한 시음노트 목록 조회")
+    @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 시음노트 목록 조회 요청", required = true))
+    @GetMapping("/{memberId}/tasting_notes")
+    public ResponseEntity<CommonResponse<TastingNoteListResponse>> loadMemberTastingNoteList(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid TastingNoteListRequest request,
+        @PathVariable Long memberId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMemberTastingNoteList(loginMember, request, memberId));
+    }
+
     @Operation(summary = "특정 회원이 작성한 일상생활 목록 조회")
     @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 일상생활 목록 조회 요청", required = true))
     @GetMapping("/{memberId}/daily-lives")
