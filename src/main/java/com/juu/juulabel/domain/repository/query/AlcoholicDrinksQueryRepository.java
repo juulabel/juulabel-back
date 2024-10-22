@@ -92,7 +92,7 @@ public class AlcoholicDrinksQueryRepository {
                 .from(alcoholicDrinks)
                 .where(alcoholicDrinks.name.contains(keyword), isNotDeleted(alcoholicDrinks))
                 .fetch();
-    }
+     }
 
     private BooleanExpression noOffsetByAlcoholicDrinksId(QAlcoholicDrinks alcoholicDrinks, Long lastAlcoholicDrinksId) {
         return Objects.isEmpty(lastAlcoholicDrinksId) ? null : alcoholicDrinks.id.lt(lastAlcoholicDrinksId);
