@@ -186,8 +186,13 @@ public class MemberService {
     @Transactional
     public UpdateProfileResponse updateProfile(Member loginMember, UpdateProfileRequest request, MultipartFile image) {
         Member member = memberReader.getByEmail(loginMember.getEmail());
-        UploadImageInfo uploadImageInfo = s3Service.uploadMemberProfileImage(image);
-        member.updateProfile(request, uploadImageInfo.ImageUrl());
+
+        String profileImageUrl = null;
+        if (image != null) {
+            UploadImageInfo uploadImageInfo = s3Service.uploadMemberProfileImage(image);
+            profileImageUrl = uploadImageInfo.ImageUrl();
+        }
+        member.updateProfile(request, profileImageUrl);
 
         memberAlcoholTypeWriter.deleteAllByMember(member);
 
