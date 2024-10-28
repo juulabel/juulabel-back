@@ -294,8 +294,10 @@ public class TastingNoteService {
         TastingNote tastingNote = getTastingNote(tastingNoteId);
         validateTastingNoteWriter(member, tastingNote);
 
-        AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getById(tastingNote.getAlcoholicDrinks().getId());
-        alcoholicDrinks.removeRating(tastingNote.getRating());
+        if (!Objects.isNull(tastingNote.getAlcoholicDrinks())) {
+            AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getById(tastingNote.getAlcoholicDrinks().getId());
+            alcoholicDrinks.removeRating(tastingNote.getRating());
+        }
 
         tastingNote.delete();
         return new DeleteTastingNoteResponse(tastingNote.getId());
