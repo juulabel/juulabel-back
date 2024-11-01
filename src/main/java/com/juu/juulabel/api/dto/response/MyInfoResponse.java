@@ -5,6 +5,7 @@ import com.juu.juulabel.domain.enums.member.Gender;
 import java.util.List;
 
 public record MyInfoResponse(
+    Long memberId,
     String nickname,
     String email,
     boolean isNotificationsAllowed,

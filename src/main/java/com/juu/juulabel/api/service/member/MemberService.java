@@ -264,6 +264,7 @@ public class MemberService {
     public MyInfoResponse getMyInfo(Member member) {
         List<Long> alcoholTypeIdList = memberAlcoholTypeReader.getIdListByMember(member);
         return new MyInfoResponse(
+            member.getId(),
             member.getNickname(),
             member.getEmail(),
             member.isNotificationsAllowed(),
