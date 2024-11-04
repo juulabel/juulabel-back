@@ -12,6 +12,7 @@ public record NotificationSummary(
     NotificationType notificationType,
     boolean isRead,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "Asia/Seoul")
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    String profileImageUrl
 ) {
 }

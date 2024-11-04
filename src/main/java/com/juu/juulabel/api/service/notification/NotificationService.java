@@ -103,18 +103,18 @@ public class NotificationService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendAsync(Member receiver, NotificationType notificationType, String content, String url) {
-        send(receiver, notificationType, content, url);
+        send(receiver, notificationType, content, url, null);
         log.info("Thread: {}, Notification sent to user: {}, type: {}, content: {}, url: {}",
             Thread.currentThread().getName(), receiver.getId(), notificationType, content, url);
     }
 
     @Transactional
-    public void send(Member receiver, NotificationType notificationType, String content, String url) {
+    public void send(Member receiver, NotificationType notificationType, String content, String url, String profileImageUrl) {
         Notification notification = notificationWriter.save(Notification.create(receiver, notificationType, content, url));
-        sendNotification(receiver, notification);
+        sendNotification(receiver, notification, profileImageUrl);
     }
 
-    private void sendNotification(Member author, Notification notification) {
+    private void sendNotification(Member author, Notification notification, String profileImageUrl) {
         Long receiverId = author.getId();
         String eventId = makeTimeIncludeId(receiverId);
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(String.valueOf(receiverId));
@@ -128,18 +128,19 @@ public class NotificationService {
                         notification.getContent(),
                         notification.getNotificationType(),
                         notification.isRead(),
-                        notification.getCreatedAt()
+                        notification.getCreatedAt(),
+                        profileImageUrl
                     ));
             }
         );
     }
 
     @Transactional
-    public void sendCommentNotification(Member author, String relatedUrl, String message, Long commentId) {
+    public void sendCommentNotification(Member author, String relatedUrl, String message, Long commentId, String profileImageUrl) {
         Notification notification = notificationWriter.save(
             Notification.createWithCommentId(author, NotificationType.COMMENT, message, relatedUrl, commentId)
         );
-        sendNotification(author, notification);
+        sendNotification(author, notification, profileImageUrl);
     }
 
     @Transactional
@@ -152,8 +153,9 @@ public class NotificationService {
     public void sendPostLikeNotification(Member author, Member liker, String relatedUrl) {
         String message = liker.getNickname() + "님이 내 게시물에 좋아요를 눌렀어요.";
         NotificationType type = NotificationType.POST_LIKE;
+        String profileImageUrl = liker.getProfileImage();
 
-        send(author, type, message, relatedUrl);
+        send(author, type, message, relatedUrl, profileImageUrl);
     }
 
     @Transactional
@@ -165,9 +167,9 @@ public class NotificationService {
     }
 
     @Transactional
-    public void sendCommentLikeNotification(Member author, String relatedUrl, String message) {
+    public void sendCommentLikeNotification(Member author, String relatedUrl, String message, String profileImageUrl) {
         NotificationType type = NotificationType.COMMENT_LIKE;
-        send(author, type, message, relatedUrl);
+        send(author, type, message, relatedUrl, profileImageUrl);
     }
 
     @Transactional
