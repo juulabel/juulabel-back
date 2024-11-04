@@ -41,6 +41,9 @@ public class Notification extends BaseCreatedTimeEntity {
     @JoinColumn(name = "member_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '회원 고유 번호'")
     private Member receiver;
 
+    @Column(name = "profile_image_url", columnDefinition = "varchar(500) comment '프로필 이미지 URL'")
+    private String profileImageUrl;
+
     public static Notification create(Member receiver, NotificationType notificationType, String content, String relatedUrl) {
         return Notification.builder()
             .receiver(receiver)

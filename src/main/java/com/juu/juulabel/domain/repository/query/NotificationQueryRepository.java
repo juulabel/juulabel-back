@@ -35,7 +35,8 @@ public class NotificationQueryRepository {
                     notification.content,
                     notification.notificationType,
                     notification.isRead,
-                    notification.createdAt
+                    notification.createdAt,
+                    notification.profileImageUrl
                 )
             )
             .from(notification)
