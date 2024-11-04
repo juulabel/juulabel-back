@@ -14,6 +14,7 @@ import com.juu.juulabel.domain.dto.comment.CommentSummary;
 import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
+import com.juu.juulabel.domain.dto.tastingnote.AlcoholicDrinksInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
@@ -223,13 +224,16 @@ public class TastingNoteService {
     public TastingNoteResponse loadTastingNote(Member member, Long tastingNoteId) {
         TastingNoteDetailInfo tastingNoteDetailInfo = tastingNoteReader.getTastingNoteDetailById(tastingNoteId, member);
         List<String> urlList = tastingNoteImageReader.getImageUrlList(tastingNoteId);
+        Long alcoholicDrinksId = tastingNoteReader.getAlcoholicDrinksByTastingNoteId(tastingNoteId);
+        boolean isOfficialData = !Objects.isNull(alcoholicDrinksId);
 
         return new TastingNoteResponse(
             tastingNoteDetailInfo,
             tastingNoteReader.getSensoryLevelIds(tastingNoteId),
             tastingNoteReader.getScentIds(tastingNoteId),
             tastingNoteReader.getFlavorLevelIds(tastingNoteId),
-            new ImageInfo(urlList, urlList.size())
+            new ImageInfo(urlList, urlList.size()),
+            new AlcoholicDrinksInfo(isOfficialData, alcoholicDrinksId)
         );
     }
 
