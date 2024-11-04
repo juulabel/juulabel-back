@@ -389,4 +389,13 @@ public class TastingNoteQueryRepository {
         return tastingNote.id.eq(tastingNoteId);
     }
 
+    public Long getAlcoholicDrinksByTastingNoteId(Long tastingNoteId) {
+        return jpaQueryFactory
+            .select(alcoholicDrinks.id)
+            .from(tastingNote)
+            .where(
+                eqId(tastingNote, tastingNoteId)
+            )
+            .fetchOne();
+    }
 }

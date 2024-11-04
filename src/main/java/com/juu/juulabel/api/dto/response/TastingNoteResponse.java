@@ -1,6 +1,7 @@
 package com.juu.juulabel.api.dto.response;
 
 import com.juu.juulabel.domain.dto.ImageInfo;
+import com.juu.juulabel.domain.dto.tastingnote.AlcoholicDrinksInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 
 import java.util.List;
@@ -10,6 +11,7 @@ public record TastingNoteResponse(
     List<Long> sensoryLevelIds,
     List<Long> scentIds,
     List<Long> flavorLevelIds,
-    ImageInfo imageInfo
+    ImageInfo imageInfo,
+    AlcoholicDrinksInfo alcoholicDrinksInfo
 ) {
 }
