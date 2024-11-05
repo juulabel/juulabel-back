@@ -54,6 +54,7 @@ public enum ErrorCode {
     /**
      * Admin, Member
      */
+    WITHDRAWN_MEMBER(HttpStatus.BAD_REQUEST, "탈퇴한 회원입니다."),
     NOT_FOUND_ADMIN(HttpStatus.BAD_REQUEST, "어드민 정보를 찾을 수 없습니다."),
     NOT_FOUND_MEMBER(HttpStatus.BAD_REQUEST, "회원 정보를 찾을 수 없습니다."),
     EXIST_EMAIL(HttpStatus.BAD_REQUEST, "중복된 이메일입니다."),
