@@ -146,4 +146,14 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMemberDailyLifeList(loginMember, request, memberId));
     }
 
+    @Operation(summary = "회원 탈퇴")
+    @DeleteMapping("/me")
+    public ResponseEntity<CommonResponse<Void>> deleteAccount(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @RequestBody WithdrawalRequest request
+    ) {
+        memberService.deleteAccount(loginMember, request);
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
+    }
+
 }

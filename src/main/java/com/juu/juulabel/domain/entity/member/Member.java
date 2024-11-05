@@ -93,4 +93,9 @@ public class Member extends BaseTimeEntity {
         this.introduction = request.introduction();
         this.gender = request.gender();
     }
+
+    public void deleteAccount() {
+        this.deletedAt = LocalDateTime.now();
+        this.profileImage = null;
+    }
 }

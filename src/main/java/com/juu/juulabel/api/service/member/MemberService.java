@@ -21,17 +21,11 @@ import com.juu.juulabel.domain.dto.terms.TermsAgreement;
 import com.juu.juulabel.domain.dto.token.Token;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
-import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.entity.member.MemberAlcoholType;
-import com.juu.juulabel.domain.entity.member.MemberAlcoholicDrinks;
-import com.juu.juulabel.domain.entity.member.MemberTerms;
+import com.juu.juulabel.domain.entity.member.*;
 import com.juu.juulabel.domain.entity.terms.Terms;
 import com.juu.juulabel.domain.enums.member.Provider;
 import com.juu.juulabel.domain.repository.reader.*;
-import com.juu.juulabel.domain.repository.writer.MemberAlcoholTypeWriter;
-import com.juu.juulabel.domain.repository.writer.MemberAlcoholicDrinksWriter;
-import com.juu.juulabel.domain.repository.writer.MemberTermsWriter;
-import com.juu.juulabel.domain.repository.writer.MemberWriter;
+import com.juu.juulabel.domain.repository.writer.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -62,6 +56,8 @@ public class MemberService {
     private final MemberAlcoholicDrinksReader memberAlcoholicDrinksReader;
     private final MemberAlcoholicDrinksWriter memberAlcoholicDrinksWriter;
     private final TastingNoteReader tastingNoteReader;
+    private final WithdrawalRecordWriter withdrawalRecordWriter;
+    private final WithdrawalRecordReader withdrawalRecordReader;
 
 
     @Transactional
@@ -83,6 +79,8 @@ public class MemberService {
         String email = oAuthUser.email();
         boolean isNewMember = !memberReader.existsByEmailAndProvider(email, provider);
 
+        validateUserByEmail(email);
+
         Token token = createTokenForMember(isNewMember, email); // TODO : 카카오와 구글 이메일이 같다면 토큰 중복 사용 가능 여부 확인
 
         return new LoginResponse(
@@ -94,7 +92,6 @@ public class MemberService {
 
     @Transactional
     public SignUpMemberResponse signUp(SignUpMemberRequest signUpRequest) { // TODO : providerId 검증
-        validateEmail(signUpRequest.email());
         validateNickname(signUpRequest.nickname());
 
         Member member = Member.create(signUpRequest);
@@ -314,11 +311,21 @@ public class MemberService {
         }
     }
 
-    private void validateEmail(String email) {
+    private void validateUserByEmail(String email) {
         if (memberReader.existActiveEmail(email)) {
             throw new InvalidParamException(ErrorCode.EXIST_EMAIL);
         }
+        if (withdrawalRecordReader.existEmail(email)) {
+            throw new InvalidParamException(ErrorCode.WITHDRAWN_MEMBER);
+        }
     }
 
+    @Transactional
+    public void deleteAccount(Member loginMember, WithdrawalRequest request) {
+        loginMember.deleteAccount();
+        withdrawalRecordWriter.store(
+            WithdrawalRecord.create(request.withdrawalReason(), loginMember.getEmail(), loginMember.getNickname())
+        );
+    }
 }
 
