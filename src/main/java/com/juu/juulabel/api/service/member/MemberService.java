@@ -79,7 +79,7 @@ public class MemberService {
         String email = oAuthUser.email();
         boolean isNewMember = !memberReader.existsByEmailAndProvider(email, provider);
 
-        validateUserByEmail(email);
+        validateNotWithdrawnMember(email);
 
         Token token = createTokenForMember(isNewMember, email); // TODO : 카카오와 구글 이메일이 같다면 토큰 중복 사용 가능 여부 확인
 
@@ -93,6 +93,7 @@ public class MemberService {
     @Transactional
     public SignUpMemberResponse signUp(SignUpMemberRequest signUpRequest) { // TODO : providerId 검증
         validateNickname(signUpRequest.nickname());
+        validateEmail(signUpRequest.email());
 
         Member member = Member.create(signUpRequest);
         memberWriter.store(member);
@@ -311,12 +312,15 @@ public class MemberService {
         }
     }
 
-    private void validateUserByEmail(String email) {
-        if (memberReader.existActiveEmail(email)) {
-            throw new InvalidParamException(ErrorCode.EXIST_EMAIL);
-        }
+    private void validateNotWithdrawnMember(String email) {
         if (withdrawalRecordReader.existEmail(email)) {
             throw new InvalidParamException(ErrorCode.WITHDRAWN_MEMBER);
+        }
+    }
+
+    private void validateEmail(String email) {
+        if (memberReader.existActiveEmail(email)) {
+            throw new InvalidParamException(ErrorCode.EXIST_EMAIL);
         }
     }
 
