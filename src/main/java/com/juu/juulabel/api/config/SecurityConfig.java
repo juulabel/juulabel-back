@@ -45,7 +45,8 @@ public class SecurityConfig {
         "https://api.juulabel.com",
         "https://juulabel.com",
         "https://juulabel.shop",
-        "https://juulabel-front.vercel.app/"
+        "https://juulabel-front.vercel.app/",
+        "https://juulabel-front-seven.vercel.app/"
     };
 
     @Bean
