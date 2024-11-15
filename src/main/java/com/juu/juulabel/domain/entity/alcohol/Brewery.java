@@ -27,6 +27,9 @@ public class Brewery extends BaseTimeEntity {
     @Column(name = "region", columnDefinition = "varchar(255) comment '양조장 지역'")
     private String region;
 
+    @Column(name = "message", columnDefinition = "varchar(500) comment '대표님 한마디'")
+    private String message;
+
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
