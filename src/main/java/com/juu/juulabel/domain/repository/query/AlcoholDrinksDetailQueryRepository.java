@@ -14,6 +14,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -65,16 +66,16 @@ public class AlcoholDrinksDetailQueryRepository {
                                         BrewerySummary.class,
                                         brewery.id,
                                         brewery.name,
-                                        brewery.region
+                                        brewery.region,
+                                        brewery.message
                                 )
                         )
                 )
                 .from(alcoholicDrinks)
                 .leftJoin(alcoholicDrinks.alcoholType, alcoholType)
                 .leftJoin(alcoholicDrinks.brewery, brewery)
-                // .leftJoin(alcoholicDrinks.tastingNotes, tastingNote)
-                .where(eqAlcoholDrinkId(alcoholDrinksId),
-                        isNotDeleted(alcoholicDrinks))
+                .where(alcoholicDrinks.id.eq(alcoholDrinksId),
+                isNotDeleted(alcoholicDrinks))
                 .fetchOne();
 
         return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE)
@@ -199,6 +200,9 @@ public class AlcoholDrinksDetailQueryRepository {
     }
 
     private BooleanExpression eqAlcoholDrinkId(Long alcoholDrinksId) {
+        if (alcoholDrinksId == null) {
+            return alcoholicDrinks.id.isNull();
+        }
         return alcoholicDrinks.id.eq(alcoholDrinksId);
     }
 

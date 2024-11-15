@@ -61,6 +61,17 @@ public class AlcoholicDrinksReader {
 
     public TastingNoteSensorSummary getTastingNoteSensor(Long alcoholDrinksId) {
         Long mostLikedTastingNoteId = alcoholDrinksDetailQueryRepository.findMostLikedTastingNoteId(alcoholDrinksId);
+
+        // 가장 좋아요가 많은 시음노트가 없다면, 필드 모두 null
+        if (mostLikedTastingNoteId == null) {
+            return new TastingNoteSensorSummary(
+                    null,   // tastingNoteId
+                    null,   // rgb
+                    null,   // scent
+                    null,   // flavor
+                    null    // sensory
+            );
+        }
         return alcoholDrinksDetailQueryRepository.getTastingNoteSensor(mostLikedTastingNoteId);
     }
 
