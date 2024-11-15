@@ -70,6 +70,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	//openCSV
+	implementation 'com.opencsv:opencsv:5.7.1'
 }
 
 def generatedQueryDsl = 'src/main/generated'
