@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Builder
@@ -97,5 +98,22 @@ public class Member extends BaseTimeEntity {
     public void deleteAccount() {
         this.deletedAt = LocalDateTime.now();
         this.profileImage = null;
+    }
+
+    public boolean isSameUser(Member other) {
+        return this.equals(other);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Member member = (Member) obj;
+        return Objects.equals(this.id, member.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
