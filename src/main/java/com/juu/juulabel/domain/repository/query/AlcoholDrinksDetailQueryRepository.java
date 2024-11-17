@@ -172,7 +172,8 @@ public class AlcoholDrinksDetailQueryRepository {
                 .select(Projections.constructor(
                         SensoryDetail.class,
                         sensory.name,
-                        sensoryLevel.score
+                        sensoryLevel.score,
+                        sensoryLevel.id
                 ))
                 .from(tastingNoteSensoryLevel)
                 .join(sensoryLevel.sensory, sensory)

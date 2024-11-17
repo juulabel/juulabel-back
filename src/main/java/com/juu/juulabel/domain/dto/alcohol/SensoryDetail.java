@@ -6,6 +6,8 @@ public record SensoryDetail(
         @Schema(description = "촉각 이름")
         String name,
         @Schema(description = "촉각 점수")
-        int score
+        int score,
+        @Schema(description = "촉각 ID")
+        Long id
 ) {
 }
