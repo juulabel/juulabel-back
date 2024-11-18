@@ -111,7 +111,7 @@ public class TastingNoteQueryRepository {
                 .and(tastingNoteImage.seq.eq(1))
                 .and(isNotDeleted(tastingNoteImage)))
             .where(
-                isNotPrivate(tastingNote),
+                isNotPrivateOrAuthor(tastingNote, member),
                 isNotDeleted(tastingNote),
                 noOffsetByTastingNoteId(tastingNote, lastTastingNoteId)
             )
@@ -170,7 +170,7 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(myTastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public Slice<TastingNoteSummary> getAllTastingNotesByMember(Long memberId, Long lastTastingNoteId, int pageSize) {
+    public Slice<TastingNoteSummary> getAllTastingNotesByMember(Member loginMember, Long memberId, Long lastTastingNoteId, int pageSize) {
         List<TastingNoteSummary> tastingNoteSummaryList = jpaQueryFactory
             .select(
                 Projections.constructor(
@@ -195,7 +195,7 @@ public class TastingNoteQueryRepository {
                 .and(isNotDeleted(tastingNoteImage)))
             .where(
                 tastingNote.member.id.eq(memberId),
-                isNotPrivate(tastingNote),
+                isNotPrivateOrAuthor(tastingNote, loginMember),
                 isNotDeleted(tastingNote),
                 noOffsetByTastingNoteId(tastingNote, lastTastingNoteId)
             )
@@ -226,13 +226,13 @@ public class TastingNoteQueryRepository {
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
     }
 
-    public long getTastingNoteCountByMemberId(Long memberId) {
+    public long getTastingNoteCountByMemberId(Long memberId, Member loginMember) {
         Long tastingNoteCount = jpaQueryFactory
             .select(tastingNote.count())
             .from(tastingNote)
             .where(
                 tastingNote.member.id.eq(memberId),
-                isNotPrivate(tastingNote),
+                isNotPrivateOrAuthor(tastingNote, loginMember),
                 isNotDeleted(tastingNote)
             )
             .fetchOne();
@@ -268,6 +268,10 @@ public class TastingNoteQueryRepository {
 
     private BooleanExpression isNotPrivate(QTastingNote tastingNote) {
         return tastingNote.isPrivate.isFalse();
+    }
+
+    private BooleanExpression isNotPrivateOrAuthor(QTastingNote tastingNote, Member member) {
+        return tastingNote.isPrivate.isFalse().or(tastingNote.member.eq(member));
     }
 
     private BooleanExpression isNotDeleted(QTastingNote tastingNote) {
@@ -323,7 +327,7 @@ public class TastingNoteQueryRepository {
             .leftJoin(tastingNoteComment).on(tastingNoteComment.tastingNote.eq(tastingNote))
             .where(
                 eqId(tastingNote, tastingNoteId),
-                isNotPrivate(tastingNote),
+                isNotPrivateOrAuthor(tastingNote, member),
                 isNotDeleted(tastingNote)
             )
             .groupBy(tastingNote.id)
@@ -333,7 +337,7 @@ public class TastingNoteQueryRepository {
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
     }
 
-    public List<Long> getSensoryLevelIds(Long tastingNoteId) {
+    public List<Long> getSensoryLevelIds(Long tastingNoteId, Member member) {
         return jpaQueryFactory
             .select(sensoryLevel.id)
             .from(tastingNoteSensoryLevel)
@@ -341,13 +345,13 @@ public class TastingNoteQueryRepository {
             .where(
                 tastingNoteSensoryLevel.tastingNote.eq(tastingNote),
                 eqId(tastingNote, tastingNoteId),
-                isNotPrivate(tastingNote),
+                isNotPrivateOrAuthor(tastingNote, member),
                 isNotDeleted(tastingNote)
             )
             .fetch();
     }
 
-    public List<Long> getScentIds(Long tastingNoteId) {
+    public List<Long> getScentIds(Long tastingNoteId, Member member) {
         return jpaQueryFactory
             .select(scent.id)
             .from(tastingNoteScent)
@@ -355,13 +359,13 @@ public class TastingNoteQueryRepository {
             .where(
                 tastingNoteScent.tastingNote.eq(tastingNote),
                 eqId(tastingNote, tastingNoteId),
-                isNotPrivate(tastingNote),
+                isNotPrivateOrAuthor(tastingNote, member),
                 isNotDeleted(tastingNote)
             )
             .fetch();
     }
 
-    public List<Long> getFlavorLevelIds(Long tastingNoteId) {
+    public List<Long> getFlavorLevelIds(Long tastingNoteId, Member member) {
         return jpaQueryFactory
             .select(flavorLevel.id)
             .from(tastingNoteFlavorLevel)
@@ -369,7 +373,7 @@ public class TastingNoteQueryRepository {
             .where(
                 tastingNoteFlavorLevel.tastingNote.eq(tastingNote),
                 eqId(tastingNote, tastingNoteId),
-                isNotPrivate(tastingNote),
+                isNotPrivateOrAuthor(tastingNote, member),
                 isNotDeleted(tastingNote)
             )
             .fetch();

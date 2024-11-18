@@ -285,7 +285,7 @@ public class MemberService {
     public TastingNoteListResponse loadMemberTastingNoteList(Member loginMember, TastingNoteListRequest request, Long memberId) {
         // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
         Slice<TastingNoteSummary> tastingNoteList =
-            tastingNoteReader.getAllTastingNotesByMember(memberId, request.lastTastingNoteId(), request.pageSize());
+            tastingNoteReader.getAllTastingNotesByMember(loginMember, memberId, request.lastTastingNoteId(), request.pageSize());
 
         return new TastingNoteListResponse(tastingNoteList);
     }
@@ -294,7 +294,7 @@ public class MemberService {
     public MemberProfileResponse getMemberProfile(Member loginMember, Long memberId) {
         // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
         Member member = memberReader.getById(memberId);
-        long tastingNoteCount = tastingNoteReader.getTastingNoteCountByMemberId(memberId);
+        long tastingNoteCount = tastingNoteReader.getTastingNoteCountByMemberId(memberId, loginMember);
         long dailyLifeCount = dailyLifeReader.getDailyLifeCountByMemberId(memberId, loginMember);
         return new MemberProfileResponse(
             member.getId(),

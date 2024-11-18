@@ -37,16 +37,16 @@ public class TastingNoteReader {
         return tastingNoteQueryRepository.getTastingNoteDetailById(tastingNoteId, member);
     }
 
-    public List<Long> getSensoryLevelIds(Long tastingNoteId) {
-        return tastingNoteQueryRepository.getSensoryLevelIds(tastingNoteId);
+    public List<Long> getSensoryLevelIds(Long tastingNoteId, Member member) {
+        return tastingNoteQueryRepository.getSensoryLevelIds(tastingNoteId, member);
     }
 
-    public List<Long> getScentIds(Long tastingNoteId) {
-        return tastingNoteQueryRepository.getScentIds(tastingNoteId);
+    public List<Long> getScentIds(Long tastingNoteId, Member member) {
+        return tastingNoteQueryRepository.getScentIds(tastingNoteId, member);
     }
 
-    public List<Long> getFlavorLevelIds(Long tastingNoteId) {
-        return tastingNoteQueryRepository.getFlavorLevelIds(tastingNoteId);
+    public List<Long> getFlavorLevelIds(Long tastingNoteId, Member member) {
+        return tastingNoteQueryRepository.getFlavorLevelIds(tastingNoteId, member);
     }
 
     public TastingNote getById(Long tastingNoteId) {
@@ -58,16 +58,16 @@ public class TastingNoteReader {
         return tastingNoteQueryRepository.getMyTastingNoteCount(member);
     }
 
-    public long getTastingNoteCountByMemberId(Long memberId) {
-        return tastingNoteQueryRepository.getTastingNoteCountByMemberId(memberId);
+    public long getTastingNoteCountByMemberId(Long memberId, Member loginMember) {
+        return tastingNoteQueryRepository.getTastingNoteCountByMemberId(memberId, loginMember);
     }
 
     public Slice<MyTastingNoteSummary> getAllMyTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
         return tastingNoteQueryRepository.getAllMyTastingNotes(member, lastTastingNoteId, pageSize);
     }
 
-    public Slice<TastingNoteSummary> getAllTastingNotesByMember(Long memberId, Long lastTastingNoteId, int pageSize) {
-        return tastingNoteQueryRepository.getAllTastingNotesByMember(memberId, lastTastingNoteId, pageSize);
+    public Slice<TastingNoteSummary> getAllTastingNotesByMember(Member loginMember, Long memberId, Long lastTastingNoteId, int pageSize) {
+        return tastingNoteQueryRepository.getAllTastingNotesByMember(loginMember, memberId, lastTastingNoteId, pageSize);
     }
 
     public Long getAlcoholicDrinksByTastingNoteId(Long tastingNoteId) {
