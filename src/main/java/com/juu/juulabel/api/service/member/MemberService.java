@@ -295,7 +295,7 @@ public class MemberService {
         // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
         Member member = memberReader.getById(memberId);
         long tastingNoteCount = tastingNoteReader.getTastingNoteCountByMemberId(memberId);
-        long dailyLifeCount = dailyLifeReader.getDailyLifeCountByMemberId(memberId);
+        long dailyLifeCount = dailyLifeReader.getDailyLifeCountByMemberId(memberId, loginMember);
         return new MemberProfileResponse(
             member.getId(),
             member.getNickname(),
