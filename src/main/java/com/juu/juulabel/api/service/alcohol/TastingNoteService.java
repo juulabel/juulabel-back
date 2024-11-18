@@ -293,9 +293,9 @@ public class TastingNoteService {
 
 		return new TastingNoteResponse(
 			tastingNoteDetailInfo,
-			tastingNoteReader.getSensoryLevelIds(tastingNoteId),
-			tastingNoteReader.getScentIds(tastingNoteId),
-			tastingNoteReader.getFlavorLevelIds(tastingNoteId),
+			tastingNoteReader.getSensoryLevelIds(tastingNoteId, member),
+			tastingNoteReader.getScentIds(tastingNoteId, member),
+			tastingNoteReader.getFlavorLevelIds(tastingNoteId, member),
 			new ImageInfo(urlList, urlList.size()),
 			new AlcoholicDrinksInfo(isOfficialData, alcoholicDrinksId)
 		);
