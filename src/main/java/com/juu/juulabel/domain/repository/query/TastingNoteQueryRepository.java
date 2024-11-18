@@ -64,7 +64,8 @@ public class TastingNoteQueryRepository {
                                         BrewerySummary.class,
                                         brewery.id,
                                         brewery.name,
-                                        brewery.region
+                                        brewery.region,
+                                        brewery.message
                                 )
                         )
                 )
