@@ -52,7 +52,7 @@ public class DailyLifeReader {
         return dailyLifeQueryRepository.getMyDailyLifeCount(member);
     }
 
-    public long getDailyLifeCountByMemberId(Long memberId) {
-        return dailyLifeQueryRepository.getDailyLifeCountByMemberId(memberId);
+    public long getDailyLifeCountByMemberId(Long memberId, Member loginMember) {
+        return dailyLifeQueryRepository.getDailyLifeCountByMemberId(memberId, loginMember);
     }
 }

@@ -63,7 +63,7 @@ public class DailyLifeQueryRepository {
             .leftJoin(dailyLifeLike).on(dailyLifeLike.dailyLife.eq(dailyLife))
             .where(
                 eqId(dailyLife, dailyLifeId),
-                isNotPrivate(dailyLife),
+                isNotPrivateOrAuthor(dailyLife, member),
                 isNotDeleted(dailyLife)
             )
             .groupBy(dailyLife.id)
@@ -102,7 +102,7 @@ public class DailyLifeQueryRepository {
                 .and(dailyLifeImage.seq.eq(1))
                 .and(isNotDeleted(dailyLifeImage)))
             .where(
-                isNotPrivate(dailyLife),
+                isNotPrivateOrAuthor(dailyLife, member),
                 isNotDeleted(dailyLife),
                 noOffsetByDailyLifeId(dailyLife, lastDailyLifeId)
             )
@@ -196,7 +196,7 @@ public class DailyLifeQueryRepository {
                 .and(isNotDeleted(dailyLifeImage)))
             .where(
                 dailyLife.member.id.eq(memberId),
-                isNotPrivate(dailyLife),
+                isNotPrivateOrAuthor(dailyLife, loginMember),
                 isNotDeleted(dailyLife),
                 noOffsetByDailyLifeId(dailyLife, lastDailyLifeId)
             )
@@ -227,14 +227,14 @@ public class DailyLifeQueryRepository {
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_DAILY_LIFE));
     }
 
-    public long getDailyLifeCountByMemberId(Long memberId) {
+    public long getDailyLifeCountByMemberId(Long memberId, Member loginMember) {
         Long dailyLifeCount = jpaQueryFactory
             .select(dailyLife.count())
             .from(dailyLife)
             .where(
                 dailyLife.member.id.eq(memberId),
                 isNotDeleted(dailyLife),
-                isNotPrivate(dailyLife)
+                isNotPrivateOrAuthor(dailyLife, loginMember)
             )
             .fetchOne();
 
@@ -254,8 +254,8 @@ public class DailyLifeQueryRepository {
         return dailyLifeImage.deletedAt.isNull();
     }
 
-    private BooleanExpression isNotPrivate(QDailyLife dailyLife) {
-        return dailyLife.isPrivate.isFalse();
+    private BooleanExpression isNotPrivateOrAuthor(QDailyLife dailyLife, Member member) {
+        return dailyLife.isPrivate.isFalse().or(dailyLife.member.eq(member));
     }
 
     private BooleanExpression isNotDeleted(QDailyLifeComment dailyLifeComment) {
