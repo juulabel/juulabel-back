@@ -14,6 +14,8 @@ import com.juu.juulabel.domain.entity.dailylife.like.QDailyLifeLike;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.jsonwebtoken.lang.Objects;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +88,7 @@ public class DailyLifeQueryRepository {
                         dailyLife.member.profileImage
                     ),
                     dailyLifeImage.imagePath.as("thumbnailPath"),
-                    dailyLifeImage.count().as("imageCount"),
+                    getImageCountSubQuery(dailyLife),
                     dailyLife.createdAt,
                     dailyLifeLike.countDistinct().as("likeCount"),
                     dailyLifeComment.count().as("commentCount"),
@@ -132,7 +134,7 @@ public class DailyLifeQueryRepository {
                         dailyLife.member.profileImage
                     ),
                     dailyLifeImage.imagePath.as("thumbnailPath"),
-                    dailyLifeImage.count().as("imageCount"),
+                    getImageCountSubQuery(dailyLife),
                     dailyLife.createdAt,
                     dailyLifeLike.countDistinct().as("likeCount"),
                     dailyLifeComment.count().as("commentCount"),
@@ -179,7 +181,7 @@ public class DailyLifeQueryRepository {
                         dailyLife.member.profileImage
                     ),
                     dailyLifeImage.imagePath.as("thumbnailPath"),
-                    dailyLifeImage.count().as("imageCount"),
+                    getImageCountSubQuery(dailyLife),
                     dailyLife.createdAt,
                     dailyLifeLike.countDistinct().as("likeCount"),
                     dailyLifeComment.count().as("commentCount"),
@@ -272,6 +274,15 @@ public class DailyLifeQueryRepository {
                 dailyLifeLike.member.eq(member)
             )
             .exists();
+    }
+
+    private JPQLQuery<Long> getImageCountSubQuery(QDailyLife dailyLife) {
+        return JPAExpressions.select(dailyLifeImage.count())
+            .from(dailyLifeImage)
+            .where(
+                dailyLifeImage.dailyLife.eq(dailyLife),
+                isNotDeleted(dailyLifeImage)
+            );
     }
 
 }
