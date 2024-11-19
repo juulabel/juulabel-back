@@ -413,19 +413,16 @@ public class TastingNoteService {
 		TastingNoteComment tastingNoteComment = createCommentOrReply(request, member, tastingNote);
 		TastingNoteComment comment = tastingNoteCommentWriter.store(tastingNoteComment);
 
-		boolean isNotSameUser = !tastingNote.getMember().isSameUser(member);
-		if (isNotSameUser) {
-			String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
-			String notificationMessage;
-			if (Objects.isNull(request.parentCommentId())) {
-				notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
-				notificationService.sendCommentNotification(tastingNote.getMember(), notificationRelatedUrl,
-					notificationMessage, comment.getId(), member.getProfileImage());
-			} else {
-				notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
-				notificationService.sendCommentNotification(comment.getMember(), notificationRelatedUrl,
-					notificationMessage, comment.getId(), member.getProfileImage());
-			}
+		String notificationRelatedUrl = getRelatedUrl(tastingNoteId);
+		String notificationMessage;
+		if (Objects.isNull(request.parentCommentId()) && (!tastingNote.getMember().isSameUser(member))) {
+			notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
+			notificationService.sendCommentNotification(tastingNote.getMember(), notificationRelatedUrl,
+				notificationMessage, comment.getId(), member.getProfileImage());
+		} else if (!comment.getMember().isSameUser(member)) {
+			notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
+			notificationService.sendCommentNotification(comment.getMember(), notificationRelatedUrl,
+				notificationMessage, comment.getId(), member.getProfileImage());
 		}
 
 		return new WriteTastingNoteCommentResponse(

@@ -187,19 +187,16 @@ public class DailyLifeService {
 		final DailyLifeComment dailyLifeComment = createCommentOrReply(request, member, dailyLife);
 		final DailyLifeComment comment = dailyLifeCommentWriter.store(dailyLifeComment);
 
-		boolean isNotSameUser = !dailyLife.getMember().isSameUser(member);
-		if (isNotSameUser) {
-			String notificationRelatedUrl = getRelatedUrl(dailyLifeId);
-			String notificationMessage;
-			if (Objects.isNull(request.parentCommentId())) {
-				notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
-				notificationService.sendCommentNotification(dailyLife.getMember(), notificationRelatedUrl,
-					notificationMessage, comment.getId(), member.getProfileImage());
-			} else {
-				notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
-				notificationService.sendCommentNotification(comment.getMember(), notificationRelatedUrl,
-					notificationMessage, comment.getId(), member.getProfileImage());
-			}
+		String notificationRelatedUrl = getRelatedUrl(dailyLifeId);
+		String notificationMessage;
+		if (Objects.isNull(request.parentCommentId()) && (!dailyLife.getMember().isSameUser(member))) {
+			notificationMessage = member.getNickname() + "님이 내 게시물에 댓글을 남겼어요.";
+			notificationService.sendCommentNotification(dailyLife.getMember(), notificationRelatedUrl,
+				notificationMessage, comment.getId(), member.getProfileImage());
+		} else if (!comment.getMember().isSameUser(member)) {
+			notificationMessage = member.getNickname() + "님이 내 댓글에 답글을 남겼어요.";
+			notificationService.sendCommentNotification(comment.getMember(), notificationRelatedUrl,
+				notificationMessage, comment.getId(), member.getProfileImage());
 		}
 
 		return new WriteDailyLifeCommentResponse(
