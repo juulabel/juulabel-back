@@ -79,8 +79,8 @@ public class AlcoholicDrinksReader {
         return alcoholDrinksDetailQueryRepository.getTastingNoteList(alcoholDrinksId);
     }
 
-    public Slice<AlcoholSearchSummary> getAlcoholicDrinksByType(Long alcoholTypeId, int pageSize, SortType sortType){
-        return alcoholDrinksTypeQueryRepository.findByAlcoholType(alcoholTypeId,pageSize,sortType);
+    public Slice<AlcoholSearchSummary> getAlcoholicDrinksByType(Long alcoholTypeId, String lastAlcoholicDrinksName,int pageSize, SortType sortType){
+        return alcoholDrinksTypeQueryRepository.findByAlcoholType(alcoholTypeId,lastAlcoholicDrinksName,pageSize,sortType);
     }
 
     public Double getAverageRating(Long alcoholTypeId){

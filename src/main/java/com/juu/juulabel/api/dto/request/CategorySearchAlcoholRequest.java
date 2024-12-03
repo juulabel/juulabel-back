@@ -8,8 +8,8 @@ import jakarta.validation.constraints.NotNull;
 public record CategorySearchAlcoholRequest(
         @Schema(description = "카테고리검색", example = "탁주")
         Long type,
-//        @Schema(description = "마지막 전통주 이름", example = "탁100 네추럴")
-//        String lastAlcoholicDrinksName,
+        @Schema(description = "마지막 전통주 이름", example = "탁100 네추럴")
+        String lastAlcoholicDrinksName,
         @Schema(description = "정렬 종류", example = "name")
         SortType sortType,
         @Schema(description = "페이지 사이즈", example = "1")
