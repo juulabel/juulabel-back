@@ -54,7 +54,7 @@ public class AlcoholicDrinksService {
         // arrayType 이 null 이면 기본 정렬 "name" == 가나다순
         SortType sortType = request.sortType() == null ? SortType.NAME: request.sortType();
 
-        final Slice<AlcoholSearchSummary> alcoholicDrinks = alcoholDrinksReader.getAlcoholicDrinksByType(request.type(), request.pageSize(), sortType);
+        final Slice<AlcoholSearchSummary> alcoholicDrinks = alcoholDrinksReader.getAlcoholicDrinksByType(request.type(),request.lastAlcoholicDrinksName(), request.pageSize(), sortType);
 
         // 검색된 전체 갯수 가져오기
         long totalCount = alcoholDrinksReader.countByAlcoholType(request.type());

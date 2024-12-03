@@ -17,6 +17,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class AlcoholDrinksTypeQueryRepository {
     QBrewery brewery = QBrewery.brewery;
     QTastingNote tastingNote = QTastingNote.tastingNote;
 
-    public Slice<AlcoholSearchSummary> findByAlcoholType(Long alcoholTypeId, int pageSize, SortType sortType) {
+    public Slice<AlcoholSearchSummary> findByAlcoholType(Long alcoholTypeId, String lastAlcoholicDrinksName,int pageSize, SortType sortType) {
         List<AlcoholSearchSummary> alcoholicDrinksList = jpaQueryFactory
                 .select(Projections.constructor(
                         AlcoholSearchSummary.class,
@@ -44,7 +45,8 @@ public class AlcoholDrinksTypeQueryRepository {
                 .innerJoin(alcoholType).on(alcoholicDrinks.alcoholType.eq(alcoholType))
                 .where(
                         eqAlcoholTypeId(alcoholType, alcoholTypeId),
-                        isNotDeleted(alcoholicDrinks)
+                        isNotDeleted(alcoholicDrinks),
+                        noOffsetAlcoholicDrinksName(alcoholicDrinks, lastAlcoholicDrinksName)
                 )
                 // 동적 정렬 적용
                 .orderBy(getOrderSpecifier(sortType))
@@ -96,5 +98,13 @@ public class AlcoholDrinksTypeQueryRepository {
 
         private BooleanExpression isNotDeleted (QAlcoholicDrinks alcoholicDrinks){
             return alcoholicDrinks.deletedAt.isNull();
+        }
+
+        private BooleanExpression noOffsetAlcoholicDrinksName(QAlcoholicDrinks alcoholicDrinks, String lastAlcoholicDrinksName) {
+            if (Objects.isNull(lastAlcoholicDrinksName)) {
+                return null;
+            }
+
+            return alcoholicDrinks.name.gt(lastAlcoholicDrinksName);
         }
     }
