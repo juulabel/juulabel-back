@@ -11,6 +11,8 @@ import java.util.List;
 public record AlcoholDrinksListResponse(
         @Schema(description = "마지막 페이지 여부")
         boolean isLast,
+        @Schema(description = "총 검색 결과 개수")
+        long totalCount,
         @Schema(description = "전통주 간단 정보")
         List<AlcoholicDrinksSummary> alcoholicDrinks
 ) {
