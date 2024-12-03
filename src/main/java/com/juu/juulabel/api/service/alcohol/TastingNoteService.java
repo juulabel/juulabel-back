@@ -116,10 +116,19 @@ public class TastingNoteService {
 	public AlcoholDrinksListResponse searchAlcoholDrinksList(final SearchAlcoholDrinksListRequest request) {
 		final Slice<AlcoholicDrinksSummary> alcoholicDrinks = tastingNoteReader.getAllAlcoholicDrinks(request.search(),
 			request.lastAlcoholicDrinksName(), request.pageSize());
-		return SliceResponseFactory.create(
-			AlcoholDrinksListResponse.class,
-			alcoholicDrinks.isLast(),
-			alcoholicDrinks.getContent()
+
+        long totalCount = tastingNoteReader.countBySearch(request.search());
+
+//		return SliceResponseFactory.create(
+//			AlcoholDrinksListResponse.class,
+//			alcoholicDrinks.isLast(),
+//            totalCount,
+//			alcoholicDrinks.getContent()
+//		);
+		return new AlcoholDrinksListResponse(
+				alcoholicDrinks.isLast(),
+				totalCount,
+				alcoholicDrinks.getContent()
 		);
 	}
 

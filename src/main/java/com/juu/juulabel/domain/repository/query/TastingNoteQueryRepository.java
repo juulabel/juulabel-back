@@ -213,6 +213,17 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(tastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public long countBySearch (String search){
+        return jpaQueryFactory
+                .select(alcoholicDrinks.count())
+                .from(alcoholicDrinks)
+                .where(
+                        alcoholicDrinks.name.contains(search),
+                        isNotDeleted(alcoholicDrinks)
+                )
+                .fetchOne();
+    }
+
     public long getMyTastingNoteCount(Member member) {
         Long tastingNoteCount = jpaQueryFactory
             .select(tastingNote.count())
@@ -281,6 +292,10 @@ public class TastingNoteQueryRepository {
 
     private BooleanExpression isNotDeleted(QTastingNoteImage tastingNoteImage) {
         return tastingNoteImage.deletedAt.isNull();
+    }
+
+    private BooleanExpression isNotDeleted (QAlcoholicDrinks alcoholicDrinks){
+        return alcoholicDrinks.deletedAt.isNull();
     }
 
     private BooleanExpression hasMultipleImagesSubQuery(QTastingNote tastingNote, QTastingNoteImage tastingNoteImage) {

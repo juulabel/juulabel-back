@@ -15,7 +15,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SliceResponseFactory {
 
-    public static <T> T create(Class<T> responseClass, boolean isLast, List<?> contentList) {
+    public static <T> T create(Class<T> responseClass, boolean isLast, long totalCount, List<?> contentList) {
         if (responseClass.isAnnotationPresent(SliceResponse.class)) {
             SliceResponse annotation = responseClass.getAnnotation(SliceResponse.class);
             Class<?> contentClass = annotation.content();

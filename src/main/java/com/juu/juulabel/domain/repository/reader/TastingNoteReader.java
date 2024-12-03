@@ -29,6 +29,10 @@ public class TastingNoteReader {
         return tastingNoteQueryRepository.findAllAlcoholicDrinks(search, lastAlcoholicDrinksName, pageSize);
     }
 
+    public long countBySearch(final String search) {
+        return tastingNoteQueryRepository.countBySearch(search);
+    }
+
     public Slice<TastingNoteSummary> getAllTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
         return tastingNoteQueryRepository.getAllTastingNotes(member, lastTastingNoteId, pageSize);
     }
