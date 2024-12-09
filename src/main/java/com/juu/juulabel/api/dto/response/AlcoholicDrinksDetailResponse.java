@@ -2,6 +2,7 @@ package com.juu.juulabel.api.dto.response;
 
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetailInfo;
 import com.juu.juulabel.domain.dto.alcohol.IngredientSummary;
+import com.juu.juulabel.domain.dto.alcohol.VolumePriceDetail;
 import com.juu.juulabel.domain.dto.tastingnote.LikeTopTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +13,8 @@ import java.util.List;
 public record AlcoholicDrinksDetailResponse(
         @Schema(description = "전통주 상세 정보")
         AlcoholicDrinksDetailInfo alcoholicDrinksDetailInfo,
+        @Schema(description = "용량별 가격 정보")
+        List<VolumePriceDetail> volumePriceDetails,
         @Schema(description = "전통주 원재료")
         List<IngredientSummary> ingredientSummary,
         @Schema(description = "전통주 감각 정보")
