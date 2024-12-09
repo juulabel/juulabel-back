@@ -16,9 +16,7 @@ import com.juu.juulabel.domain.repository.query.BreweryQueryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Reader
 @RequiredArgsConstructor
@@ -77,6 +75,12 @@ public class AlcoholicDrinksReader {
 
     public List<LikeTopTastingNoteSummary> getTastingNote(Long alcoholDrinksId) {
         return alcoholDrinksDetailQueryRepository.getTastingNoteList(alcoholDrinksId);
+    }
+
+    public List<VolumePriceDetail> getVolumePriceDetails(Long alcoholDrinksId) {
+        Map<String, VolumePriceDetail> volumePriceDetailMap = alcoholDrinksDetailQueryRepository.getVolumePriceDetailsList(alcoholDrinksId);
+
+        return new ArrayList<>(volumePriceDetailMap.values());
     }
 
     public Slice<AlcoholSearchSummary> getAlcoholicDrinksByType(Long alcoholTypeId, String lastAlcoholicDrinksName,int pageSize, SortType sortType){

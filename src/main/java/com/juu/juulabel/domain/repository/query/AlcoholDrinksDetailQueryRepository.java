@@ -9,6 +9,7 @@ import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.QMember;
 import com.juu.juulabel.domain.entity.tastingnote.*;
+import com.juu.juulabel.domain.repository.jpa.AlcoholicDrinksJpaRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -18,7 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Repository
@@ -26,6 +29,7 @@ import java.util.Optional;
 public class AlcoholDrinksDetailQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final AlcoholicDrinksJpaRepository alcoholicDrinksJpaRepository;
 
     QAlcoholicDrinks alcoholicDrinks = QAlcoholicDrinks.alcoholicDrinks;
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
@@ -81,6 +85,45 @@ public class AlcoholDrinksDetailQueryRepository {
         return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE)
         );
     }
+
+    public Map<String, VolumePriceDetail> getVolumePriceDetailsList(Long alcoholicId) {
+        // 예시로 alcoholicId를 기반으로 해당 전통주 이름을 가져오는 로직 추가
+        String fullName = jpaQueryFactory
+                .select(alcoholicDrinks.name)
+                .from(alcoholicDrinks)
+                .where(alcoholicDrinks.id.eq(alcoholicId))
+                .fetchOne();
+
+        String prefix = extractPrefix(fullName);
+
+        List<VolumePriceDetail> volumePriceDetails = jpaQueryFactory
+                .select(Projections.constructor(
+                        VolumePriceDetail.class,
+                        alcoholicDrinks.volume,
+                        alcoholicDrinks.discountPrice,
+                        alcoholicDrinks.regularPrice
+                ))
+                .from(alcoholicDrinks)
+                .where(alcoholicDrinks.name.startsWith(prefix))
+                .fetch();
+
+        // key-value 형태로 리턴
+        return volumePriceDetails.stream()
+                .collect(Collectors.toMap(
+                        detail -> prefix + " " + detail.volume() + "ml",
+                        detail -> detail,
+                        (existing, replacement) -> existing
+                ));
+    }
+
+    // 이름에서 앞부분 추출
+    private String extractPrefix(String name) {
+        if (name != null && name.contains(" ")) {
+            return name.split(" ")[0];
+        }
+        return name;
+    }
+
 
     public List<IngredientSummary> getIngredientSummary(Long alcoholDrinksId) {
         return jpaQueryFactory

@@ -7,6 +7,7 @@ import com.juu.juulabel.api.dto.response.RelationSearchResponse;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholSearchSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksDetailInfo;
 import com.juu.juulabel.domain.dto.alcohol.IngredientSummary;
+import com.juu.juulabel.domain.dto.alcohol.VolumePriceDetail;
 import com.juu.juulabel.domain.dto.tastingnote.LikeTopTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSensorSummary;
 import com.juu.juulabel.domain.enums.sort.SortType;
@@ -38,9 +39,12 @@ public class AlcoholicDrinksService {
 
         List<LikeTopTastingNoteSummary> tastingNoteSummary = alcoholDrinksReader.getTastingNote(alcoholicId);
 
+        List<VolumePriceDetail> volumePriceDetails = alcoholDrinksReader.getVolumePriceDetails(alcoholicId);
+
 
         return new AlcoholicDrinksDetailResponse(
                 alcoholicDrinksDetailInfo,
+                volumePriceDetails,
                 ingredientSummaryList,
                 tastingNoteSensorSummary,
                 tastingNoteSummary
