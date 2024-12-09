@@ -11,6 +11,7 @@ import com.juu.juulabel.domain.entity.member.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -36,9 +37,10 @@ public class NotificationController {
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(
         @Parameter(hidden = true) @LoginMember Member loginMember,
-        @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId
+        @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId,
+        HttpServletResponse response
     ) {
-        return notificationService.subscribe(loginMember, lastEventId);
+        return notificationService.subscribe(loginMember, lastEventId, response);
     }
 
     @Operation(

@@ -14,6 +14,7 @@ import com.juu.juulabel.domain.repository.EmitterRepository;
 import com.juu.juulabel.domain.repository.reader.MemberReader;
 import com.juu.juulabel.domain.repository.reader.NotificationReader;
 import com.juu.juulabel.domain.repository.writer.NotificationWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
@@ -38,7 +39,7 @@ public class NotificationService {
     private final NotificationWriter notificationWriter;
     private final NotificationReader notificationReader;
 
-    public SseEmitter subscribe(Member member, String lastEventId) {
+    public SseEmitter subscribe(Member member, String lastEventId, HttpServletResponse response) {
         Long memberId = member.getId();
         String emitterId = makeTimeIncludeId(memberId);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
@@ -51,6 +52,8 @@ public class NotificationService {
             emitterRepository.deleteById(emitterId);
         });
 
+        configureSse(response);
+
         // 첫 연결 시 503 Service Unavailable 방지용 더미 Event 전송
         sendToClient(emitter, emitterId, "알림 서버 연결 성공. [memberId=" + memberId + "]");
 
@@ -59,6 +62,13 @@ public class NotificationService {
         }
 
         return emitter;
+    }
+
+    private void configureSse(HttpServletResponse response) {
+        response.setHeader("Content-Type", "text/event-stream");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Connection", "keep-alive");
+        response.setHeader("Access-Control-Allow-Origin", "*");
     }
 
     private void sendToClient(SseEmitter emitter, String emitterId, Object data) {
