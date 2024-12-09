@@ -116,6 +116,22 @@ public class TastingNoteController {
     }
 
     @Operation(
+        summary = "전통주별 시음노트 목록 조회",
+        description = "전통주별 시음노트 게시글 목록을 조회한다."
+    )
+    @Parameters(
+        @Parameter(name = "request", description = "시음노트 게시글 목록 조회 요청", required = true)
+    )
+    @GetMapping("/by-alcoholicDrinks/{alcoholicDrinksId}")
+    public ResponseEntity<CommonResponse<TastingNoteListResponse>> loadTastingNoteListByAlcoholicDrinksId(
+        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @Valid TastingNoteListRequest request,
+        @PathVariable Long alcoholicDrinksId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteListByAlcoholicDrinksId(loginMember, request, alcoholicDrinksId));
+    }
+
+    @Operation(
         summary = "시음노트 상세 조회",
         description = "전통주 시음노트 게시글을 상세 조회한다."
     )

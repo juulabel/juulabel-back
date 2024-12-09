@@ -129,6 +129,48 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(tastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public Slice<TastingNoteSummary> getAllTastingNotesByAlcoholicDrinksId(Member member, Long lastTastingNoteId, int pageSize, Long alcoholicDrinksId) {
+        List<TastingNoteSummary> tastingNoteSummaryList = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    TastingNoteSummary.class,
+                    tastingNote.id,
+                    tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
+                    Projections.constructor(
+                        MemberInfo.class,
+                        tastingNote.member.id,
+                        tastingNote.member.nickname,
+                        tastingNote.member.profileImage
+                    ),
+                    tastingNoteImage.imagePath.as("thumbnailPath"),
+                    tastingNote.alcoholDrinksInfo.alcoholTypeName,
+                    tastingNote.createdAt,
+                    hasMultipleImagesSubQuery(tastingNote, tastingNoteImage)
+                )
+            )
+            .from(tastingNote)
+            .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
+                .and(tastingNoteImage.seq.eq(1))
+                .and(isNotDeleted(tastingNoteImage)))
+            .where(
+                isNotPrivateOrAuthor(tastingNote, member),
+                isNotDeleted(tastingNote),
+                noOffsetByTastingNoteId(tastingNote, lastTastingNoteId),
+                tastingNote.alcoholicDrinks.id.eq(alcoholicDrinksId)
+            )
+            .groupBy(tastingNote.id)
+            .orderBy(tastingNote.id.desc())
+            .limit(pageSize + 1L)
+            .fetch();
+
+        boolean hasNext = tastingNoteSummaryList.size() > pageSize;
+        if (hasNext) {
+            tastingNoteSummaryList.remove(pageSize);
+        }
+
+        return new SliceImpl<>(tastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
     public Slice<MyTastingNoteSummary> getAllMyTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
         List<MyTastingNoteSummary> myTastingNoteSummaryList = jpaQueryFactory
             .select(
