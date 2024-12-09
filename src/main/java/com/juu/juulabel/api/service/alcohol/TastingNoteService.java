@@ -1,50 +1,14 @@
 package com.juu.juulabel.api.service.alcohol;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Slice;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.juu.juulabel.api.dto.request.CommentListRequest;
-import com.juu.juulabel.api.dto.request.ReplyListRequest;
-import com.juu.juulabel.api.dto.request.SearchAlcoholDrinksListRequest;
-import com.juu.juulabel.api.dto.request.TastingNoteListRequest;
-import com.juu.juulabel.api.dto.request.TastingNoteWriteRequest;
-import com.juu.juulabel.api.dto.request.UpdateCommentRequest;
-import com.juu.juulabel.api.dto.request.WriteTastingNoteCommentRequest;
-import com.juu.juulabel.api.dto.response.AlcoholDrinksListResponse;
-import com.juu.juulabel.api.dto.response.DeleteCommentResponse;
-import com.juu.juulabel.api.dto.response.DeleteTastingNoteResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteColorListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteCommentListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteFlavorListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteReplyListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteScentListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteSensoryListResponse;
-import com.juu.juulabel.api.dto.response.TastingNoteWriteResponse;
-import com.juu.juulabel.api.dto.response.UpdateCommentResponse;
-import com.juu.juulabel.api.dto.response.WriteTastingNoteCommentResponse;
-import com.juu.juulabel.api.factory.SliceResponseFactory;
+import com.juu.juulabel.api.dto.request.*;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.notification.NotificationService;
 import com.juu.juulabel.api.service.s3.S3Service;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.ImageInfo;
-import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
-import com.juu.juulabel.domain.dto.alcohol.CategoryWithScentSummary;
-import com.juu.juulabel.domain.dto.alcohol.ColorInfo;
-import com.juu.juulabel.domain.dto.alcohol.FlavorLevelInfo;
-import com.juu.juulabel.domain.dto.alcohol.SensoryLevelInfo;
+import com.juu.juulabel.domain.dto.alcohol.*;
 import com.juu.juulabel.domain.dto.comment.CommentSummary;
 import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
@@ -53,40 +17,20 @@ import com.juu.juulabel.domain.dto.tastingnote.AlcoholicDrinksInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
-import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
-import com.juu.juulabel.domain.entity.alcohol.AlcoholicDrinks;
-import com.juu.juulabel.domain.entity.alcohol.Color;
-import com.juu.juulabel.domain.entity.alcohol.FlavorLevel;
-import com.juu.juulabel.domain.entity.alcohol.Scent;
-import com.juu.juulabel.domain.entity.alcohol.SensoryLevel;
+import com.juu.juulabel.domain.entity.alcohol.*;
 import com.juu.juulabel.domain.entity.member.Member;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNote;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteComment;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteCommentLike;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteFlavorLevel;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteImage;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteLike;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteScent;
-import com.juu.juulabel.domain.entity.tastingnote.TastingNoteSensoryLevel;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeColorReader;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeFlavorReader;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeReader;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeScentReader;
-import com.juu.juulabel.domain.repository.reader.AlcoholTypeSensoryReader;
-import com.juu.juulabel.domain.repository.reader.AlcoholicDrinksReader;
-import com.juu.juulabel.domain.repository.reader.TastingNoteCommentLikeReader;
-import com.juu.juulabel.domain.repository.reader.TastingNoteCommentReader;
-import com.juu.juulabel.domain.repository.reader.TastingNoteImageReader;
-import com.juu.juulabel.domain.repository.reader.TastingNoteLikeReader;
-import com.juu.juulabel.domain.repository.reader.TastingNoteReader;
-import com.juu.juulabel.domain.repository.writer.TastingNoteCommentLikeWriter;
-import com.juu.juulabel.domain.repository.writer.TastingNoteCommentWriter;
-import com.juu.juulabel.domain.repository.writer.TastingNoteImageWriter;
-import com.juu.juulabel.domain.repository.writer.TastingNoteLikeWriter;
-import com.juu.juulabel.domain.repository.writer.TastingNoteWriter;
-
+import com.juu.juulabel.domain.entity.tastingnote.*;
+import com.juu.juulabel.domain.repository.reader.*;
+import com.juu.juulabel.domain.repository.writer.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Slice;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -289,6 +233,14 @@ public class TastingNoteService {
 	public TastingNoteListResponse loadTastingNoteList(Member member, TastingNoteListRequest request) {
 		Slice<TastingNoteSummary> tastingNoteList =
 			tastingNoteReader.getAllTastingNotes(member, request.lastTastingNoteId(), request.pageSize());
+
+		return new TastingNoteListResponse(tastingNoteList);
+	}
+
+	@Transactional(readOnly = true)
+	public TastingNoteListResponse loadTastingNoteListByAlcoholicDrinksId(Member member, TastingNoteListRequest request, Long alcoholicDrinksId) {
+		Slice<TastingNoteSummary> tastingNoteList =
+			tastingNoteReader.getAllTastingNotesByAlcoholicDrinksId(member, request.lastTastingNoteId(), request.pageSize(), alcoholicDrinksId);
 
 		return new TastingNoteListResponse(tastingNoteList);
 	}

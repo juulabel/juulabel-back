@@ -37,6 +37,14 @@ public class TastingNoteReader {
         return tastingNoteQueryRepository.getAllTastingNotes(member, lastTastingNoteId, pageSize);
     }
 
+    public Slice<TastingNoteSummary> getAllTastingNotesByAlcoholicDrinksId(Member member,
+                                                                           Long lastTastingNoteId,
+                                                                           int pageSize,
+                                                                           Long alcoholicDrinksId
+    ) {
+        return tastingNoteQueryRepository.getAllTastingNotesByAlcoholicDrinksId(member, lastTastingNoteId, pageSize, alcoholicDrinksId);
+    }
+
     public TastingNoteDetailInfo getTastingNoteDetailById(Long tastingNoteId, Member member) {
         return tastingNoteQueryRepository.getTastingNoteDetailById(tastingNoteId, member);
     }
