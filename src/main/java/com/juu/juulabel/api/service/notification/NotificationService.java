@@ -39,9 +39,8 @@ public class NotificationService {
     private final NotificationWriter notificationWriter;
     private final NotificationReader notificationReader;
 
-    public SseEmitter subscribe(String lastEventId, HttpServletResponse response) {
-//        Long memberId = member.getId();
-        Long memberId = 3L;
+    public SseEmitter subscribe(Member member, String lastEventId, HttpServletResponse response) {
+        Long memberId = member.getId();
         String emitterId = makeTimeIncludeId(memberId);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
