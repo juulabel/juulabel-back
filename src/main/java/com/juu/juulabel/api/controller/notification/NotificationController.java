@@ -36,11 +36,11 @@ public class NotificationController {
     )
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+//        @Parameter(hidden = true) @LoginMember Member loginMember,
         @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId,
         HttpServletResponse response
     ) {
-        return notificationService.subscribe(loginMember, lastEventId, response);
+        return notificationService.subscribe(lastEventId, response);
     }
 
     @Operation(

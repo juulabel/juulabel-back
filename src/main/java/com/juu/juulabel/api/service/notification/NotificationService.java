@@ -39,8 +39,9 @@ public class NotificationService {
     private final NotificationWriter notificationWriter;
     private final NotificationReader notificationReader;
 
-    public SseEmitter subscribe(Member member, String lastEventId, HttpServletResponse response) {
-        Long memberId = member.getId();
+    public SseEmitter subscribe(String lastEventId, HttpServletResponse response) {
+//        Long memberId = member.getId();
+        Long memberId = 3L;
         String emitterId = makeTimeIncludeId(memberId);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
@@ -67,6 +68,7 @@ public class NotificationService {
     private void configureSse(HttpServletResponse response) {
         response.setHeader("Content-Type", "text/event-stream");
         response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Connection", "keep-alive");
         response.setHeader("Access-Control-Allow-Origin", "*");
     }
 
