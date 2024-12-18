@@ -96,6 +96,12 @@ public class AlcoholicDrinks extends BaseTimeEntity {
     public void removeRating(Double existingRating) {
         double currentRating = this.rating;
         int count = this.tastingNoteCount;
+        // 방어 로직 추가 (NaN 에러 해결)
+        if (count <= 1) {
+            this.rating = 0.0; // 기본값으로 초기화
+            this.tastingNoteCount = 0;
+            return;
+        }
         double totalScore = count * currentRating - existingRating;
         this.tastingNoteCount = count - 1;
         this.rating = totalScore / this.tastingNoteCount;
