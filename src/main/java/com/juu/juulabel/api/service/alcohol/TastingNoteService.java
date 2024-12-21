@@ -14,6 +14,7 @@ import com.juu.juulabel.domain.dto.comment.ReplySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.juu.juulabel.domain.dto.tastingnote.AlcoholicDrinksInfo;
+import com.juu.juulabel.domain.dto.tastingnote.AlcoholicDrinksTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
 import com.juu.juulabel.domain.embedded.AlcoholicDrinksSnapshot;
@@ -238,11 +239,11 @@ public class TastingNoteService {
 	}
 
 	@Transactional(readOnly = true)
-	public TastingNoteListResponse loadTastingNoteListByAlcoholicDrinksId(Member member, TastingNoteListRequest request, Long alcoholicDrinksId) {
-		Slice<TastingNoteSummary> tastingNoteList =
+	public TastingNoteListResponseForAlcoholicDrinks loadTastingNoteListByAlcoholicDrinksId(Member member, TastingNoteListRequest request, Long alcoholicDrinksId) {
+		Slice<AlcoholicDrinksTastingNoteSummary> tastingNoteList =
 			tastingNoteReader.getAllTastingNotesByAlcoholicDrinksId(member, request.lastTastingNoteId(), request.pageSize(), alcoholicDrinksId);
 
-		return new TastingNoteListResponse(tastingNoteList);
+		return new TastingNoteListResponseForAlcoholicDrinks(tastingNoteList);
 	}
 
 	@Transactional(readOnly = true)
