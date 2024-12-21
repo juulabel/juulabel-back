@@ -123,7 +123,7 @@ public class TastingNoteController {
         @Parameter(name = "request", description = "시음노트 게시글 목록 조회 요청", required = true)
     )
     @GetMapping("/by-alcoholicDrinks/{alcoholicDrinksId}")
-    public ResponseEntity<CommonResponse<TastingNoteListResponse>> loadTastingNoteListByAlcoholicDrinksId(
+    public ResponseEntity<CommonResponse<TastingNoteListResponseForAlcoholicDrinks>> loadTastingNoteListByAlcoholicDrinksId(
         @Parameter(hidden = true) @LoginMember Member loginMember,
         @Valid TastingNoteListRequest request,
         @PathVariable Long alcoholicDrinksId

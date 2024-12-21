@@ -6,6 +6,7 @@ import com.juu.juulabel.domain.dto.alcohol.AlcoholTypeSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
 import com.juu.juulabel.domain.dto.alcohol.BrewerySummary;
 import com.juu.juulabel.domain.dto.member.MemberInfo;
+import com.juu.juulabel.domain.dto.tastingnote.AlcoholicDrinksTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.MyTastingNoteSummary;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteDetailInfo;
 import com.juu.juulabel.domain.dto.tastingnote.TastingNoteSummary;
@@ -129,11 +130,11 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(tastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public Slice<TastingNoteSummary> getAllTastingNotesByAlcoholicDrinksId(Member member, Long lastTastingNoteId, int pageSize, Long alcoholicDrinksId) {
-        List<TastingNoteSummary> tastingNoteSummaryList = jpaQueryFactory
+    public Slice<AlcoholicDrinksTastingNoteSummary> getAllTastingNotesByAlcoholicDrinksId(Member member, Long lastTastingNoteId, int pageSize, Long alcoholicDrinksId) {
+        List<AlcoholicDrinksTastingNoteSummary> tastingNoteSummaryList = jpaQueryFactory
             .select(
                 Projections.constructor(
-                    TastingNoteSummary.class,
+                    AlcoholicDrinksTastingNoteSummary.class,
                     tastingNote.id,
                     tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
                     Projections.constructor(
@@ -145,7 +146,8 @@ public class TastingNoteQueryRepository {
                     tastingNoteImage.imagePath.as("thumbnailPath"),
                     tastingNote.alcoholDrinksInfo.alcoholTypeName,
                     tastingNote.createdAt,
-                    hasMultipleImagesSubQuery(tastingNote, tastingNoteImage)
+                    hasMultipleImagesSubQuery(tastingNote, tastingNoteImage),
+                    alcoholicDrinks.tastingNoteCount
                 )
             )
             .from(tastingNote)
