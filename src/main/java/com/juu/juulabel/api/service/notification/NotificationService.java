@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -59,12 +62,31 @@ public class NotificationService {
         // 첫 연결 시 503 Service Unavailable 방지용 더미 Event 전송
         sendToClient(emitter, emitterId, "알림 서버 연결 성공. [memberId=" + memberId + "]");
 
+        // Ping 전송 설정
+        sendPing(emitter, emitterId);
+
         if (!lastEventId.isEmpty()) {
             sendLostData(lastEventId, memberId, emitter);
         }
 
         return emitter;
     }
+
+    private void sendPing(SseEmitter emitter, String emitterId) {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                emitter.send(SseEmitter.event()
+                    .id(emitterId)
+                    .name("ping")
+                    .data("ping"));
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                scheduler.shutdown();
+            }
+        }, 0, 30, TimeUnit.SECONDS); // 30초 간격으로 ping 전송
+    }
+
 
     private void configureSse(HttpServletResponse response) {
         response.setHeader("Cache-Control", "no-cache");
