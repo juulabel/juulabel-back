@@ -1,5 +1,6 @@
 package com.juu.juulabel.api.service.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juu.juulabel.api.dto.request.CreateNotificationRequest;
 import com.juu.juulabel.api.dto.request.NotificationListRequest;
 import com.juu.juulabel.api.dto.response.NotificationListResponse;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -65,7 +67,6 @@ public class NotificationService {
     }
 
     private void configureSse(HttpServletResponse response) {
-        response.setHeader("Content-Type", "text/event-stream");
         response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Connection", "keep-alive");
         response.setHeader("Access-Control-Allow-Origin", "*");
@@ -73,10 +74,11 @@ public class NotificationService {
 
     private void sendToClient(SseEmitter emitter, String emitterId, Object data) {
         try {
+            String jsonData = new ObjectMapper().writeValueAsString(data); // JSON 변환
             emitter.send(SseEmitter.event()
                 .id(emitterId)
                 .name("sse")
-                .data(data)
+                .data(jsonData)
             );
         } catch (IOException exception) {
             emitterRepository.deleteById(emitterId);
@@ -94,7 +96,7 @@ public class NotificationService {
     }
 
     private String makeTimeIncludeId(Long memberId) { // (3)
-        return memberId + "_" + System.currentTimeMillis();
+        return memberId + "_" + UUID.randomUUID();
     }
 
     @Transactional
