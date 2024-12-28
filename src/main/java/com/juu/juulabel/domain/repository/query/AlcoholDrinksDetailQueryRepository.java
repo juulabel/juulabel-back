@@ -86,43 +86,61 @@ public class AlcoholDrinksDetailQueryRepository {
         );
     }
 
-    public Map<String, VolumePriceDetail> getVolumePriceDetailsList(Long alcoholicId) {
-        // 예시로 alcoholicId를 기반으로 해당 전통주 이름을 가져오는 로직 추가
-        String fullName = jpaQueryFactory
-                .select(alcoholicDrinks.name)
-                .from(alcoholicDrinks)
-                .where(alcoholicDrinks.id.eq(alcoholicId))
-                .fetchOne();
+public Map<String, VolumePriceDetail> getVolumePriceDetailsList(Long alcoholicId) {
+    // 전통주 이름을 가져오는 로직
+    String fullName = jpaQueryFactory
+            .select(alcoholicDrinks.name)
+            .from(alcoholicDrinks)
+            .where(alcoholicDrinks.id.eq(alcoholicId))
+            .fetchOne();
 
-        String prefix = extractPrefix(fullName);
-
-        List<VolumePriceDetail> volumePriceDetails = jpaQueryFactory
-                .select(Projections.constructor(
-                        VolumePriceDetail.class,
-                        alcoholicDrinks.volume,
-                        alcoholicDrinks.discountPrice,
-                        alcoholicDrinks.regularPrice
-                ))
-                .from(alcoholicDrinks)
-                .where(alcoholicDrinks.name.startsWith(prefix))
-                .fetch();
-
-        // key-value 형태로 리턴
-        return volumePriceDetails.stream()
-                .collect(Collectors.toMap(
-                        detail -> prefix + " " + detail.volume() + "ml",
-                        detail -> detail,
-                        (existing, replacement) -> existing
-                ));
+    if (fullName == null || fullName.isEmpty()) {
+        throw new IllegalArgumentException("전통주 이름을 찾을 수 없습니다.");
     }
 
-    // 이름에서 앞부분 추출
+    // 이름에서 prefix 추출
+    String prefix = extractPrefix(fullName);
+    System.out.println("Prefix: " + prefix);
+
+    // prefix로 시작하는 항목들을 조회
+    List<VolumePriceDetail> volumePriceDetails = jpaQueryFactory
+            .select(Projections.constructor(
+                    VolumePriceDetail.class,
+                    alcoholicDrinks.volume,
+                    alcoholicDrinks.discountPrice,
+                    alcoholicDrinks.regularPrice
+            ))
+            .from(alcoholicDrinks)
+            .where(alcoholicDrinks.name.startsWith(prefix))
+            .fetch();
+
+    // 결과를 key-value 형태로 변환
+    return volumePriceDetails.stream()
+            .collect(Collectors.toMap(
+                    detail -> prefix + " " + detail.volume() + "ml", // Key 형식
+                    detail -> detail,
+                    (existing, replacement) -> existing // Key 충돌 시 기존 값 유지
+            ));
+}
+
+    // 이름에서 접두사를 추출하는 메서드
     private String extractPrefix(String name) {
-        if (name != null && name.contains(" ")) {
-            return name.split(" ")[0];
+        if (name != null) {
+            int index = name.lastIndexOf("도");
+            if (index != -1) {
+                // "도" 앞 숫자까지 포함하여 추출
+                int startIndex = index - 1;
+                while (startIndex >= 0 && Character.isDigit(name.charAt(startIndex))) {
+                    startIndex--; // 숫자를 계속 탐색
+                }
+                startIndex++;
+
+                return name.substring(0, index + 1).trim(); // 마지막 "도"까지 포함
+            }
         }
         return name;
     }
+
 
 
     public List<IngredientSummary> getIngredientSummary(Long alcoholDrinksId) {
