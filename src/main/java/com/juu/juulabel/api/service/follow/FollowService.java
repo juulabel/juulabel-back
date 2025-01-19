@@ -37,7 +37,8 @@ public class FollowService {
     public FollowingListResponse loadFollowingList(final Member loginMember, final Long memberId, final FollowingListRequest request) {
         final Member member = memberReader.getById(memberId);
         final Slice<FollowUser> followingList = followReader.findAllFollowing(loginMember, member, request.lastFollowId(), request.pageSize());
-        return new FollowingListResponse(followingList);
+        final long count = followReader.countFollowing(member);
+        return new FollowingListResponse(count,followingList);
     }
 
     @Transactional(readOnly = true)

@@ -34,4 +34,8 @@ public class FollowReader {
                                              final int pageSize) {
         return followQueryRepository.findAllFollower(loginMember, member, lastFollowId, pageSize);
     }
+
+    public long countFollowing(final Member member){
+        return followQueryRepository.countFollowing(member);
+    }
 }

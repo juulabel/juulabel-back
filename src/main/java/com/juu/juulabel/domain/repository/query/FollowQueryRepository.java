@@ -97,6 +97,14 @@ public class FollowQueryRepository {
         return new SliceImpl<>(followerList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public long countFollowing(final Member member){
+        return jpaQueryFactory
+                .select(follow.count())
+                .from(follow)
+                .where(follow.follower.eq(member))
+                .fetchOne();
+    }
+
     private OrderSpecifier<Long> followIdDesc(QFollow follow) {
         return follow.id.desc();
     }
