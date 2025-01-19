@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Hidden
+//@Hidden
 @Tag(
         name = "팔로우 API",
         description = "팔로우, 언팔로우 등 팔로우 관련 API"

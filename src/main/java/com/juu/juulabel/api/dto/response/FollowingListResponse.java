@@ -6,7 +6,10 @@ import org.springframework.data.domain.Slice;
 
 @Schema(description = "팔로잉 리스트 조회 응답")
 public record FollowingListResponse(
+        @Schema(description = "팔로잉 수")
+        long count,
         @Schema(description = "팔로잉 리스트")
         Slice<FollowUser> followings
+
 ) {
 }
