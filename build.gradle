@@ -61,6 +61,10 @@ dependencies {
 	// S3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+	// image-webp
+	implementation("com.sksamuel.scrimage:scrimage-core:4.3.0")
+	implementation("com.sksamuel.scrimage:scrimage-webp:4.3.0")
+
 	// queryDSL
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
