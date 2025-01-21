@@ -51,7 +51,7 @@ public class S3Uploader {
     }
 
     // WebP로 변환 + 리사이징 및 압축
-    private File convertToWebpWithResize(MultipartFile file, String fileName) {
+    public File convertToWebpWithResize(MultipartFile file, String fileName) {
         try {
             File originalFile = convertMultipartToFile(file);
             File webpFile = new File(createDatePath() + File.separator + fileName + ".webp");
