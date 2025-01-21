@@ -54,7 +54,7 @@ public class DailyLifeQueryRepository {
                     ),
                     dailyLife.createdAt,
                     dailyLifeLike.countDistinct().as("likeCount"),
-                    dailyLifeComment.count().as("commentCount"),
+                    dailyLifeComment.countDistinct().as("commentCount"),
                     isLikedSubQuery(dailyLife, member)
                 )
             )
@@ -91,7 +91,7 @@ public class DailyLifeQueryRepository {
                     getImageCountSubQuery(dailyLife),
                     dailyLife.createdAt,
                     dailyLifeLike.countDistinct().as("likeCount"),
-                    dailyLifeComment.count().as("commentCount"),
+                    dailyLifeComment.countDistinct().as("commentCount"),
                     isLikedSubQuery(dailyLife, member)
                 )
             )
@@ -137,7 +137,7 @@ public class DailyLifeQueryRepository {
                     getImageCountSubQuery(dailyLife),
                     dailyLife.createdAt,
                     dailyLifeLike.countDistinct().as("likeCount"),
-                    dailyLifeComment.count().as("commentCount"),
+                    dailyLifeComment.countDistinct().as("commentCount"),
                     dailyLife.isPrivate,
                     isLikedSubQuery(dailyLife, member)
                 )
@@ -184,7 +184,7 @@ public class DailyLifeQueryRepository {
                     getImageCountSubQuery(dailyLife),
                     dailyLife.createdAt,
                     dailyLifeLike.countDistinct().as("likeCount"),
-                    dailyLifeComment.count().as("commentCount"),
+                    dailyLifeComment.countDistinct().as("commentCount"),
                     isLikedSubQuery(dailyLife, loginMember)
                 )
             )

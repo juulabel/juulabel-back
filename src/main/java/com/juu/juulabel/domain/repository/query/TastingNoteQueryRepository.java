@@ -378,7 +378,7 @@ public class TastingNoteQueryRepository {
                     tastingNote.content,
                     tastingNote.rating,
                     tastingNoteLike.countDistinct().as("likeCount"),
-                    tastingNoteComment.count().as("commentCount"),
+                    tastingNoteComment.countDistinct().as("commentCount"),
                     isLikedSubQuery(tastingNote, member)
                 )
             )
