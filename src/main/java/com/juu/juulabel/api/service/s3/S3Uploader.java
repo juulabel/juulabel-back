@@ -30,6 +30,10 @@ public class S3Uploader {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    @Value("${cloud.aws.cloudfront.url}")
+    private String cloudFrontUrl;
+
     public static final String DATE_FORMAT_YYYYMMDD = "yyyy/MM/dd";
 
     // WebP 변환 및 이미지 업로드
@@ -47,7 +51,7 @@ public class S3Uploader {
             throw new BaseException(ErrorCode.S3_UPLOADER_ERROR);
         }
 
-        return new UploadImageInfo(getUrlFromBucket(filePath));
+        return new UploadImageInfo(getCloudFrontUrl(filePath));
     }
 
     // WebP로 변환 + 리사이징 및 압축
@@ -94,8 +98,8 @@ public class S3Uploader {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 
-    private String getUrlFromBucket(String fileKey) {
-        return amazonS3.getUrl(bucket, fileKey).toString();
+    private String getCloudFrontUrl(String fileKey) {
+        return cloudFrontUrl + "/" + fileKey;  // CloudFront 도메인과 S3 경로 결합
     }
 
 }
