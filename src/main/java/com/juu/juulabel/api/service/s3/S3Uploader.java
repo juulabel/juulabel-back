@@ -54,7 +54,7 @@ public class S3Uploader {
     private File convertToWebpWithResize(MultipartFile file, String fileName) {
         try {
             File originalFile = convertMultipartToFile(file);
-            File webpFile = new File(createDatePath() + File.separator + fileName + ".webp");
+            File webpFile = new File(createDatePath() + "/" + fileName + ".webp");
             Files.createDirectories(webpFile.getParentFile().toPath());
 
             ImmutableImage.loader()
@@ -72,13 +72,13 @@ public class S3Uploader {
 
     // MultipartFile을 File로 변환하는 메서드
     private File convertMultipartToFile(MultipartFile file) throws IOException {
-        File convFile = new File(System.getProperty("java.io.tmpdir") + File.separator + file.getOriginalFilename());
+        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename());
         file.transferTo(convFile);
         return convFile;
     }
 
     private String getFilePath(String category) {
-        return category + File.separator + createDatePath() + File.separator + generateRandomFilePrefix() + ".webp";
+        return category + "/" + createDatePath() + "/" + generateRandomFilePrefix() + ".webp";
     }
 
     private String createDatePath() {
