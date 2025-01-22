@@ -51,7 +51,7 @@ public class S3Uploader {
     }
 
     // WebP로 변환 + 리사이징 및 압축
-    private File convertToWebpWithResize(MultipartFile file, String fileName) {
+    public File convertToWebpWithResize(MultipartFile file, String fileName) {
         try {
             File originalFile = convertMultipartToFile(file);
             File webpFile = new File(createDatePath() + "/" + fileName + ".webp");
@@ -59,10 +59,8 @@ public class S3Uploader {
 
             ImmutableImage.loader()
                 .fromFile(originalFile)
-//                .resizeTo(800, 600) // 해상도 리사이징 (예: 800x600 크기로 리사이징)
-//                .cover(800, 600) // 800x600으로 중앙을 기준으로 크롭 후 리사이징
+                .max(1280, 1280)
                 .output(WebpWriter.DEFAULT, webpFile);
-
             return webpFile;
 
         } catch (Exception e) {
