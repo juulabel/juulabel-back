@@ -10,6 +10,7 @@ import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class S3Uploader {
@@ -39,26 +41,34 @@ public class S3Uploader {
     // WebP 변환 및 이미지 업로드
     public UploadImageInfo uploadMultipartFileToBucket(String category, MultipartFile file) {
         String filePath = getFilePath(category);
-        File convertedFile = convertToWebpWithResize(file, filePath);
-        ObjectMetadata metadata = createMetadataFromFile(convertedFile);
+        File convertedFile = null; // WebP로 변환된 파일
+        File originalFile = null;  // MultipartFile을 변환한 원본 파일
 
-        try (FileInputStream fileInputStream = new FileInputStream(convertedFile)) {
-            amazonS3.putObject(
-                new PutObjectRequest(bucket, filePath, fileInputStream, metadata)
+        try {
+            originalFile = convertMultipartToFile(file); // 원본 파일 변환
+            convertedFile = convertToWebpWithResize(originalFile, filePath); // WebP 변환
+
+            ObjectMetadata metadata = createMetadataFromFile(convertedFile);
+
+            try (FileInputStream fileInputStream = new FileInputStream(convertedFile)) {
+                amazonS3.putObject(new PutObjectRequest(bucket, filePath, fileInputStream, metadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead)
-            );
+                );
+            }
         } catch (Exception e) {
             throw new BaseException(ErrorCode.S3_UPLOADER_ERROR);
+        } finally {
+            deleteLocalFile(originalFile);  // 원본 파일 삭제
+            deleteLocalFile(convertedFile); // 변환된 파일 삭제
         }
 
         return new UploadImageInfo(getCloudFrontUrl(filePath));
     }
 
     // WebP로 변환 + 리사이징 및 압축
-    public File convertToWebpWithResize(MultipartFile file, String fileName) {
+    public File convertToWebpWithResize(File originalFile, String fileName) {
         try {
-            File originalFile = convertMultipartToFile(file);
-            File webpFile = new File(createDatePath() + "/" + fileName + ".webp");
+            File webpFile = new File(fileName + ".webp");
             Files.createDirectories(webpFile.getParentFile().toPath());
 
             ImmutableImage.loader()
@@ -73,7 +83,7 @@ public class S3Uploader {
     }
 
     // MultipartFile을 File로 변환하는 메서드
-    private File convertMultipartToFile(MultipartFile file) throws IOException {
+    public File convertMultipartToFile(MultipartFile file) throws IOException {
         File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename());
         file.transferTo(convFile);
         return convFile;
@@ -100,6 +110,12 @@ public class S3Uploader {
 
     private String getCloudFrontUrl(String fileKey) {
         return cloudFrontUrl + "/" + fileKey;  // CloudFront 도메인과 S3 경로 결합
+    }
+
+    private void deleteLocalFile(File file) {
+        if (file != null && file.exists() && !file.delete()) {
+            log.warn("Failed to delete file: {}", file.getAbsolutePath());
+        }
     }
 
 }
