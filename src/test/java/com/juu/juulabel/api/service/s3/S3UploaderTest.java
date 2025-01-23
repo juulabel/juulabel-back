@@ -32,9 +32,10 @@ class S3UploaderTest {
             new FileInputStream(testFile)
         );
         String filePath = getFilePath("member");
+        File originalFile = s3Uploader.convertMultipartToFile(multipartFile);
 
         // When
-        File convertedFile = s3Uploader.convertToWebpWithResize(multipartFile, filePath);
+        File convertedFile = s3Uploader.convertToWebpWithResize(originalFile, filePath);
 
         // Then
         double originalFileSizeKB = testFile.length() / 1024.0;
