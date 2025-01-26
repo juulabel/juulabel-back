@@ -45,7 +45,8 @@ public class FollowService {
     public FollowerListResponse loadFollowerList(final Member loginMember, final Long memberId, final FollowerListRequest request) {
         final Member member = memberReader.getById(memberId);
         final Slice<FollowUser> followingList = followReader.findAllFollower(loginMember, member, request.lastFollowId(), request.pageSize());
-        return new FollowerListResponse(followingList);
+        final long count = followReader.countFollower(member);
+        return new FollowerListResponse(count , followingList);
     }
 
 }
