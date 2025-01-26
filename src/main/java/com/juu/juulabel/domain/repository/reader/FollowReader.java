@@ -38,4 +38,8 @@ public class FollowReader {
     public long countFollowing(final Member member){
         return followQueryRepository.countFollowing(member);
     }
+
+    public long countFollower(final Member member){
+        return followQueryRepository.countFollower(member);
+    }
 }

@@ -105,6 +105,14 @@ public class FollowQueryRepository {
                 .fetchOne();
     }
 
+    public long countFollower(final Member member){
+        return jpaQueryFactory
+                .select(follow.count())
+                .from(follow)
+                .where(follow.followee.eq(member))
+                .fetchOne();
+    }
+
     private OrderSpecifier<Long> followIdDesc(QFollow follow) {
         return follow.id.desc();
     }
