@@ -77,6 +77,9 @@ dependencies {
 
 	//openCSV
 	implementation 'com.opencsv:opencsv:5.7.1'
+
+	// elasticSearch
+	implementation 'org.springframework.data:spring-data-elasticsearch'
 }
 
 def generatedQueryDsl = 'src/main/generated'
