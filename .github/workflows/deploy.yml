@@ -43,8 +43,8 @@ jobs:
       - name: web docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/wpp_backend .
-          docker push ${{ secrets.DOCKER_REPO }}/wpp_backend
+          docker build -t ${{ secrets.DOCKER_REPO }}/juulabel_backend .
+          docker push ${{ secrets.DOCKER_REPO }}/juulabel_backend
   deploy:
     needs:
       - build
