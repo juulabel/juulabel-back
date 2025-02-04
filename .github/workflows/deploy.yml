@@ -18,11 +18,21 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew bootJar
 
-      - name: Docker Build & Push
+      # 개발용 Docker 이미지 Build & Push
+      - name: Docker Build & Push for Development
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/juulabel_backend .
+          docker build -t ${{ secrets.DOCKER_REPO }}/juulabel_dev_backend .  # 개발 서버용 이미지
+          docker push ${{ secrets.DOCKER_REPO }}/juulabel_dev_backend
+        if: github.ref != 'refs/heads/main'  # main 브랜치를 제외한 모든 브랜치에서 실행
+
+      # 운영용 Docker 이미지 Build & Push
+      - name: Docker Build & Push for Production
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_REPO }}/juulabel_backend .  # 운영 서버용 이미지
           docker push ${{ secrets.DOCKER_REPO }}/juulabel_backend
+        if: github.ref == 'refs/heads/main'  # main 브랜치에서만 실행
 
   deploy:
     needs: build
