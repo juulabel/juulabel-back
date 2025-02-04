@@ -1,63 +1,73 @@
-name: juulabel
+name: Deploy to Development and Production
+
 on:
   workflow_dispatch:
-
-
-permissions:
-  contents: read
-  issues: write
-  checks: write
-  pull-requests: write
-  actions: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
           java-version: '21'
           distribution: 'zulu'
-      - uses: actions/checkout@v3
-      - name: make application.yml
-        run: |
-          # mkdir src/main/resources
-          mkdir -p ./src/main/resources
-          
-          # create application.yml
-          cd ./src/main/resources
-          
-          # application.yml 파일 생성
-          touch ./application.yml
-          
-          # GitHub-Actions 에서 설정한 값을 application.yml 파일에 쓰기
-          echo "${{ secrets.APPLICATION }}" >> ./application.yml
-
-        shell: bash
 
       - name: Build with Gradle
-        run: |
-          ./gradlew bootJar
-      - name: web docker build and push
+        run: ./gradlew bootJar
+
+      - name: Docker Build & Push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t ${{ secrets.DOCKER_REPO }}/juulabel_backend .
           docker push ${{ secrets.DOCKER_REPO }}/juulabel_backend
+
   deploy:
-    needs:
-      - build
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: deploy
+      - name: Set up application.yml for Development
+        run: |
+          mkdir -p ./src/main/resources
+          cd ./src/main/resources
+          touch ./application.yml
+          echo "${{ secrets.APPLICATION_DEV }}" >> ./application.yml
+        shell: bash
+        if: github.ref != 'refs/heads/main'  # main 브랜치를 제외한 모든 브랜치에서 실행
+
+      - name: Set up application.yml for Production
+        run: |
+          mkdir -p ./src/main/resources
+          cd ./src/main/resources
+          touch ./application.yml
+          echo "${{ secrets.APPLICATION_PROD }}" >> ./application.yml
+        shell: bash
+        if: github.ref == 'refs/heads/main'  # main 브랜치에서만 실행
+
+      - name: Deploy to Development Server
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.HOST_DEV }}
           username: ubuntu
-          key: ${{ secrets.KEY }}
+          key: ${{ secrets.KEY_DEV }}
           port: 22
           script: |
             sudo docker pull ${{ secrets.DOCKER_REPO }}/juulabel_backend
             sudo docker compose down
             sudo docker compose up -d
+        if: github.ref != 'refs/heads/main'  # main 브랜치를 제외한 모든 브랜치에서 실행
+
+      - name: Deploy to Production Server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST_PROD }}
+          username: ubuntu
+          key: ${{ secrets.KEY_PROD }}
+          port: 22
+          script: |
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/juulabel_backend
+            sudo docker compose down
+            sudo docker compose up -d
+        if: github.ref == 'refs/heads/main'  # main 브랜치에서만 실행
