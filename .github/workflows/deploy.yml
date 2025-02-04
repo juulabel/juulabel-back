@@ -15,6 +15,24 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
 
+      - name: make application.yml
+        run: |
+          mkdir -p ./src/main/resources
+          cd ./src/main/resources
+          touch ./application.yml
+          echo "${{ secrets.APPLICATION_DEV }}" >> ./application.yml
+        shell: bash
+        if: github.ref != 'refs/heads/main'  # main 브랜치를 제외한 모든 브랜치에서 실행
+
+      - name: make application.yml
+        run: |
+          mkdir -p ./src/main/resources
+          cd ./src/main/resources
+          touch ./application.yml
+          echo "${{ secrets.APPLICATION_PROD }}" >> ./application.yml
+        shell: bash
+        if: github.ref == 'refs/heads/main'  # main 브랜치에서만 실행
+
       - name: Build with Gradle
         run: ./gradlew bootJar
 
@@ -38,24 +56,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Set up application.yml for Development
-        run: |
-          mkdir -p ./src/main/resources
-          cd ./src/main/resources
-          touch ./application.yml
-          echo "${{ secrets.APPLICATION }}" >> ./application.yml
-        shell: bash
-        if: github.ref != 'refs/heads/main'  # main 브랜치를 제외한 모든 브랜치에서 실행
-
-      - name: Set up application.yml for Production
-        run: |
-          mkdir -p ./src/main/resources
-          cd ./src/main/resources
-          touch ./application.yml
-          echo "${{ secrets.APPLICATION_PROD }}" >> ./application.yml
-        shell: bash
-        if: github.ref == 'refs/heads/main'  # main 브랜치에서만 실행
-
       - name: Deploy to Development Server
         uses: appleboy/ssh-action@v0.1.7
         with:
