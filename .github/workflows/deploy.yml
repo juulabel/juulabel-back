@@ -15,69 +15,55 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
 
-      - name: make application.yml
+      - name: Make application.yml
         run: |
           mkdir -p ./src/main/resources
           cd ./src/main/resources
           touch ./application.yml
-          echo "${{ secrets.APPLICATION_DEV }}" >> ./application.yml
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "${{ secrets.APPLICATION_PROD }}" >> ./application.yml
+          else
+            echo "${{ secrets.APPLICATION_DEV }}" >> ./application.yml
+          fi
         shell: bash
-        if: github.ref != 'refs/heads/main'  # main 브랜치를 제외한 모든 브랜치에서 실행
-
-      - name: make application.yml
-        run: |
-          mkdir -p ./src/main/resources
-          cd ./src/main/resources
-          touch ./application.yml
-          echo "${{ secrets.APPLICATION_PROD }}" >> ./application.yml
-        shell: bash
-        if: github.ref == 'refs/heads/main'  # main 브랜치에서만 실행
 
       - name: Build with Gradle
         run: ./gradlew bootJar
 
-      # 개발용 Docker 이미지 Build & Push
-      - name: Docker Build & Push for Development
+      - name: Docker Build & Push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/juulabel_dev_backend .  # 개발 서버용 이미지
-          docker push ${{ secrets.DOCKER_REPO }}/juulabel_dev_backend
-        if: github.ref != 'refs/heads/main'  # main 브랜치를 제외한 모든 브랜치에서 실행
-
-      # 운영용 Docker 이미지 Build & Push
-      - name: Docker Build & Push for Production
-        run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/juulabel_backend .  # 운영 서버용 이미지
-          docker push ${{ secrets.DOCKER_REPO }}/juulabel_backend
-        if: github.ref == 'refs/heads/main'  # main 브랜치에서만 실행
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            IMAGE_TAG="juulabel_backend"
+          else
+            IMAGE_TAG="juulabel_dev_backend"
+          fi
+          docker build -t ${{ secrets.DOCKER_REPO }}/$IMAGE_TAG .
+          docker push ${{ secrets.DOCKER_REPO }}/$IMAGE_TAG
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, prod]
     steps:
-      - name: Deploy to Development Server
+      - name: Deploy
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.HOST_DEV }}
+          host: ${{ matrix.environment == 'prod' && secrets.HOST_PROD || secrets.HOST_DEV }}
           username: ubuntu
-          key: ${{ secrets.KEY_DEV }}
+          key: ${{ matrix.environment == 'prod' && secrets.KEY_PROD || secrets.KEY_DEV }}
           port: 22
           script: |
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/juulabel_dev_backend
+            if [ "${{ matrix.environment }}" == "prod" ]; then
+              IMAGE_TAG="juulabel_backend"
+            else
+              IMAGE_TAG="juulabel_dev_backend"
+            fi
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/$IMAGE_TAG
             sudo docker compose down
             sudo docker compose up -d
-        if: github.ref != 'refs/heads/main'  # main 브랜치를 제외한 모든 브랜치에서 실행
-
-      - name: Deploy to Production Server
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST_PROD }}
-          username: ubuntu
-          key: ${{ secrets.KEY_PROD }}
-          port: 22
-          script: |
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/juulabel_backend
-            sudo docker compose down
-            sudo docker compose up -d
-        if: github.ref == 'refs/heads/main'  # main 브랜치에서만 실행
+        if: |
+          (matrix.environment == 'prod' && github.ref == 'refs/heads/main') ||
+          (matrix.environment == 'dev' && github.ref != 'refs/heads/main')
