@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.1'
+	id 'org.springframework.boot' version '3.2.3'
 	id 'io.spring.dependency-management' version '1.1.5'
 }
 
@@ -24,15 +24,73 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// jpa
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// oauth2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// feign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.2'
+
+	// jjwt
+	implementation 'io.jsonwebtoken:jjwt:0.12.5'
+
+	// lombok
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// mysql
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.3'
+
+	// p6spy logging
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.1'
+
+	// S3
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	// image-webp
+	implementation("com.sksamuel.scrimage:scrimage-core:4.3.0")
+	implementation("com.sksamuel.scrimage:scrimage-webp:4.3.0")
+
+	// queryDSL
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	//openCSV
+	implementation 'com.opencsv:opencsv:5.7.1'
+}
+
+def generatedQueryDsl = 'src/main/generated'
+
+sourceSets {
+	main.java.srcDirs += [generatedQueryDsl]
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.getGeneratedSourceOutputDirectory().set(file(generatedQueryDsl))
+}
+
+clean.doLast {
+	file(generatedQueryDsl).deleteDir()
 }
 
 tasks.named('test') {
