@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [dev, prod]
+        environment: [ dev, prod ]
     steps:
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.7
@@ -65,22 +65,22 @@ jobs:
             sudo docker compose down
             sudo docker compose up -d
 
-          # 현재 실행 중인 컨테이너가 Green인지 Blue인지 확인
-            if sudo docker ps -q --filter "name=spring_green"; then
+
+            if sudo docker ps -q --filter "name=spring_green"; then # 현재 실행 중인 컨테이너가 Green인지 Blue인지 확인
               echo "Spring Green is up, switching traffic to Blue."
               sudo sed -i 's/spring_green:8080/spring_blue:8080/' /etc/nginx/nginx.conf # 현재 Green이 실행 중이라면 Blue에 새로운 버전 배포
               sudo nginx -s reload # 트래픽을 Blue로 전환
-              # 새로운 버전을 Blue에 배포
-              sudo docker pull ${{ secrets.DOCKER_REPO }}/$IMAGE_TAG
+            
+              sudo docker pull ${{ secrets.DOCKER_REPO }}/$IMAGE_TAG # 새로운 버전을 Blue에 배포
               sudo docker compose up -d spring_blue
             
-            # 새로운 버전이 정상적으로 실행되는지 확인
-              if sudo docker ps -q --filter "name=spring_blue"; then
+            
+              if sudo docker ps -q --filter "name=spring_blue"; then # 새로운 버전이 정상적으로 실행되는지 확인
                 echo "Spring Blue is up, deployment successful!"
               else
                 echo "Error in Blue deployment, rolling back to Green."
-            # Blue 배포가 실패하면, Green으로 롤백
-                sudo sed -i 's/spring_blue:8080/spring_green:8080/' /etc/nginx/nginx.conf
+            
+                sudo sed -i 's/spring_blue:8080/spring_green:8080/' /etc/nginx/nginx.conf # Blue 배포가 실패하면, Green으로 롤백
                 sudo nginx -s reload
                 exit 1
               fi
@@ -88,17 +88,17 @@ jobs:
               echo "Spring Blue is up, switching traffic to Green."
               sudo sed -i 's/spring_blue:8080/spring_green:8080/' /etc/nginx/nginx.conf # 현재 Blue가 실행 중이라면 Green에 새로운 버전 배포
               sudo nginx -s reload # 트래픽을 Green으로 전환
-            # 새로운 버전을 Green에 배포
-              sudo docker pull ${{ secrets.DOCKER_REPO }}/$IMAGE_TAG
+            
+              sudo docker pull ${{ secrets.DOCKER_REPO }}/$IMAGE_TAG # 새로운 버전을 Green에 배포
               sudo docker compose up -d spring_green
             
-            # 새로운 버전이 정상적으로 실행되는지 확인
-              if sudo docker ps -q --filter "name=spring_green"; then
+            
+              if sudo docker ps -q --filter "name=spring_green"; then # 새로운 버전이 정상적으로 실행되는지 확인
                 echo "Spring Green is up, deployment successful!"
               else
                 echo "Error in Green deployment, rolling back to Blue."
-            # Green 배포가 실패하면, Blue로 롤백
-                sudo sed -i 's/spring_green:8080/spring_blue:8080/' /etc/nginx/nginx.conf
+            
+                sudo sed -i 's/spring_green:8080/spring_blue:8080/' /etc/nginx/nginx.conf # Green 배포가 실패하면, Blue로 롤백
                 sudo nginx -s reload
                 exit 1
               fi
