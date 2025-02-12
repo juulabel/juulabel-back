@@ -68,6 +68,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "status", nullable = false, columnDefinition = "varchar(20) comment '회원 상태'")
     private MemberStatus status;
 
+    @Column(name = "has_badge", nullable = false, columnDefinition = "TINYINT(1) comment '뱃지 소유 여부'")
+    private boolean hasBadge;
+
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, columnDefinition = "varchar(20) comment '권한'")
@@ -84,6 +87,7 @@ public class Member extends BaseTimeEntity {
             .provider(signUpMemberRequest.provider())
             .providerId(signUpMemberRequest.providerId())
             .status(MemberStatus.ACTIVE)
+            .hasBadge(false)
             .role(MemberRole.ROLE_USER)
             .build();
     }
