@@ -26,6 +26,7 @@ public class FollowQueryRepository {
     QFollow follow = QFollow.follow;
     QMember follower = new QMember("follower");
     QMember followee = new QMember("followee");
+    QMember members = new QMember("member");
 
     public Slice<FollowUser> findAllFollowing(Member loginMember, Member member, Long lastFollowId, int pageSize) {
         List<FollowUser> followingList = jpaQueryFactory
@@ -111,6 +112,36 @@ public class FollowQueryRepository {
                 .from(follow)
                 .where(follow.followee.eq(member))
                 .fetchOne();
+    }
+
+    public Slice<FollowUser> getSearchUserList(Member loginMember, Long lastFollowId, int pageSize, String username){
+        List<FollowUser> searchUserList = jpaQueryFactory
+                .select(
+                        Projections.constructor(
+                                FollowUser.class,
+                                members.id,
+                                members.nickname,
+                                members.profileImage,
+                                jpaQueryFactory
+                                        .selectFrom(follow)
+                                        .where(
+                                                follow.follower.eq(loginMember),
+                                                follow.followee.eq(members)
+                                        )
+                                        .exists()
+                        ))
+                .from(members)
+                .where(
+                        members.nickname.contains(username)
+                )
+                .limit(pageSize + 1L)
+                .fetch();
+
+        boolean hasNext = searchUserList.size() > pageSize;
+        if (hasNext) {
+            searchUserList.remove(pageSize);
+        }
+        return new SliceImpl<>(searchUserList, PageRequest.ofSize(pageSize), hasNext);
     }
 
     private OrderSpecifier<Long> followIdDesc(QFollow follow) {

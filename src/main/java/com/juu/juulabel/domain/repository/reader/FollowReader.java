@@ -35,6 +35,13 @@ public class FollowReader {
         return followQueryRepository.findAllFollower(loginMember, member, lastFollowId, pageSize);
     }
 
+    public Slice<FollowUser> getSearchFollowUser(final Member loginMember,
+                                                 final Long lastFollowId,
+                                                 final int pageSize,
+                                                 final String username) {
+        return followQueryRepository.getSearchUserList(loginMember,lastFollowId, pageSize, username);
+    }
+
     public long countFollowing(final Member member){
         return followQueryRepository.countFollowing(member);
     }
