@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 
 @OpenAPIDefinition(
@@ -19,6 +20,7 @@ import org.springframework.http.HttpHeaders;
         }
 )
 @Configuration
+@Profile("dev")
 public class SwaggerConfig {
 
     @Bean
