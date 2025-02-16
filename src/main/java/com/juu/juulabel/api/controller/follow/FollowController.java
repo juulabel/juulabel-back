@@ -91,7 +91,7 @@ public class FollowController {
     @GetMapping("/members/search")
     public ResponseEntity<CommonResponse<SearchUserListResponse>> loadSearchUserList(
             @Parameter(hidden = true) @LoginMember Member loginMember,
-            @Valid SearchUserListRequest request) {
+            @Valid SearchUserListRequest request ) {
         return CommonResponse.success(SuccessCode.SUCCESS, followService.loadSearchUserList(loginMember, request));
     }
 
