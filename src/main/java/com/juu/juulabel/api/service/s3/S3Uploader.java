@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.dto.s3.UploadImageInfo;
+import com.sksamuel.scrimage.ImageParseException;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +78,8 @@ public class S3Uploader {
                 .output(WebpWriter.DEFAULT, webpFile);
             return webpFile;
 
+        } catch (ImageParseException e) {
+            throw new BaseException(ErrorCode.IMAGE_PARSE_EXCEPTION);
         } catch (Exception e) {
             throw new BaseException(ErrorCode.S3_UPLOADER_ERROR);
         }
