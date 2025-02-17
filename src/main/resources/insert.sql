@@ -1,4 +1,4 @@
-/
+/*
   약관
  */
 INSERT INTO terms (title, content, type, is_used, is_required, created_at, updated_at)
