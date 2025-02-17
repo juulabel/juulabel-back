@@ -75,11 +75,11 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// monitoring
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 	//openCSV
 	implementation 'com.opencsv:opencsv:5.7.1'
-
-	// elasticSearch
-	implementation 'org.springframework.data:spring-data-elasticsearch'
 }
 
 def generatedQueryDsl = 'src/main/generated'
