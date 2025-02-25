@@ -26,6 +26,7 @@ import com.juu.juulabel.domain.entity.terms.Terms;
 import com.juu.juulabel.domain.enums.member.Provider;
 import com.juu.juulabel.domain.repository.reader.*;
 import com.juu.juulabel.domain.repository.writer.*;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -302,13 +303,20 @@ public class MemberService {
         Member member = memberReader.getById(memberId);
         long tastingNoteCount = tastingNoteReader.getTastingNoteCountByMemberId(memberId, loginMember);
         long dailyLifeCount = dailyLifeReader.getDailyLifeCountByMemberId(memberId, loginMember);
+        long followingCount = followReader.countFollowing(member);
+        long followerCount = followReader.countFollower(member);
+        boolean isFollowing = followReader.isFollowing(loginMember, member);
+
         return new MemberProfileResponse(
             member.getId(),
             member.getNickname(),
             member.getProfileImage(),
             member.getIntroduction(),
             tastingNoteCount,
-            dailyLifeCount
+            dailyLifeCount,
+            followingCount,
+            followerCount,
+                isFollowing
         );
     }
 
