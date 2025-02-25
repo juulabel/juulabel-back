@@ -58,6 +58,7 @@ public class MemberService {
     private final TastingNoteReader tastingNoteReader;
     private final WithdrawalRecordWriter withdrawalRecordWriter;
     private final WithdrawalRecordReader withdrawalRecordReader;
+    private final FollowReader followReader;
 
 
     @Transactional
@@ -248,12 +249,17 @@ public class MemberService {
     public MySpaceResponse getMySpace(Member member) {
         long tastingNoteCount = tastingNoteReader.getMyTastingNoteCount(member);
         long dailyLifeCount = dailyLifeReader.getMyDailyLifeCount(member);
+        long followingCount = followReader.countFollowing(member);
+        long followerCount = followReader.countFollower(member);
+
         return new MySpaceResponse(
             member.getProfileImage(),
             member.getNickname(),
             member.getIntroduction(),
             tastingNoteCount,
             dailyLifeCount,
+            followingCount,
+            followerCount,
             0 // TODO : 시음노트 저장 기능 추가 시 수정 필요
         );
     }
