@@ -6,6 +6,8 @@ public record MySpaceResponse(
         String introduction,
         long myTastingNoteCount,
         long myDailyLifeCount,
+        long followingCount,
+        long followerCount,
         long savedTastingNoteCount
 ) {
 }
