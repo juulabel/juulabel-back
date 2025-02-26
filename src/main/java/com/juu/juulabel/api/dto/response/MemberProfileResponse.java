@@ -12,6 +12,8 @@ public record MemberProfileResponse(
     String profileImage,
     @Schema(description = "회원 자기소개")
     String introduction,
+    @Schema(description = "뱃지 유무")
+    boolean hasBadge,
     @Schema(description = "회원이 작성한 시음노트 개수")
     long tastingNoteCount,
     @Schema(description = "회원이 작성한 일상생활 개수")
