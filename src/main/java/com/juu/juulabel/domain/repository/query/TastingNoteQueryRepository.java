@@ -306,8 +306,7 @@ public class TastingNoteQueryRepository {
             return null;
         }
 
-        return alcoholicDrinks.name.containsIgnoreCase(search)
-                .or(brewery.name.containsIgnoreCase(search));
+        return alcoholicDrinks.name.containsIgnoreCase(search);
     }
 
     private BooleanExpression noOffsetAlcoholicDrinksName(QAlcoholicDrinks alcoholicDrinks, String lastAlcoholicDrinksName) {
