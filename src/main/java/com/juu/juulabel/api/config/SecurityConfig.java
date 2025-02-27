@@ -27,13 +27,11 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
-//    private final OAuth2UserService oAuth2UserService;
-//    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
 
     private static final String[] PERMIT_PATHS = {
         "/swagger-ui/**", "/api-docs/**", "/error", "/favicon.ico", "/", "/v1/api/members/login/**",
         "/v1/api/members/sign-up/**", "/v1/api/members/nicknames/{nickname}/exists", "/v1/api/alcohols/types",
-        "/v1/api/terms/**",
+        "/v1/api/terms/**", "/actuator/**",
         "/*", "/**" // 배포 시 제거
     };
 
@@ -62,8 +60,6 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .formLogin(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//            .headers(AbstractHttpConfigurer::disable)
-//            .logout(AbstractHttpConfigurer::disable)
 
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/v1/api/members/logout").authenticated()
@@ -74,13 +70,6 @@ public class SecurityConfig {
 
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class)
-
-            // OAuth2 로그인
-//            .oauth2Login(oauth2 -> oauth2
-//                .userInfoEndpoint(
-//                    userInfoEndpoint -> userInfoEndpoint.userService(oAuth2UserService))
-//                .successHandler(oAuthLoginSuccessHandler)
-//            )
 
             .build();
     }
