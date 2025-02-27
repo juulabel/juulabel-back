@@ -48,6 +48,18 @@ jobs:
       matrix:
         environment: [dev, prod]
     steps:
+      - name: Set up Prometheus targets
+        if: ${{ matrix.environment == 'prod' && github.ref == 'refs/heads/main' }}
+        run: |
+          echo "global:" > prometheus.yml
+          echo "  scrape_interval: 15s" >> prometheus.yml
+          echo "scrape_configs:" >> prometheus.yml
+          echo "  - job_name: 'springboot-app'" >> prometheus.yml
+          echo "    metrics_path: '/actuator/prometheus'" >> prometheus.yml
+          echo "    scrape_interval: 5s" >> prometheus.yml  # scrape_interval 설정
+          echo "    static_configs:" >> prometheus.yml
+          echo "      - targets: ['${{ secrets.PROMETHEUS_TARGET_IP }}:8080']" >> prometheus.yml
+
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.7
         with:
