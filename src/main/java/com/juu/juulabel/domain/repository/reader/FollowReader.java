@@ -6,6 +6,7 @@ import com.juu.juulabel.domain.entity.follow.Follow;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.repository.jpa.FollowJpaRepository;
 import com.juu.juulabel.domain.repository.query.FollowQueryRepository;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 
@@ -35,11 +36,28 @@ public class FollowReader {
         return followQueryRepository.findAllFollower(loginMember, member, lastFollowId, pageSize);
     }
 
+    public Slice<FollowUser> getSearchFollowUser(final Member loginMember,
+                                                 final Long lastFollowId,
+                                                 final int pageSize,
+                                                 final String username) {
+        return followQueryRepository.getSearchUserList(loginMember,lastFollowId, pageSize, username);
+    }
+    public Slice<FollowUser> getRecommendUserList(final Member loginMember,
+                                             final Member member,
+                                             final Long lastFollowId,
+                                             final int pageSize) {
+        return followQueryRepository.findAllFollower(loginMember, member, lastFollowId, pageSize);
+    }
+
     public long countFollowing(final Member member){
         return followQueryRepository.countFollowing(member);
     }
 
     public long countFollower(final Member member){
         return followQueryRepository.countFollower(member);
+    }
+
+    public boolean isFollowing(final Member loginMember , final Member member){
+        return followQueryRepository.isFollowing(loginMember,member);
     }
 }

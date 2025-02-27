@@ -4,9 +4,11 @@ import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.dto.request.FollowOrUnfollowRequest;
 import com.juu.juulabel.api.dto.request.FollowerListRequest;
 import com.juu.juulabel.api.dto.request.FollowingListRequest;
+import com.juu.juulabel.api.dto.request.SearchUserListRequest;
 import com.juu.juulabel.api.dto.response.FollowOrUnfollowResponse;
 import com.juu.juulabel.api.dto.response.FollowerListResponse;
 import com.juu.juulabel.api.dto.response.FollowingListResponse;
+import com.juu.juulabel.api.dto.response.SearchUserListResponse;
 import com.juu.juulabel.api.service.follow.FollowService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -77,6 +79,20 @@ public class FollowController {
             @PathVariable Long memberId,
             @Valid FollowerListRequest request) {
         return CommonResponse.success(SuccessCode.SUCCESS, followService.loadFollowerList(loginMember, memberId, request));
+    }
+
+    @Operation(
+            summary = "유저 검색",
+            description = "검색 된 유저 목록을 조회한다."
+    )
+    @Parameters(
+            @Parameter(name = "request", description = "유저 목록 조회 요청", required = true)
+    )
+    @GetMapping("/members/search")
+    public ResponseEntity<CommonResponse<SearchUserListResponse>> loadSearchUserList(
+            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @Valid SearchUserListRequest request ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadSearchUserList(loginMember, request));
     }
 
 }

@@ -1,12 +1,15 @@
 package com.juu.juulabel.api.service.alcohol;
 
 import com.juu.juulabel.api.dto.response.AlcoholTypeListResponse;
+import com.juu.juulabel.api.dto.response.AlcoholicDrinksListWithSizeResponse;
 import com.juu.juulabel.api.dto.response.FlavorListResponse;
 import com.juu.juulabel.api.dto.response.SensoryListResponse;
+import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.domain.dto.alcohol.UsedAlcoholTypeInfo;
 import com.juu.juulabel.domain.dto.alcohol.UsedFlavorInfo;
 import com.juu.juulabel.domain.dto.alcohol.UsedSensoryInfo;
 import com.juu.juulabel.domain.repository.reader.AlcoholTypeReader;
+import com.juu.juulabel.domain.repository.reader.AlcoholicDrinksReader;
 import com.juu.juulabel.domain.repository.reader.FlavorReader;
 import com.juu.juulabel.domain.repository.reader.SensoryReader;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ public class AlcoholService {
     private final AlcoholTypeReader alcoholTypeReader;
     private final SensoryReader sensoryReader;
     private final FlavorReader flavorReader;
+    private final AlcoholicDrinksReader alcoholicDrinksReader;
 
     public AlcoholTypeListResponse loadUsedAlcoholTypeList() {
         List<UsedAlcoholTypeInfo> alcoholTypeInfoList = alcoholTypeReader.getAllUsedAlcoholType();
@@ -37,5 +41,10 @@ public class AlcoholService {
     public FlavorListResponse loadUsedFlavorList() {
         List<UsedFlavorInfo> flavorInfoList = flavorReader.getAllUsedFlavor();
         return new FlavorListResponse(flavorInfoList);
+    }
+
+    public AlcoholicDrinksListWithSizeResponse loadAlcoholicDrinksList(int size) {
+        if (size > 809) throw new InvalidParamException();
+        return alcoholicDrinksReader.loadAlcoholicDrinksList(size);
     }
 }

@@ -1,6 +1,7 @@
 package com.juu.juulabel.api.controller.alcohol;
 
 import com.juu.juulabel.api.dto.response.AlcoholTypeListResponse;
+import com.juu.juulabel.api.dto.response.AlcoholicDrinksListWithSizeResponse;
 import com.juu.juulabel.api.dto.response.FlavorListResponse;
 import com.juu.juulabel.api.dto.response.SensoryListResponse;
 import com.juu.juulabel.api.service.alcohol.AlcoholService;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(
@@ -41,6 +43,14 @@ public class AlcoholController {
     @GetMapping("/flavor")
     public ResponseEntity<CommonResponse<FlavorListResponse>> loadUsedFlavorList() {
         return CommonResponse.success(SuccessCode.SUCCESS, alcoholService.loadUsedFlavorList());
+    }
+
+    @Operation(summary = "전통주 리스트 조회")
+    @GetMapping("/alcoholic-drinks")
+    public ResponseEntity<CommonResponse<AlcoholicDrinksListWithSizeResponse>> loadAlcoholicDrinksList(
+        @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, alcoholService.loadAlcoholicDrinksList(size));
     }
 
 }
