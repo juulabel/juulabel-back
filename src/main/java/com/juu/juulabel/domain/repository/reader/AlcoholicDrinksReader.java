@@ -1,5 +1,6 @@
 package com.juu.juulabel.domain.repository.reader;
 
+import com.juu.juulabel.api.dto.response.AlcoholicDrinksListWithSizeResponse;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.annotation.Reader;
@@ -110,5 +111,9 @@ public class AlcoholicDrinksReader {
 
     public List<String> getRelatedSearch(String keyword){
         return alcoholicDrinksQueryRepository.getRelatedSearchByKeyword(keyword);
+    }
+
+    public AlcoholicDrinksListWithSizeResponse loadAlcoholicDrinksList(int size) {
+        return alcoholicDrinksQueryRepository.getAlcoholicDrinksListWithSize(size);
     }
 }

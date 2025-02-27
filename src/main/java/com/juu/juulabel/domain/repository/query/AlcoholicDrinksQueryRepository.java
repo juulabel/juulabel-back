@@ -1,5 +1,6 @@
 package com.juu.juulabel.domain.repository.query;
 
+import com.juu.juulabel.api.dto.response.AlcoholicDrinksListWithSizeResponse;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholTypeSummary;
 import com.juu.juulabel.domain.dto.alcohol.AlcoholicDrinksSummary;
 import com.juu.juulabel.domain.dto.alcohol.BrewerySummary;
@@ -85,6 +86,41 @@ public class AlcoholicDrinksQueryRepository {
         return new SliceImpl<>(myAlcoholicDrinksList, PageRequest.ofSize(pageSize), hasNext);
     }
 
+    public AlcoholicDrinksListWithSizeResponse getAlcoholicDrinksListWithSize(int size) {
+        List<AlcoholicDrinksSummary> alcoholicDrinksList = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    AlcoholicDrinksSummary.class,
+                    alcoholicDrinks.id,
+                    alcoholicDrinks.name,
+                    alcoholicDrinks.image,
+                    alcoholicDrinks.alcoholContent,
+                    Projections.constructor(
+                        AlcoholTypeSummary.class,
+                        alcoholType.id,
+                        alcoholType.name
+                    ),
+                    Projections.constructor(
+                        BrewerySummary.class,
+                        brewery.id,
+                        brewery.name,
+                        brewery.region,
+                        brewery.message
+                    )
+                )
+            )
+            .from(alcoholicDrinks)
+            .innerJoin(alcoholType).on(alcoholicDrinks.alcoholType.eq(alcoholType))
+            .innerJoin(brewery).on(alcoholicDrinks.brewery.eq(brewery))
+            .where(
+                isNotDeleted(alcoholicDrinks)
+            )
+            .orderBy(alcoholicDrinks.id.desc())
+            .limit(size)
+            .fetch();
+        return new AlcoholicDrinksListWithSizeResponse(alcoholicDrinksList);
+    }
+
     public List<String> getRelatedSearchByKeyword(String keyword) {
         return jpaQueryFactory
                 .select(alcoholicDrinks.name)
@@ -104,4 +140,5 @@ public class AlcoholicDrinksQueryRepository {
     private BooleanExpression isNotDeleted(QAlcoholicDrinks alcoholicDrinks) {
         return alcoholicDrinks.deletedAt.isNull();
     }
+
 }
