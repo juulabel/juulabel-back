@@ -187,12 +187,12 @@ public class MemberService {
     public UpdateProfileResponse updateProfile(Member loginMember, UpdateProfileRequest request, MultipartFile image) {
         Member member = memberReader.getByEmail(loginMember.getEmail());
 
-        String profileImageUrl = null;
         if (image != null) {
             UploadImageInfo uploadImageInfo = s3Service.uploadMemberProfileImage(image);
-            profileImageUrl = uploadImageInfo.ImageUrl();
+            member.updateProfile(request, uploadImageInfo.ImageUrl());
+        } else {
+            member.updateProfileWithoutImage(request);
         }
-        member.updateProfile(request, profileImageUrl);
 
         memberAlcoholTypeWriter.deleteAllByMember(member);
 
