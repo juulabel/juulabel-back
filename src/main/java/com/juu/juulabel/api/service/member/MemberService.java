@@ -254,6 +254,7 @@ public class MemberService {
         long followerCount = followReader.countFollower(member);
 
         return new MySpaceResponse(
+            member.getId(),
             member.getProfileImage(),
             member.getNickname(),
             member.getIntroduction(),
