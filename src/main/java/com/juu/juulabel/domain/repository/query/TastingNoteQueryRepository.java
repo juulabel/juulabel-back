@@ -262,7 +262,8 @@ public class TastingNoteQueryRepository {
                 .select(alcoholicDrinks.count())
                 .from(alcoholicDrinks)
                 .where(
-                        alcoholicDrinks.name.contains(search),
+                        alcoholicDrinks.name.contains(search).
+                                or(brewery.name.contains(search)),
                         isNotDeleted(alcoholicDrinks)
                 )
                 .fetchOne();
@@ -306,7 +307,8 @@ public class TastingNoteQueryRepository {
             return null;
         }
 
-        return alcoholicDrinks.name.containsIgnoreCase(search);
+        return alcoholicDrinks.name.containsIgnoreCase(search)
+                .or(brewery.name.containsIgnoreCase(search));
     }
 
     private BooleanExpression noOffsetAlcoholicDrinksName(QAlcoholicDrinks alcoholicDrinks, String lastAlcoholicDrinksName) {
