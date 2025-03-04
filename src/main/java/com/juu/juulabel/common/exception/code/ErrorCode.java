@@ -119,6 +119,8 @@ public enum ErrorCode {
     INVALID_EXTENSIONS(HttpStatus.BAD_REQUEST, "파일의 확장자가 올바르지 않습니다."),
     EXCEEDED_FILE_SIZE(HttpStatus.BAD_REQUEST, "파일의 허용 용량을 초과했습니다."),
     EXCEEDED_FILE_COUNT(HttpStatus.BAD_REQUEST, "파일 첨부 허용 개수를 초과했습니다."),
+    FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "파일 크기가 10MB를 초과했습니다."),
+    INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 형식이 WebP가 아닙니다."),
 
     /**
      * SEARCH
