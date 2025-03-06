@@ -1,13 +1,7 @@
 package com.juu.juulabel.api.service.follow;
 
-import com.juu.juulabel.api.dto.request.FollowOrUnfollowRequest;
-import com.juu.juulabel.api.dto.request.FollowerListRequest;
-import com.juu.juulabel.api.dto.request.FollowingListRequest;
-import com.juu.juulabel.api.dto.request.SearchUserListRequest;
-import com.juu.juulabel.api.dto.response.FollowOrUnfollowResponse;
-import com.juu.juulabel.api.dto.response.FollowerListResponse;
-import com.juu.juulabel.api.dto.response.FollowingListResponse;
-import com.juu.juulabel.api.dto.response.SearchUserListResponse;
+import com.juu.juulabel.api.dto.request.*;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.domain.dto.follow.FollowUser;
 import com.juu.juulabel.domain.entity.follow.Follow;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -58,5 +52,22 @@ public class FollowService {
 
         return new SearchUserListResponse(searchUserList);
     }
+
+    @Transactional
+    public FollowDeleteResponse deleteFollowing(final Member followee, final FollowDeleteRequest request) {
+        final Member follower = memberReader.getById(request.followerId());
+        final Follow follow = followReader.findOrNullByFollowerAndFollowee(follower, followee);
+        final boolean isDeleted = followWriter.deleteFollow(follow);
+
+        return new FollowDeleteResponse(isDeleted);
+    }
+
+//    @Transactional(readOnly = true)
+//    public RecommendListRequest loadRecommendList(final Member loginMember, final Long memberId, final FollowerListRequest request) {
+//        final Member member = memberReader.getById(memberId);
+//        final Slice<FollowUser> followingList = followReader.getRecommendUserList(loginMember, member, request.lastFollowId(), request.pageSize());
+//
+//        return new RecommendListRequest(followingList);
+//    }
 
 }
