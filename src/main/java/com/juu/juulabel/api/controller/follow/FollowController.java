@@ -1,14 +1,8 @@
 package com.juu.juulabel.api.controller.follow;
 
 import com.juu.juulabel.api.annotation.LoginMember;
-import com.juu.juulabel.api.dto.request.FollowOrUnfollowRequest;
-import com.juu.juulabel.api.dto.request.FollowerListRequest;
-import com.juu.juulabel.api.dto.request.FollowingListRequest;
-import com.juu.juulabel.api.dto.request.SearchUserListRequest;
-import com.juu.juulabel.api.dto.response.FollowOrUnfollowResponse;
-import com.juu.juulabel.api.dto.response.FollowerListResponse;
-import com.juu.juulabel.api.dto.response.FollowingListResponse;
-import com.juu.juulabel.api.dto.response.SearchUserListResponse;
+import com.juu.juulabel.api.dto.request.*;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.api.service.follow.FollowService;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
@@ -94,5 +88,33 @@ public class FollowController {
             @Valid SearchUserListRequest request ) {
         return CommonResponse.success(SuccessCode.SUCCESS, followService.loadSearchUserList(loginMember, request));
     }
+
+    @Operation(
+            summary = "팔로워 삭제",
+            description = "팔로워를 강제로 삭제한다."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "팔로워 삭제 성공"
+    )
+    @PostMapping("/delete/following")
+    public ResponseEntity<CommonResponse<FollowDeleteResponse>> deleteFollowing(
+            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @Valid @RequestBody FollowDeleteRequest request){
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.deleteFollowing(loginMember, request));
+    }
+
+//    @Operation(
+//            summary = "유저 추천",
+//            description = "유저 추천"
+//    )
+//    @GetMapping("/members/{memberId}/recommendations")
+//    public ResponseEntity<CommonResponse<RecommendListResponse>> loadRecommendList(
+//            @Parameter(hidden = true) @LoginMember Member loginMember,
+//            @PathVariable Long memberId,
+//            @Valid RecommendListRequest request
+//    ){
+//        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadRecommendList(loginMember,memberId,request));
+//    }
 
 }
