@@ -29,10 +29,10 @@ public class SecurityConfig {
     private final JwtExceptionFilter jwtExceptionFilter;
 
     private static final String[] PERMIT_PATHS = {
-        "/swagger-ui/**", "/api-docs/**", "/error", "/favicon.ico", "/", "/v1/api/members/login/**",
-        "/v1/api/members/sign-up/**", "/v1/api/members/nicknames/{nickname}/exists", "/v1/api/alcohols/types",
-        "/v1/api/terms/**", "/actuator/**",
-        "/*", "/**" // 배포 시 제거
+        "/swagger-ui/**", "/v3/api-docs/**", "/error", "/favicon.ico", "/", "/actuator/**",
+        "/v1/api/alcohols/**", "/v1/api/terms/**", "/v1/api/images",
+        "/v1/api/members/**", "/v1/api/shared-space/tasting-notes/**", "/v1/api/notifications/**",
+        "/v1/api/daily-lives/**", "/v1/api/alcoholicDrinks/**", "v1/api/follow" , "/**"
     };
 
     private static final String[] ALLOW_ORIGINS = {
@@ -44,7 +44,8 @@ public class SecurityConfig {
         "https://juulabel.com",
         "https://juulabel.shop",
         "https://juulabel-front.vercel.app/",
-        "https://juulabel-front-seven.vercel.app/"
+        "https://juulabel-front-seven.vercel.app/",
+        "https://d3jwyw9rpnxu8p.cloudfront.net"
     };
 
     @Bean
