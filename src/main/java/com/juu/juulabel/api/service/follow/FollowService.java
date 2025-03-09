@@ -62,12 +62,10 @@ public class FollowService {
         return new FollowDeleteResponse(isDeleted);
     }
 
-//    @Transactional(readOnly = true)
-//    public RecommendListRequest loadRecommendList(final Member loginMember, final Long memberId, final FollowerListRequest request) {
-//        final Member member = memberReader.getById(memberId);
-//        final Slice<FollowUser> followingList = followReader.getRecommendUserList(loginMember, member, request.lastFollowId(), request.pageSize());
-//
-//        return new RecommendListRequest(followingList);
-//    }
+    @Transactional(readOnly = true)
+    public RecommendListResponse loadRecommendList(final Member loginMember, final RecommendListRequest request) {
+
+        return followReader.getRecommendUserList(loginMember, request.lastFollowId(), request.pageSize());
+    }
 
 }

@@ -1,9 +1,13 @@
 package com.juu.juulabel.domain.repository.query;
 
 import com.juu.juulabel.domain.dto.follow.FollowUser;
+import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
+import com.juu.juulabel.domain.entity.alcohol.QAlcoholType;
 import com.juu.juulabel.domain.entity.follow.QFollow;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.member.QMember;
+import com.juu.juulabel.domain.entity.member.QMemberAlcoholType;
+import com.juu.juulabel.domain.repository.writer.FollowWriter;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -27,6 +31,8 @@ public class FollowQueryRepository {
     QMember follower = new QMember("follower");
     QMember followee = new QMember("followee");
     QMember members = new QMember("member");
+    QMemberAlcoholType memberAlcoholType = QMemberAlcoholType.memberAlcoholType;
+    QAlcoholType alcoholType = QAlcoholType.alcoholType;
 
     public Slice<FollowUser> findAllFollowing(Member loginMember, Member member, Long lastFollowId, int pageSize) {
         List<FollowUser> followingList = jpaQueryFactory
@@ -158,6 +164,89 @@ public class FollowQueryRepository {
         return result != null && result > 0;
     }
 
+    public Slice<FollowUser> findBadgeRecommendUserList(final Member loginMember, Long lastFollowId, int pageSize){
+        List<FollowUser> BadgeRecommendUserList = jpaQueryFactory
+                .select(
+                        Projections.constructor(
+                                FollowUser.class,
+                                members.id,
+                                members.nickname,
+                                members.profileImage,
+                                jpaQueryFactory
+                                        .selectFrom(follow)
+                                        .where(
+                                                follow.follower.eq(loginMember),
+                                                follow.followee.eq(members)
+                                        )
+                                        .exists()
+                        )
+                )
+                .from(members)
+                .where(
+                        members.hasBadge.isTrue(),
+                        noOffsetByFollowId(members, lastFollowId)
+                )
+                .limit(pageSize + 1L)
+                .fetch();
+
+        boolean hasNext = BadgeRecommendUserList.size() > pageSize;
+        if (hasNext) {
+            BadgeRecommendUserList.remove(pageSize);
+        }
+
+        return new SliceImpl<>(BadgeRecommendUserList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
+    public Slice<FollowUser> findTastingRecommendUserList(final Member loginMember, Long lastFollowId, int pageSize){
+
+        List<AlcoholType> preferredAlcoholTypes = jpaQueryFactory
+                .select(alcoholType)
+                .from(memberAlcoholType)
+                .join(memberAlcoholType.alcoholType, alcoholType)
+                .where(memberAlcoholType.member.eq(loginMember))
+                .fetch();
+
+        System.out.println("preferredAlcoholTypes = " + preferredAlcoholTypes.stream()
+                .map(AlcoholType::getId)
+                .toList());
+
+
+        List<FollowUser> TastingRecommendUserList = jpaQueryFactory
+                .select(
+                        Projections.constructor(
+                                FollowUser.class,
+                                members.id,
+                                members.nickname,
+                                members.profileImage,
+                                jpaQueryFactory
+                                        .selectFrom(follow)
+                                        .where(
+                                                follow.follower.eq(loginMember),
+                                                follow.followee.eq(members)
+                                        )
+                                        .exists()
+                        )
+                )
+                .from(members)
+                .join(memberAlcoholType).on(members.id.eq(memberAlcoholType.member.id))
+                .join(memberAlcoholType.alcoholType, alcoholType)
+                .where(
+                        memberAlcoholType.alcoholType.in(preferredAlcoholTypes),
+                        members.ne(loginMember),
+                        noOffsetByFollowId(members, lastFollowId)
+                )
+                .limit(pageSize + 1L)
+                .fetch();
+
+        boolean hasNext = TastingRecommendUserList.size() > pageSize;
+        if (hasNext) {
+            TastingRecommendUserList.remove(pageSize);
+        }
+
+        return new SliceImpl<>(TastingRecommendUserList, PageRequest.ofSize(pageSize), hasNext);
+    }
+
+
     private OrderSpecifier<Long> followIdDesc(QFollow follow) {
         return follow.id.desc();
     }
@@ -166,5 +255,8 @@ public class FollowQueryRepository {
         return Objects.isEmpty(lastFollowId) ? null : follow.id.lt(lastFollowId);
     }
 
+    private BooleanExpression noOffsetByFollowId(QMember members, Long lastFollowId) {
+        return Objects.isEmpty(lastFollowId) ? null : members.id.lt(lastFollowId);
+    }
 }
 

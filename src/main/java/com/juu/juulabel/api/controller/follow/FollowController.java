@@ -104,17 +104,16 @@ public class FollowController {
         return CommonResponse.success(SuccessCode.SUCCESS, followService.deleteFollowing(loginMember, request));
     }
 
-//    @Operation(
-//            summary = "유저 추천",
-//            description = "유저 추천"
-//    )
-//    @GetMapping("/members/{memberId}/recommendations")
-//    public ResponseEntity<CommonResponse<RecommendListResponse>> loadRecommendList(
-//            @Parameter(hidden = true) @LoginMember Member loginMember,
-//            @PathVariable Long memberId,
-//            @Valid RecommendListRequest request
-//    ){
-//        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadRecommendList(loginMember,memberId,request));
-//    }
+    @Operation(
+            summary = "유저 추천",
+            description = "유저 추천"
+    )
+    @GetMapping("/members/recommendations")
+    public ResponseEntity<CommonResponse<RecommendListResponse>> loadRecommendList(
+            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @Valid RecommendListRequest request
+    ){
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadRecommendList(loginMember,request));
+    }
 
 }
