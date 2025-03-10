@@ -45,11 +45,12 @@ public class FollowReader {
     }
 
     public RecommendListResponse getRecommendUserList(final Member loginMember,
-                                             final Long lastFollowId,
+                                             final Long badgeLastUserId,
+                                             final Long tastingLastUserId,
                                              final int pageSize) {
 
-        Slice<FollowUser> badgeRecommendUsers = followQueryRepository.findBadgeRecommendUserList(loginMember, lastFollowId, pageSize);
-        Slice<FollowUser> tastingRecommendUsers = followQueryRepository.findTastingRecommendUserList(loginMember, lastFollowId, pageSize);
+        Slice<FollowUser> badgeRecommendUsers = followQueryRepository.findBadgeRecommendUserList(loginMember, badgeLastUserId, pageSize);
+        Slice<FollowUser> tastingRecommendUsers = followQueryRepository.findTastingRecommendUserList(loginMember, tastingLastUserId, pageSize);
 
         return new RecommendListResponse(badgeRecommendUsers, tastingRecommendUsers);
     }

@@ -164,7 +164,7 @@ public class FollowQueryRepository {
         return result != null && result > 0;
     }
 
-    public Slice<FollowUser> findBadgeRecommendUserList(final Member loginMember, Long lastFollowId, int pageSize){
+    public Slice<FollowUser> findBadgeRecommendUserList(final Member loginMember, Long badgeLastUserId, int pageSize){
         List<FollowUser> BadgeRecommendUserList = jpaQueryFactory
                 .select(
                         Projections.constructor(
@@ -184,7 +184,7 @@ public class FollowQueryRepository {
                 .from(members)
                 .where(
                         members.hasBadge.isTrue(),
-                        noOffsetByFollowId(members, lastFollowId)
+                        noOffsetByFollowId(members, badgeLastUserId)
                 )
                 .limit(pageSize + 1L)
                 .fetch();
@@ -197,7 +197,7 @@ public class FollowQueryRepository {
         return new SliceImpl<>(BadgeRecommendUserList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public Slice<FollowUser> findTastingRecommendUserList(final Member loginMember, Long lastFollowId, int pageSize){
+    public Slice<FollowUser> findTastingRecommendUserList(final Member loginMember, Long tastingLastUserId, int pageSize){
 
         List<AlcoholType> preferredAlcoholTypes = jpaQueryFactory
                 .select(alcoholType)
@@ -233,7 +233,7 @@ public class FollowQueryRepository {
                 .where(
                         memberAlcoholType.alcoholType.in(preferredAlcoholTypes),
                         members.ne(loginMember),
-                        noOffsetByFollowId(members, lastFollowId)
+                        noOffsetByFollowId(members, tastingLastUserId)
                 )
                 .limit(pageSize + 1L)
                 .fetch();
