@@ -274,6 +274,7 @@ public class MemberService {
             member.getId(),
             member.getNickname(),
             member.getEmail(),
+            member.isHasBadge(),
             member.isNotificationsAllowed(),
             member.getIntroduction(),
             member.getProfileImage(),
