@@ -7,10 +7,12 @@ import com.juu.juulabel.domain.entity.follow.QFollow;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.member.QMember;
 import com.juu.juulabel.domain.entity.member.QMemberAlcoholType;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
 import com.juu.juulabel.domain.repository.writer.FollowWriter;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.jsonwebtoken.lang.Objects;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class FollowQueryRepository {
     QMember members = new QMember("member");
     QMemberAlcoholType memberAlcoholType = QMemberAlcoholType.memberAlcoholType;
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
+    QTastingNote tastingNote = QTastingNote.tastingNote;
 
     public Slice<FollowUser> findAllFollowing(Member loginMember, Member member, Long lastFollowId, int pageSize) {
         List<FollowUser> followingList = jpaQueryFactory
@@ -230,11 +233,17 @@ public class FollowQueryRepository {
                 .from(members)
                 .join(memberAlcoholType).on(members.id.eq(memberAlcoholType.member.id))
                 .join(memberAlcoholType.alcoholType, alcoholType)
+                .leftJoin(tastingNote).on(tastingNote.member.eq(members))
                 .where(
                         memberAlcoholType.alcoholType.in(preferredAlcoholTypes),
                         members.ne(loginMember),
                         noOffsetByFollowId(members, tastingLastUserId)
                 )
+                .groupBy(members.id)
+                .orderBy(
+                        tastingNote.id.count().desc(),
+                        Expressions.numberTemplate(Double.class, "function('rand')").asc()
+                        )
                 .limit(pageSize + 1L)
                 .fetch();
 
