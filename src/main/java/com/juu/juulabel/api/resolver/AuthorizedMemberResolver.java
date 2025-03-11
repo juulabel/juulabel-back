@@ -2,6 +2,8 @@ package com.juu.juulabel.api.resolver;
 
 import com.juu.juulabel.api.annotation.LoginMember;
 import com.juu.juulabel.api.principal.JuulabelMember;
+import com.juu.juulabel.common.exception.BaseException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.domain.entity.member.Member;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,8 +26,12 @@ public class AuthorizedMemberResolver implements HandlerMethodArgumentResolver {
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) throws Exception {
-        final JuulabelMember userDetails = (JuulabelMember) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return Objects.isNull(userDetails) ? null : userDetails.member();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (Objects.isNull(principal) || principal.equals("anonymousUser")) {
+            throw new BaseException(ErrorCode.INVALID_AUTHENTICATION);
+        }
+        final JuulabelMember userDetails = (JuulabelMember) principal;
+        return userDetails.member();
     }
 
 }
