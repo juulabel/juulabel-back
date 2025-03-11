@@ -3,6 +3,7 @@ package com.juu.juulabel.common.exception.handler;
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,6 +32,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonResponse<String>> handle(MethodArgumentNotValidException e) {
         log.error("MethodArgumentNotValidException : {}", e.getMessage());
         return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<CommonResponse<String>> handle(ExpiredJwtException e) {
+        log.error("ExpiredJwtException : {}", e.getMessage());
+        return CommonResponse.fail(ErrorCode.EXPIRED_JWT_EXCEPTION, e.getMessage());
     }
 
 }
