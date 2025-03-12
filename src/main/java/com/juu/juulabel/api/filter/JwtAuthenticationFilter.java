@@ -1,12 +1,18 @@
 package com.juu.juulabel.api.filter;
 
 import com.juu.juulabel.api.provider.JwtTokenProvider;
+import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.common.response.CommonResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -27,8 +33,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header != null) {
             String token = jwtTokenProvider.resolveToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-            if (jwtTokenProvider.isValidateToken(token)) {
-                authenticate(token);
+            try {
+                if (jwtTokenProvider.isValidateToken(token)) {
+                    authenticate(token);
+                }
+            } catch (ExpiredJwtException | MalformedJwtException e) {
+                handleJwtException(response);
+                return;
             }
         }
 
@@ -38,6 +49,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void authenticate(String token) {
         Authentication authentication = jwtTokenProvider.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void handleJwtException(HttpServletResponse response) throws IOException {
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.getWriter().write(CommonResponse.fail(ErrorCode.INVALID_AUTHENTICATION, "만료되었거나 잘못된 토큰입니다.").toString());
     }
 
 }

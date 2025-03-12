@@ -4,6 +4,7 @@ import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,6 +39,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonResponse<String>> handle(ExpiredJwtException e) {
         log.error("ExpiredJwtException : {}", e.getMessage());
         return CommonResponse.fail(ErrorCode.EXPIRED_JWT_EXCEPTION, e.getMessage());
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<CommonResponse<String>> handle(MalformedJwtException e) {
+        log.error("MalformedJwtException : {}", e.getMessage());
+        return CommonResponse.fail(ErrorCode.MALFORMED_JWT_EXCEPTION, "잘못된 토큰 형식입니다.");
     }
 
 }
