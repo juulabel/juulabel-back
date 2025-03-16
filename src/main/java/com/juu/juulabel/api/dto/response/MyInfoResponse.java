@@ -8,6 +8,7 @@ public record MyInfoResponse(
     Long memberId,
     String nickname,
     String email,
+    boolean hasBadge,
     boolean isNotificationsAllowed,
     String introduction,
     String profileImage,

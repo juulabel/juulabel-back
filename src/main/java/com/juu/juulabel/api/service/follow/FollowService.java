@@ -65,7 +65,7 @@ public class FollowService {
     @Transactional(readOnly = true)
     public RecommendListResponse loadRecommendList(final Member loginMember, final RecommendListRequest request) {
 
-        return followReader.getRecommendUserList(loginMember, request.lastFollowId(), request.pageSize());
+        return followReader.getRecommendUserList(loginMember, request.badgeLastUserId(), request.tastingLastUserId(), request.pageSize());
     }
 
 }
