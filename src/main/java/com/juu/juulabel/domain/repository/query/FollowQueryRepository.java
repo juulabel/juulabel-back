@@ -3,14 +3,17 @@ package com.juu.juulabel.domain.repository.query;
 import com.juu.juulabel.domain.dto.follow.FollowUser;
 import com.juu.juulabel.domain.entity.alcohol.AlcoholType;
 import com.juu.juulabel.domain.entity.alcohol.QAlcoholType;
+import com.juu.juulabel.domain.entity.dailylife.QDailyLife;
 import com.juu.juulabel.domain.entity.follow.QFollow;
 import com.juu.juulabel.domain.entity.member.Member;
 import com.juu.juulabel.domain.entity.member.QMember;
 import com.juu.juulabel.domain.entity.member.QMemberAlcoholType;
+import com.juu.juulabel.domain.entity.tastingnote.QTastingNote;
 import com.juu.juulabel.domain.repository.writer.FollowWriter;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.jsonwebtoken.lang.Objects;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -33,6 +37,8 @@ public class FollowQueryRepository {
     QMember members = new QMember("member");
     QMemberAlcoholType memberAlcoholType = QMemberAlcoholType.memberAlcoholType;
     QAlcoholType alcoholType = QAlcoholType.alcoholType;
+    QTastingNote tastingNote = QTastingNote.tastingNote;
+    QDailyLife dailyLife = QDailyLife.dailyLife;
 
     public Slice<FollowUser> findAllFollowing(Member loginMember, Member member, Long lastFollowId, int pageSize) {
         List<FollowUser> followingList = jpaQueryFactory
@@ -164,7 +170,7 @@ public class FollowQueryRepository {
         return result != null && result > 0;
     }
 
-    public Slice<FollowUser> findBadgeRecommendUserList(final Member loginMember, Long lastFollowId, int pageSize){
+    public Slice<FollowUser> findBadgeRecommendUserList(final Member loginMember, Long badgeLastUserId, int pageSize){
         List<FollowUser> BadgeRecommendUserList = jpaQueryFactory
                 .select(
                         Projections.constructor(
@@ -184,7 +190,7 @@ public class FollowQueryRepository {
                 .from(members)
                 .where(
                         members.hasBadge.isTrue(),
-                        noOffsetByFollowId(members, lastFollowId)
+                        noOffsetByFollowId(members, badgeLastUserId)
                 )
                 .limit(pageSize + 1L)
                 .fetch();
@@ -197,7 +203,7 @@ public class FollowQueryRepository {
         return new SliceImpl<>(BadgeRecommendUserList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public Slice<FollowUser> findTastingRecommendUserList(final Member loginMember, Long lastFollowId, int pageSize){
+    public Slice<FollowUser> findTastingRecommendUserList(final Member loginMember, Long tastingLastUserId, int pageSize){
 
         List<AlcoholType> preferredAlcoholTypes = jpaQueryFactory
                 .select(alcoholType)
@@ -211,7 +217,41 @@ public class FollowQueryRepository {
                 .toList());
 
 
-        List<FollowUser> TastingRecommendUserList = jpaQueryFactory
+        List<FollowUser> TastingRecommendUserList1 = jpaQueryFactory
+                .select(
+                        Projections.constructor(
+                                FollowUser.class,
+                                members.id,
+                                members.nickname,
+                                members.profileImage,
+                                jpaQueryFactory
+                                        .selectFrom(follow)
+                                        .where(
+                                                follow.follower.eq(loginMember),
+                                                follow.followee.eq(members)
+                                        )
+                                        .exists()
+                        )
+                )
+                .from(members)
+                .join(memberAlcoholType).on(members.id.eq(memberAlcoholType.member.id))
+                .join(memberAlcoholType.alcoholType, alcoholType)
+                .leftJoin(tastingNote).on(tastingNote.member.eq(members))
+                .leftJoin(dailyLife).on(dailyLife.member.eq(members))
+                .where(
+                        memberAlcoholType.alcoholType.in(preferredAlcoholTypes),
+                        members.ne(loginMember),
+                        noOffsetByFollowId(members, tastingLastUserId)
+                )
+                .groupBy(members.id)
+                .orderBy(
+                        tastingNote.id.count().add(dailyLife.id.count()).desc(),
+                        Expressions.numberTemplate(Double.class, "function('rand')").asc()
+                )
+                .limit(3)
+                .fetch();
+
+        List<FollowUser> TastingRecommendUserList2 = jpaQueryFactory
                 .select(
                         Projections.constructor(
                                 FollowUser.class,
@@ -232,18 +272,25 @@ public class FollowQueryRepository {
                 .join(memberAlcoholType.alcoholType, alcoholType)
                 .where(
                         memberAlcoholType.alcoholType.in(preferredAlcoholTypes),
-                        members.ne(loginMember),
-                        noOffsetByFollowId(members, lastFollowId)
+                        members.ne(loginMember)
                 )
-                .limit(pageSize + 1L)
+                .groupBy(members.id)
+                .orderBy(
+                        Expressions.numberTemplate(Double.class, "function('rand')").asc()
+                )
+                .limit(pageSize - 3)
                 .fetch();
 
-        boolean hasNext = TastingRecommendUserList.size() > pageSize;
+        List<FollowUser> recommendUserList = new ArrayList<>();
+        recommendUserList.addAll(TastingRecommendUserList1);
+        recommendUserList.addAll(TastingRecommendUserList2);
+
+        boolean hasNext = recommendUserList.size() > pageSize;
         if (hasNext) {
-            TastingRecommendUserList.remove(pageSize);
+            recommendUserList.remove(pageSize);
         }
 
-        return new SliceImpl<>(TastingRecommendUserList, PageRequest.ofSize(pageSize), hasNext);
+        return new SliceImpl<>(recommendUserList, PageRequest.ofSize(pageSize), hasNext);
     }
 
 
