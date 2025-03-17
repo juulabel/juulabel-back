@@ -24,6 +24,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class FollowQueryRepository {
                                 followee.id,
                                 followee.nickname,
                                 followee.profileImage,
+                                followee.hasBadge,
                                 jpaQueryFactory
                                         .selectFrom(follow)
                                         .where(
@@ -83,6 +86,7 @@ public class FollowQueryRepository {
                                 follower.id,
                                 follower.nickname,
                                 follower.profileImage,
+                                follower.hasBadge,
                                 jpaQueryFactory
                                         .selectFrom(follow)
                                         .where(
@@ -134,6 +138,7 @@ public class FollowQueryRepository {
                                 members.id,
                                 members.nickname,
                                 members.profileImage,
+                                members.hasBadge,
                                 jpaQueryFactory
                                         .selectFrom(follow)
                                         .where(
@@ -178,6 +183,7 @@ public class FollowQueryRepository {
                                 members.id,
                                 members.nickname,
                                 members.profileImage,
+                                members.hasBadge,
                                 jpaQueryFactory
                                         .selectFrom(follow)
                                         .where(
@@ -224,6 +230,7 @@ public class FollowQueryRepository {
                                 members.id,
                                 members.nickname,
                                 members.profileImage,
+                                members.hasBadge,
                                 jpaQueryFactory
                                         .selectFrom(follow)
                                         .where(
@@ -258,6 +265,7 @@ public class FollowQueryRepository {
                                 members.id,
                                 members.nickname,
                                 members.profileImage,
+                                members.hasBadge,
                                 jpaQueryFactory
                                         .selectFrom(follow)
                                         .where(
@@ -281,9 +289,19 @@ public class FollowQueryRepository {
                 .limit(pageSize - 3)
                 .fetch();
 
-        List<FollowUser> recommendUserList = new ArrayList<>();
-        recommendUserList.addAll(TastingRecommendUserList1);
-        recommendUserList.addAll(TastingRecommendUserList2);
+        Set<Long> existingUserIds = TastingRecommendUserList1.stream()
+                .map(FollowUser::id)
+                .collect(Collectors.toSet());
+
+        List<FollowUser> recommendUserList = new ArrayList<>(TastingRecommendUserList1);
+        for(FollowUser user : TastingRecommendUserList2) {
+            if (!existingUserIds.contains(user.id())){
+                recommendUserList.add(user);
+            }
+            if (recommendUserList.size()>=pageSize){
+                break;
+            }
+        }
 
         boolean hasNext = recommendUserList.size() > pageSize;
         if (hasNext) {
