@@ -28,12 +28,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<CommonResponse<String>> handle(BaseException e) {
         log.error("BaseException :", e);
+        Sentry.captureException(e);
         return CommonResponse.fail(e.getErrorCode());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonResponse<String>> handle(RuntimeException e) {
         log.error("RuntimeException :", e);
+        Sentry.captureException(e);
         return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
