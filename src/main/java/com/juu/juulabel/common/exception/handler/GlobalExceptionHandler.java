@@ -5,6 +5,7 @@ import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +17,13 @@ import java.util.Objects;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<CommonResponse<String>> handle(Exception e) {
+        log.error("Exception :", e);
+        Sentry.captureException(e);
+        return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<CommonResponse<String>> handle(BaseException e) {
