@@ -27,31 +27,31 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<CommonResponse<String>> handle(BaseException e) {
-        log.error("BaseException : {} ", e.getMessage());
+        log.error("BaseException :", e);
         return CommonResponse.fail(e.getErrorCode());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonResponse<String>> handle(RuntimeException e) {
-        log.error("RuntimeException : {}", e.getMessage());
+        log.error("RuntimeException :", e);
         return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CommonResponse<String>> handle(MethodArgumentNotValidException e) {
-        log.error("MethodArgumentNotValidException : {}", e.getMessage());
+        log.error("MethodArgumentNotValidException :", e);
         return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<CommonResponse<String>> handle(ExpiredJwtException e) {
-        log.error("ExpiredJwtException : {}", e.getMessage());
+        log.error("ExpiredJwtException :", e);
         return CommonResponse.fail(ErrorCode.EXPIRED_JWT_EXCEPTION, e.getMessage());
     }
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<CommonResponse<String>> handle(MalformedJwtException e) {
-        log.error("MalformedJwtException : {}", e.getMessage());
+        log.error("MalformedJwtException :", e);
         return CommonResponse.fail(ErrorCode.MALFORMED_JWT_EXCEPTION, "잘못된 토큰 형식입니다.");
     }
 
