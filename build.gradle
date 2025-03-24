@@ -24,6 +24,15 @@ repositories {
 	mavenCentral()
 }
 
+
+sentry {
+	includeSourceContext = true
+	org = "kwongio"
+	projectName = "juulabel"
+	authToken = System.getenv("SENTRY_AUTH_TOKEN")
+}
+
+
 dependencies {
 	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -82,9 +91,6 @@ dependencies {
 
 	//openCSV
 	implementation 'com.opencsv:opencsv:5.7.1'
-
-	//Sentry
-	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:8.5.0'
 }
 
 def generatedQueryDsl = 'src/main/generated'
