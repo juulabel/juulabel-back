@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Objects;
 
@@ -56,11 +55,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonResponse<String>> handle(MalformedJwtException e) {
         log.error("MalformedJwtException :", e);
         return CommonResponse.fail(ErrorCode.MALFORMED_JWT_EXCEPTION, "잘못된 토큰 형식입니다.");
-    }
-
-    @ExceptionHandler(NoResourceFoundException.class)
-    public void handle(NoResourceFoundException e) {
-        log.warn("NoResourceFoundException :", e);
     }
 
 }
