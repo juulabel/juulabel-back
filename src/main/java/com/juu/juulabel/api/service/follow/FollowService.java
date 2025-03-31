@@ -56,10 +56,16 @@ public class FollowService {
     @Transactional
     public FollowDeleteResponse deleteFollowing(final Member followee, final FollowDeleteRequest request) {
         final Member follower = memberReader.getById(request.followerId());
-        final Follow follow = followReader.findOrNullByFollowerAndFollowee(follower, followee);
-        final boolean isDeleted = followWriter.deleteFollow(follow);
 
-        return new FollowDeleteResponse(isDeleted);
+        // 팔로잉 삭제
+        final Follow isFollowing = followReader.findOrNullByFollowerAndFollowee(follower, followee);
+        final boolean isFollowingDeleted = followWriter.deleteFollow(isFollowing);
+
+        // 팔로워 삭제
+        final Follow isFollower = followReader.findOrNullByFollowerAndFollowee(followee, follower);
+        final boolean isFollowerDeleted = followWriter.deleteFollow(isFollower);
+
+        return new FollowDeleteResponse(isFollowingDeleted || isFollowerDeleted);
     }
 
     @Transactional(readOnly = true)
