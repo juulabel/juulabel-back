@@ -8,6 +8,7 @@ build/
 *.yml
 !deploy.yml
 !application-prod.yml
+!elasticbeanstalk-dev.yml
 
 ### STS ###
 .apt_generated
