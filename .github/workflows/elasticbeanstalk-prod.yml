@@ -1,4 +1,4 @@
-name: Development Deploy to AWS Elastic Beanstalk
+name: Production Deploy to AWS Elastic Beanstalk
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v3
