@@ -71,9 +71,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }} # AWS Access Key Environment(dev)의 Secret에 설정된 값
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }} # AWS Secret Key Environment(dev)의 Secret에 설정된 값
-          application_name: docker-test # Elastic Beanstalk 애플리케이션 이름
-          environment_name: docker-test-env # Elastic Beanstalk 환경 이름
-          version_label: docker-test-${{steps.current-time.outputs.formattedTime}}
+          application_name: juulabel-backend-dev # Elastic Beanstalk 애플리케이션 이름
+          environment_name: Juulabel-backend-dev-env # Elastic Beanstalk 환경 이름
+          version_label: juulabel-backend-dev-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: docker-compose-deploy.yml
           wait_for_environment_recovery: 60
