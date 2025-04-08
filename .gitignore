@@ -6,9 +6,8 @@ build/
 !**/src/test/**/build/
 
 *.yml
-!deploy.yml
-!application-prod.yml
-!elasticbeanstalk-dev.yml
+
+!.github/**
 
 ### STS ###
 .apt_generated
