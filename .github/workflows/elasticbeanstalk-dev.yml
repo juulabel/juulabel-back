@@ -17,7 +17,7 @@ jobs:
     steps: # build 작업 내 실행 단계
       - name: Checkout
         uses: actions/checkout@v3 # 현재 레포지토리 코드 체크
-        
+
       - name: Set up JDK 21
         uses: actions/setup-java@v3 # JDK 설정
         with:
@@ -29,15 +29,31 @@ jobs:
           mkdir -p ./src/main/resources
           cd ./src/main/resources
           touch ./application.yml
-          echo "${{ secrets.APPLICATION_YML_DEV }}" >> ./application-dev.yml
+          echo "${{ secrets.APPLICATION_YML_DEV }}" >> ./application.yml
         shell: bash
 
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{secrets.DOCKER_HUB_USERNAME}}
+          password: ${{secrets.DOCKER_HUB_PASSWORD}}
 
       - name: Grant execute permission for gradlew # Gradle 실행을 위한 권한 부여
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle # Gradle 빌드
-        run: ./gradlew clean build -Dspring.profiles.active=dev -x test # Gradle dev로 build, 테스트 제외
+      - name: Cache Jib layers # 🧱 캐시 추가
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/jib
+            build/jib-cache
+          key: ${{ runner.os }}-jib-${{ github.job }}-${{ hashFiles('**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-jib-${{ github.job }}-        
+
+      - name: Push Docker Image to Docker Hub
+        run: ./gradlew jib -Pdev
 
       - name: Get current time # 현재 시간 가져오기
         uses: 1466587594/get-current-time@v2
@@ -49,23 +65,15 @@ jobs:
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
 
-      # Elastic Beanstalk에 CD 하기 위해 추가 작성
-      - name: Generate deployment package
-        run: |
-          mkdir deploy
-          cp build/libs/*.jar deploy/application.jar
-          cp Procfile deploy/Procfile
-          cp -r .ebextensions-dev deploy/.ebextensions
-          cd deploy && zip -r deploy.zip .
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }} # AWS Access Key Environment(dev)의 Secret에 설정된 값
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }} # AWS Secret Key Environment(dev)의 Secret에 설정된 값
-          application_name: juulabel-backend-dev # Elastic Beanstalk 애플리케이션 이름
-          environment_name: juulabel-backend-dev-env # Elastic Beanstalk 환경 이름
-          version_label: pet-${{steps.current-time.outputs.formattedTime}}
+          application_name: docker-test # Elastic Beanstalk 애플리케이션 이름
+          environment_name: docker-test-env # Elastic Beanstalk 환경 이름
+          version_label: docker-test-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
-          deployment_package: deploy/deploy.zip
-          wait_for_environment_recovery: 300
+          deployment_package: docker-compose-deploy.yml
+          wait_for_environment_recovery: 60
