@@ -3,5 +3,5 @@ services:
   docker:
     image: "rldh9037/juulabel-backend:dev"
     ports:
-      - "80:5000"
+      - "80:8080"
     restart: "always"
