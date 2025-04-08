@@ -1,52 +1,70 @@
 name: Production Deploy to AWS Elastic Beanstalk
 
+# 배포 트리거 조건
 on:
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main # dev 브랜치에 PR이 발생했을 때
+    types:
+      - closed # PR이 머지 되었을 때
+  workflow_dispatch: # 수동으로 실행할 때
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: prod
-    steps:
+    environment: prod # Github Actions Evironment 설정, 키 분리를 위한 설정
+
+    steps: # build 작업 내 실행 단계
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # 현재 레포지토리 코드 체크
+
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v3 # JDK 설정
         with:
           java-version: 21
           distribution: zulu
-      - name: Pemission
-        run: chmod +x ./gradlew
-      - name: Build with Gradle
-        run: ./gradlew clean build
 
-      - name: Get current time
+      - name: Make application.yml
+        run: |
+          mkdir -p ./src/main/resources
+          cd ./src/main/resources
+          touch ./application.yml
+          echo "${{ secrets.APPLICATION_YML_PROD }}" >> ./application-prod.yml
+        shell: bash
+
+      - name: Grant execute permission for gradlew # Gradle 실행을 위한 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle # Gradle 빌드
+        run: ./gradlew clean build -Dspring.profiles.active=prod -x test # Gradle dev로 build, 테스트 제외
+
+      - name: Get current time # 현재 시간 가져오기
         uses: 1466587594/get-current-time@v2
         id: current-time
         with:
           format: YYYY-MM-DDTHH-mm-ss
-          utcOffset: "+09:00"
+          utcOffset: "+09:00" # 한국 시간으로 설정 UTC + 9시간
 
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
 
-      # EB에 CD 하기 위해 추가 작성
+      # Elastic Beanstalk에 CD 하기 위해 추가 작성
       - name: Generate deployment package
         run: |
           mkdir deploy
           cp build/libs/*.jar deploy/application.jar
           cp Procfile deploy/Procfile
-          cp -r .ebextensions deploy/.ebextensions
+          cp -r .ebextensions-prod deploy/.ebextensions
           cd deploy && zip -r deploy.zip .
 
-      - name: Deploy to EB
+      - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }} # AWS Access Key Environment(prod)의 Secret에 설정된 값
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }} # AWS Secret Key Environment(prod)의 Secret에 설정된 값
           application_name: juulabel-backend-dev # Elastic Beanstalk 애플리케이션 이름
           environment_name: juulabel-backend-dev-env # Elastic Beanstalk 환경 이름
-          version_label: pet-${{steps.current-time.outputs.formattedTime}}
+          version_label: juulabel-backend-dev-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: deploy/deploy.zip
           wait_for_environment_recovery: 300
