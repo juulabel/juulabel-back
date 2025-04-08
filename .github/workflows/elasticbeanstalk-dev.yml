@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: dev # Github Actions Evironment 설정, 키 분리를 위한 설정
-    
+
     steps: # build 작업 내 실행 단계
       - name: Checkout
         uses: actions/checkout@v3 # 현재 레포지토리 코드 체크
@@ -71,8 +71,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }} # AWS Access Key Environment(dev)의 Secret에 설정된 값
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }} # AWS Secret Key Environment(dev)의 Secret에 설정된 값
-          application_name: juulabel-backend-dev # Elastic Beanstalk 애플리케이션 이름
-          environment_name: Juulabel-backend-dev-env # Elastic Beanstalk 환경 이름
+          application_name: docker-test # Elastic Beanstalk 애플리케이션 이름
+          environment_name: Docker-test-env # Elastic Beanstalk 환경 이름
           version_label: juulabel-backend-dev-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: docker-compose-dev-deploy.yml
