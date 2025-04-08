@@ -75,5 +75,5 @@ jobs:
           environment_name: Juulabel-backend-dev-env # Elastic Beanstalk 환경 이름
           version_label: juulabel-backend-dev-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
-          deployment_package: docker-compose-deploy.yml
+          deployment_package: docker-compose-dev-deploy.yml
           wait_for_environment_recovery: 60

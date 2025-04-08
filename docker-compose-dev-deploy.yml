@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   backend:
-    image: "rldh9037/juulabel-backend:0.0.1"
+    image: "rldh9037/juulabel-backend:dev"
     ports:
       - "80:5000"
     restart: "always"
