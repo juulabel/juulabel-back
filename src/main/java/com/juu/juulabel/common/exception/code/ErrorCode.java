@@ -23,7 +23,7 @@ public enum ErrorCode {
     NOT_FOUND_ENUM_CONSTANT(HttpStatus.BAD_REQUEST, "열거형 상수값을 찾을 수 없습니다."),
     IS_NULL(HttpStatus.BAD_REQUEST, "NULL 값이 들어왔습니다."),
     COMMON_INVALID_PARAM(HttpStatus.BAD_REQUEST, "요청한 값이 올바르지 않습니다."),
-    INVALID_AUTHENTICATION(HttpStatus.BAD_REQUEST, "인증이 올바르지 않습니다."),
+    INVALID_AUTHENTICATION(HttpStatus.UNAUTHORIZED, "인증이 올바르지 않습니다."),
     NO_SUCH_METHOD(HttpStatus.BAD_REQUEST, "메소드를 찾을 수 없습니다."),
 
     /**
@@ -31,7 +31,7 @@ public enum ErrorCode {
      */
     EXPIRED_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     UNSUPPORTED_JWT_EXCEPTION(HttpStatus.BAD_REQUEST, "지원되지 않는 토큰입니다."),
-    MALFORMED_JWT_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 형식의 토큰입니다."),
+    MALFORMED_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "잘못된 형식의 토큰입니다."),
     SIGNATURE_EXCEPTION(HttpStatus.BAD_REQUEST, "토큰 서명이 올바르지 않습니다."),
     ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
 

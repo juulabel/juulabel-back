@@ -6,8 +6,9 @@ build/
 !**/src/test/**/build/
 
 *.yml
-!deploy.yml
-!application-prod.yml
+!docker-compose**
+
+!.github/**
 
 ### STS ###
 .apt_generated

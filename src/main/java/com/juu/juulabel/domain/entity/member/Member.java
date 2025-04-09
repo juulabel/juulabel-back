@@ -120,4 +120,8 @@ public class Member extends BaseTimeEntity {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public void assignBadge() {
+        this.hasBadge = true;
+    }
 }

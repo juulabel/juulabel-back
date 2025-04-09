@@ -1,5 +1,6 @@
 package com.juu.juulabel.domain.repository.reader;
 
+import com.juu.juulabel.api.dto.response.RecommendListResponse;
 import com.juu.juulabel.domain.annotation.Reader;
 import com.juu.juulabel.domain.dto.follow.FollowUser;
 import com.juu.juulabel.domain.entity.follow.Follow;
@@ -42,11 +43,16 @@ public class FollowReader {
                                                  final String username) {
         return followQueryRepository.getSearchUserList(loginMember,lastFollowId, pageSize, username);
     }
-    public Slice<FollowUser> getRecommendUserList(final Member loginMember,
-                                             final Member member,
-                                             final Long lastFollowId,
+
+    public RecommendListResponse getRecommendUserList(final Member loginMember,
+                                                      final Long badgeLastUserId,
+                                                      final Long tastingLastUserId,
                                              final int pageSize) {
-        return followQueryRepository.findAllFollower(loginMember, member, lastFollowId, pageSize);
+
+        Slice<FollowUser> badgeRecommendUsers = followQueryRepository.findBadgeRecommendUserList(loginMember, badgeLastUserId, pageSize);
+        Slice<FollowUser> tastingRecommendUsers = followQueryRepository.findTastingRecommendUserList(loginMember, tastingLastUserId, pageSize);
+
+        return new RecommendListResponse(badgeRecommendUsers, tastingRecommendUsers);
     }
 
     public long countFollowing(final Member member){

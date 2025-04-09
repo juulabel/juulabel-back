@@ -1,13 +1,7 @@
 package com.juu.juulabel.api.service.follow;
 
-import com.juu.juulabel.api.dto.request.FollowOrUnfollowRequest;
-import com.juu.juulabel.api.dto.request.FollowerListRequest;
-import com.juu.juulabel.api.dto.request.FollowingListRequest;
-import com.juu.juulabel.api.dto.request.SearchUserListRequest;
-import com.juu.juulabel.api.dto.response.FollowOrUnfollowResponse;
-import com.juu.juulabel.api.dto.response.FollowerListResponse;
-import com.juu.juulabel.api.dto.response.FollowingListResponse;
-import com.juu.juulabel.api.dto.response.SearchUserListResponse;
+import com.juu.juulabel.api.dto.request.*;
+import com.juu.juulabel.api.dto.response.*;
 import com.juu.juulabel.domain.dto.follow.FollowUser;
 import com.juu.juulabel.domain.entity.follow.Follow;
 import com.juu.juulabel.domain.entity.member.Member;
@@ -57,6 +51,27 @@ public class FollowService {
         Slice<FollowUser> searchUserList = followReader.getSearchFollowUser(loginMember, request.lastFollowId(), request.pageSize(), request.username());
 
         return new SearchUserListResponse(searchUserList);
+    }
+
+    @Transactional
+    public FollowDeleteResponse deleteFollowing(final Member followee, final FollowDeleteRequest request) {
+        final Member follower = memberReader.getById(request.followerId());
+
+        // 팔로잉 삭제
+        final Follow isFollowing = followReader.findOrNullByFollowerAndFollowee(follower, followee);
+        final boolean isFollowingDeleted = followWriter.deleteFollow(isFollowing);
+
+        // 팔로워 삭제
+        final Follow isFollower = followReader.findOrNullByFollowerAndFollowee(followee, follower);
+        final boolean isFollowerDeleted = followWriter.deleteFollow(isFollower);
+
+        return new FollowDeleteResponse(isFollowingDeleted || isFollowerDeleted);
+    }
+
+    @Transactional(readOnly = true)
+    public RecommendListResponse loadRecommendList(final Member loginMember, final RecommendListRequest request) {
+
+        return followReader.getRecommendUserList(loginMember, request.badgeLastUserId(), request.tastingLastUserId(), request.pageSize());
     }
 
 }

@@ -24,13 +24,25 @@ public class FollowWriter {
         }
     }
 
+    public boolean deleteFollow(final Follow follow){
+        if(follow == null){
+            return false;
+        }else{
+            this.unfollow(follow);
+            return false;
+            }
+    }
+
     private void follow(final Member follower, final Member followee) {
         final Follow follow = Follow.create(follower, followee);
         followJpaRepository.save(follow);
+        followJpaRepository.flush();
     }
 
     private void unfollow(Follow follow) {
         followJpaRepository.delete(follow);
+        followJpaRepository.flush();
     }
+
 
 }
