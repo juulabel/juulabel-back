@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  docker:
+    image: "rldh9037/juulabel-backend:dev"
+    ports:
+      - "80:8080"
+    restart: "always"
