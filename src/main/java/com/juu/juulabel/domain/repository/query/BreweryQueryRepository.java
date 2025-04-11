@@ -45,7 +45,8 @@ public class BreweryQueryRepository {
                                 BrewerySummary.class,
                                 brewery.id,
                                 brewery.name,
-                                brewery.region
+                                brewery.region,
+                                brewery.message
                         )
                 )
                 .from(brewery)
