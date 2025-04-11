@@ -10,17 +10,15 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 
 @OpenAPIDefinition(
         servers = {
-                @Server(url = "https://juulabel.shop", description = "Server"),
-                @Server(url = "http://localhost:8084", description = "Local")
+                @Server(url = "https://dev.juulabel.com", description = "Server"),
+                @Server(url = "http://localhost:8080", description = "Local")
         }
 )
 @Configuration
-@Profile("dev")
 public class SwaggerConfig {
 
     @Bean
@@ -48,6 +46,26 @@ public class SwaggerConfig {
                 .addSecurityItem(new SecurityRequirement()
                         .addList(HttpHeaders.AUTHORIZATION))
                 .components(components);
+    }
+
+    @Bean
+
+    public OpenAPI openAPI() {
+        return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement().addList("JWTAuth"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("JWTAuth", securityScheme()));
+    }
+
+
+    private SecurityScheme securityScheme() {
+        return new SecurityScheme()
+                .name("JWTAuth")
+                .scheme("bearer")
+                .bearerFormat("JWT")
+                .type(SecurityScheme.Type.HTTP)
+                .in(SecurityScheme.In.HEADER)
+                .description("JWT 인증 토큰을 입력하세요.");
     }
 
 }
