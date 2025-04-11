@@ -60,7 +60,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public void handle(NoResourceFoundException e) {
-        log.warn("NoResourceFoundException :", e);
+    // 이거 키면 출력이 너무 많이 됨
+    //log.warn("NoResourceFoundException : {}", e.getMessage());
     }
 
 }
