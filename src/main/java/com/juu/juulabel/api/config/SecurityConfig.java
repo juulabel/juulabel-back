@@ -1,6 +1,6 @@
 package com.juu.juulabel.api.config;
 
-import com.juu.juulabel.api.filter.JwtAuthenticationFilter;
+import com.juu.juulabel.api.filter.JwtAuthorizationFilter;
 import com.juu.juulabel.api.filter.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +25,7 @@ import static org.springframework.http.HttpMethod.OPTIONS;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthorizationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
 
     private static final String[] PERMIT_PATHS = {
@@ -71,7 +71,7 @@ public class SecurityConfig {
             )
 
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class)
+            .addFilterBefore(jwtExceptionFilter, JwtAuthorizationFilter.class)
 
             .build();
     }
