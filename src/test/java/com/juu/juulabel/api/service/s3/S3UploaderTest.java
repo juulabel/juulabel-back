@@ -1,6 +1,5 @@
 package com.juu.juulabel.api.service.s3;
 
-import com.juu.juulabel.s3.S3Uploader;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +8,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
