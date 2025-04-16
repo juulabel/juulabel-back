@@ -1,0 +1,63 @@
+package com.juu.juulabel.member.repository.jpa;
+
+import com.juu.juulabel.member.domain.Member;
+import com.juu.juulabel.member.domain.QMember;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+@RequiredArgsConstructor
+public class MemberQueryRepository {
+
+    private final JPAQueryFactory jpaQueryFactory;
+
+    QMember member = QMember.member;
+
+    public boolean existActiveEmail(String email) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(member)
+            .where(
+                eqEmail(member, email),
+                isNotWithdrawal(member)
+            )
+            .fetchFirst() != null;
+    }
+
+    public boolean existActiveNickname(String nickname) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(member)
+            .where(
+                eqNickname(member, nickname),
+                isNotWithdrawal(member)
+            )
+            .fetchFirst() != null;
+    }
+
+    public List<Member> getActiveMembers() {
+        return jpaQueryFactory
+            .selectFrom(member)
+            .where(
+                isNotWithdrawal(member)
+            )
+            .fetch();
+    }
+
+    private BooleanExpression eqEmail(QMember member, String email) {
+        return member.email.eq(email);
+    }
+
+    private BooleanExpression eqNickname(QMember member, String nickname) {
+        return member.nickname.eq(nickname);
+    }
+
+    private BooleanExpression isNotWithdrawal(QMember member) {
+        return member.deletedAt.isNull();
+    }
+
+}

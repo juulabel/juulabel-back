@@ -1,0 +1,10 @@
+package com.juu.juulabel.alcohol.request;
+
+public record UsedSensoryInfo(
+    Long sensoryId,
+    String sensoryName,
+    Long sensoryLevelId,
+    String description,
+    int score
+) {
+}

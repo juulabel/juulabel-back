@@ -1,0 +1,93 @@
+package com.juu.juulabel.alcohol.repository.query;
+
+import com.juu.juulabel.alcohol.domain.QAlcoholType;
+import com.juu.juulabel.alcohol.domain.QAlcoholTypeSensory;
+import com.juu.juulabel.alcohol.domain.QSensory;
+import com.juu.juulabel.alcohol.domain.QSensoryLevel;
+import com.juu.juulabel.alcohol.request.Level;
+import com.juu.juulabel.alcohol.request.SensoryInfo;
+import com.juu.juulabel.alcohol.request.SensoryLevelInfo;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Repository
+@RequiredArgsConstructor
+public class AlcoholTypeSensoryQueryRepository {
+
+    private final JPAQueryFactory jpaQueryFactory;
+
+    QAlcoholTypeSensory alcoholTypeSensory = QAlcoholTypeSensory.alcoholTypeSensory;
+    QSensory sensory = QSensory.sensory;
+    QSensoryLevel sensoryLevel = QSensoryLevel.sensoryLevel;
+
+    public List<SensoryLevelInfo> findAllInfoByAlcoholTypeId(Long alcoholTypeId) {
+        /*
+        key : sensoryId
+        value : Object (SensoryLevelInfo)
+         */
+        Map<Long, SensoryLevelInfo> sensoryMap = new HashMap<>();
+
+        List<Tuple> sensoryTuples = jpaQueryFactory
+                .select(
+                        sensory.id,
+                        sensory.name,
+                        sensory.description,
+                        sensoryLevel.id,
+                        sensoryLevel.score,
+                        sensoryLevel.description
+                )
+                .from(alcoholTypeSensory)
+                .innerJoin(sensory).on(alcoholTypeSensory.sensory.eq(sensory))
+                .innerJoin(sensoryLevel).on(sensory.eq(sensoryLevel.sensory))
+                .where(
+                        eqAlcoholTypeId(alcoholTypeSensory.alcoholType, alcoholTypeId),
+                        isUsed(alcoholTypeSensory)
+                )
+                .orderBy(
+                        sensory.id.asc(),
+                        sensoryLevel.score.asc()
+                )
+                .fetch();
+
+        sensoryTuples.forEach(s -> {
+            Long sensoryId = s.get(this.sensory.id);
+
+            SensoryLevelInfo sensoryLevelInfo = sensoryMap.computeIfAbsent(sensoryId,
+                    id -> new SensoryLevelInfo(
+                            new SensoryInfo(
+                                    sensoryId,
+                                    s.get(this.sensory.name),
+                                    s.get(this.sensory.description)
+                            ),
+                            new ArrayList<>()
+                    ));
+
+            Level level = new Level(
+                    s.get(this.sensoryLevel.id),
+                    s.get(this.sensoryLevel.score),
+                    s.get(this.sensoryLevel.description)
+            );
+
+            sensoryLevelInfo.levels().add(level);
+        });
+
+        return new ArrayList<>(sensoryMap.values());
+    }
+
+    private BooleanExpression eqAlcoholTypeId(QAlcoholType alcoholType, Long alcoholTypeId) {
+        return alcoholType.id.eq(alcoholTypeId);
+    }
+
+    private BooleanExpression isUsed(QAlcoholTypeSensory alcoholTypeSensory) {
+        return alcoholTypeSensory.isUsed.isTrue();
+    }
+
+}
