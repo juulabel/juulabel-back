@@ -3,7 +3,7 @@ package com.juu.juulabel.alcohol.repository;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.alcohol.request.AlcoholicDrinksSummary;
+import com.juu.juulabel.alcohol.response.AlcoholicDrinksSummary;
 import com.juu.juulabel.tastingnote.request.AlcoholicDrinksTastingNoteSummary;
 import com.juu.juulabel.tastingnote.request.MyTastingNoteSummary;
 import com.juu.juulabel.tastingnote.request.TastingNoteDetailInfo;

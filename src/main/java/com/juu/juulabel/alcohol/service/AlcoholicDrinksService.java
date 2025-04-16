@@ -2,7 +2,7 @@ package com.juu.juulabel.alcohol.service;
 
 import com.juu.juulabel.alcohol.domain.SortType;
 import com.juu.juulabel.alcohol.repository.AlcoholicDrinksReader;
-import com.juu.juulabel.alcohol.request.*;
+import com.juu.juulabel.alcohol.response.*;
 import com.juu.juulabel.common.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.common.dto.response.AlcoholicDrinksDetailResponse;
 import com.juu.juulabel.common.dto.response.RelationSearchResponse;

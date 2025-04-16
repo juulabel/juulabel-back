@@ -2,7 +2,7 @@ package com.juu.juulabel.alcohol.repository.query;
 
 import com.juu.juulabel.alcohol.domain.QFlavor;
 import com.juu.juulabel.alcohol.domain.QFlavorLevel;
-import com.juu.juulabel.alcohol.request.UsedFlavorInfo;
+import com.juu.juulabel.alcohol.response.UsedFlavorInfo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

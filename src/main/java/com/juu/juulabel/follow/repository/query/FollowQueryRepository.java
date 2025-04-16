@@ -4,7 +4,7 @@ import com.juu.juulabel.alcohol.domain.AlcoholType;
 import com.juu.juulabel.alcohol.domain.QAlcoholType;
 import com.juu.juulabel.dailylife.domain.QDailyLife;
 import com.juu.juulabel.follow.domain.QFollow;
-import com.juu.juulabel.follow.request.FollowUser;
+import com.juu.juulabel.follow.response.FollowUser;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.domain.QMember;
 import com.juu.juulabel.member.domain.QMemberAlcoholType;

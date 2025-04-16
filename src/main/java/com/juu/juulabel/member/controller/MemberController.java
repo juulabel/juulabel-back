@@ -5,7 +5,7 @@ import com.juu.juulabel.common.dto.request.*;
 import com.juu.juulabel.common.dto.response.*;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
-import com.juu.juulabel.dailylife.request.DailyLifeListRequest;
+import com.juu.juulabel.dailylife.response.DailyLifeListRequest;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;

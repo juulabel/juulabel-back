@@ -1,8 +1,8 @@
 package com.juu.juulabel.alcohol.service;
 
 import com.juu.juulabel.common.dto.response.BreweryDetailResponse;
-import com.juu.juulabel.alcohol.request.AlcoholicBrewerySummary;
-import com.juu.juulabel.alcohol.request.BrewerySummary;
+import com.juu.juulabel.alcohol.response.AlcoholicBrewerySummary;
+import com.juu.juulabel.alcohol.response.BrewerySummary;
 import com.juu.juulabel.alcohol.repository.AlcoholicDrinksReader;
 import com.juu.juulabel.alcohol.repository.BreweryReader;
 import lombok.RequiredArgsConstructor;

@@ -2,8 +2,8 @@ package com.juu.juulabel.alcohol.repository.query;
 
 import com.juu.juulabel.alcohol.domain.QAlcoholicDrinks;
 import com.juu.juulabel.alcohol.domain.QBrewery;
-import com.juu.juulabel.alcohol.request.AlcoholicBrewerySummary;
-import com.juu.juulabel.alcohol.request.BrewerySummary;
+import com.juu.juulabel.alcohol.response.AlcoholicBrewerySummary;
+import com.juu.juulabel.alcohol.response.BrewerySummary;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

@@ -1,7 +1,7 @@
 package com.juu.juulabel.alcohol.repository;
 
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.alcohol.request.SensoryLevelInfo;
+import com.juu.juulabel.alcohol.response.SensoryLevelInfo;
 import com.juu.juulabel.alcohol.domain.SensoryLevel;
 import com.juu.juulabel.alcohol.repository.jpa.AlcoholTypeSensoryJpaRepository;
 import com.juu.juulabel.alcohol.repository.query.AlcoholTypeSensoryQueryRepository;

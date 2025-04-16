@@ -6,7 +6,7 @@ import com.juu.juulabel.common.dto.request.NotificationListRequest;
 import com.juu.juulabel.common.dto.response.NotificationListResponse;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
-import com.juu.juulabel.notification.request.NotificationSummary;
+import com.juu.juulabel.notification.response.NotificationSummary;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.notification.domain.Notification;
 import com.juu.juulabel.member.domain.MemberRole;

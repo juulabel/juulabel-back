@@ -1,8 +1,8 @@
 package com.juu.juulabel.common.dto.response;
 
-import com.juu.juulabel.alcohol.request.AlcoholicDrinksDetailInfo;
-import com.juu.juulabel.alcohol.request.IngredientSummary;
-import com.juu.juulabel.alcohol.request.VolumePriceDetail;
+import com.juu.juulabel.alcohol.response.AlcoholicDrinksDetailInfo;
+import com.juu.juulabel.alcohol.response.IngredientSummary;
+import com.juu.juulabel.alcohol.response.VolumePriceDetail;
 import com.juu.juulabel.tastingnote.request.LikeTopTastingNoteSummary;
 import com.juu.juulabel.tastingnote.request.TastingNoteSensorSummary;
 import io.swagger.v3.oas.annotations.media.Schema;

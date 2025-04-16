@@ -1,6 +1,6 @@
 package com.juu.juulabel.dailylife.service;
 
-import com.juu.juulabel.alcohol.request.CommentListRequest;
+import com.juu.juulabel.alcohol.response.CommentListRequest;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.dto.ImageInfo;
 import com.juu.juulabel.common.dto.comment.CommentSummary;
@@ -15,9 +15,9 @@ import com.juu.juulabel.dailylife.domain.DailyLifeImage;
 import com.juu.juulabel.dailylife.domain.DailyLifeCommentLike;
 import com.juu.juulabel.dailylife.domain.DailyLifeLike;
 import com.juu.juulabel.dailylife.repository.*;
-import com.juu.juulabel.dailylife.request.DailyLifeDetailInfo;
-import com.juu.juulabel.dailylife.request.DailyLifeListRequest;
-import com.juu.juulabel.dailylife.request.DailyLifeSummary;
+import com.juu.juulabel.dailylife.response.DailyLifeDetailInfo;
+import com.juu.juulabel.dailylife.response.DailyLifeListRequest;
+import com.juu.juulabel.dailylife.response.DailyLifeSummary;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.request.MemberInfo;
 import com.juu.juulabel.notification.service.NotificationService;

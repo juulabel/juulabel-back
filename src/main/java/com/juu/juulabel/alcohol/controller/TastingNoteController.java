@@ -1,6 +1,6 @@
 package com.juu.juulabel.alcohol.controller;
 
-import com.juu.juulabel.alcohol.request.CommentListRequest;
+import com.juu.juulabel.alcohol.response.CommentListRequest;
 import com.juu.juulabel.common.annotation.LoginMember;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;

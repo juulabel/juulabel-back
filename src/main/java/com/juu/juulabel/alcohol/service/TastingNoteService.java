@@ -2,7 +2,6 @@ package com.juu.juulabel.alcohol.service;
 
 import com.juu.juulabel.alcohol.domain.*;
 import com.juu.juulabel.alcohol.repository.*;
-import com.juu.juulabel.alcohol.request.*;
 import com.juu.juulabel.common.constants.FileConstants;
 import com.juu.juulabel.common.dto.request.*;
 import com.juu.juulabel.common.dto.response.*;

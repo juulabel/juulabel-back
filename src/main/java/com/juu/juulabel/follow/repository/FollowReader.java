@@ -2,7 +2,7 @@ package com.juu.juulabel.follow.repository;
 
 import com.juu.juulabel.common.dto.response.RecommendListResponse;
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.follow.request.FollowUser;
+import com.juu.juulabel.follow.response.FollowUser;
 import com.juu.juulabel.follow.domain.Follow;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.follow.repository.jpa.FollowJpaRepository;

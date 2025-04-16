@@ -1,7 +1,7 @@
 package com.juu.juulabel.alcohol.repository;
 
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.alcohol.request.FlavorLevelInfo;
+import com.juu.juulabel.alcohol.response.FlavorLevelInfo;
 import com.juu.juulabel.alcohol.domain.FlavorLevel;
 import com.juu.juulabel.alcohol.repository.jpa.AlcoholTypeFlavorJpaRepository;
 import com.juu.juulabel.alcohol.repository.query.AlcoholTypeFlavorQueryRepository;

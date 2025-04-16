@@ -1,6 +1,6 @@
 package com.juu.juulabel.common.dto.response;
 
-import com.juu.juulabel.alcohol.request.UsedAlcoholTypeInfo;
+import com.juu.juulabel.alcohol.response.UsedAlcoholTypeInfo;
 
 import java.util.List;
 

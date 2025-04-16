@@ -1,7 +1,7 @@
 package com.juu.juulabel.notification.repository;
 
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.notification.request.NotificationSummary;
+import com.juu.juulabel.notification.response.NotificationSummary;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.notification.repository.query.NotificationQueryRepository;
 import lombok.RequiredArgsConstructor;

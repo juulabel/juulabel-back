@@ -3,7 +3,7 @@ package com.juu.juulabel.alcohol.repository.query;
 import com.juu.juulabel.alcohol.domain.QAlcoholType;
 import com.juu.juulabel.alcohol.domain.QAlcoholTypeColor;
 import com.juu.juulabel.alcohol.domain.QColor;
-import com.juu.juulabel.alcohol.request.ColorInfo;
+import com.juu.juulabel.alcohol.response.ColorInfo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

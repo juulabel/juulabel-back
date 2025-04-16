@@ -1,7 +1,7 @@
 package com.juu.juulabel.alcohol.repository;
 
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.alcohol.request.ColorInfo;
+import com.juu.juulabel.alcohol.response.ColorInfo;
 import com.juu.juulabel.alcohol.domain.Color;
 import com.juu.juulabel.alcohol.repository.jpa.AlcoholTypeColorJpaRepository;
 import com.juu.juulabel.alcohol.repository.query.AlcoholTypeColorQueryRepository;

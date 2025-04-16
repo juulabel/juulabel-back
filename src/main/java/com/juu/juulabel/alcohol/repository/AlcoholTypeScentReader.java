@@ -1,7 +1,7 @@
 package com.juu.juulabel.alcohol.repository;
 
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.alcohol.request.CategoryWithScentSummary;
+import com.juu.juulabel.alcohol.response.CategoryWithScentSummary;
 import com.juu.juulabel.alcohol.domain.Scent;
 import com.juu.juulabel.alcohol.repository.jpa.AlcoholTypeScentJpaRepository;
 import com.juu.juulabel.alcohol.repository.query.AlcoholTypeScentQueryRepository;

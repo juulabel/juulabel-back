@@ -2,7 +2,7 @@ package com.juu.juulabel.alcohol.repository.query;
 
 import com.juu.juulabel.alcohol.domain.AlcoholType;
 import com.juu.juulabel.alcohol.domain.QAlcoholType;
-import com.juu.juulabel.alcohol.request.UsedAlcoholTypeInfo;
+import com.juu.juulabel.alcohol.response.UsedAlcoholTypeInfo;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.querydsl.core.types.Projections;

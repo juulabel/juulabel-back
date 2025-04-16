@@ -1,6 +1,6 @@
 package com.juu.juulabel.common.dto.response;
 
-import com.juu.juulabel.alcohol.request.ColorInfo;
+import com.juu.juulabel.alcohol.response.ColorInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

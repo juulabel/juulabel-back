@@ -1,7 +1,7 @@
 package com.juu.juulabel.alcohol.controller;
 
 
-import com.juu.juulabel.alcohol.request.CategorySearchAlcoholRequest;
+import com.juu.juulabel.alcohol.response.CategorySearchAlcoholRequest;
 import com.juu.juulabel.common.dto.response.AlcoholicCategoryResponse;
 import com.juu.juulabel.common.dto.response.AlcoholicDrinksDetailResponse;
 import com.juu.juulabel.common.dto.response.BreweryDetailResponse;

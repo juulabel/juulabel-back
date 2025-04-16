@@ -1,9 +1,9 @@
 package com.juu.juulabel.alcohol.repository.query;
 
 import com.juu.juulabel.alcohol.domain.*;
-import com.juu.juulabel.alcohol.request.AlcoholTypeSummary;
-import com.juu.juulabel.alcohol.request.AlcoholicDrinksSummary;
-import com.juu.juulabel.alcohol.request.BrewerySummary;
+import com.juu.juulabel.alcohol.response.AlcoholTypeSummary;
+import com.juu.juulabel.alcohol.response.AlcoholicDrinksSummary;
+import com.juu.juulabel.alcohol.response.BrewerySummary;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.member.domain.Member;

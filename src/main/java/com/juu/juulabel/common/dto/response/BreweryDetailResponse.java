@@ -1,7 +1,7 @@
 package com.juu.juulabel.common.dto.response;
 
-import com.juu.juulabel.alcohol.request.AlcoholicBrewerySummary;
-import com.juu.juulabel.alcohol.request.BrewerySummary;
+import com.juu.juulabel.alcohol.response.AlcoholicBrewerySummary;
+import com.juu.juulabel.alcohol.response.BrewerySummary;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

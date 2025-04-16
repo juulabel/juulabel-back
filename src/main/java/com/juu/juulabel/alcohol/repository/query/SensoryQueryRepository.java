@@ -2,7 +2,7 @@ package com.juu.juulabel.alcohol.repository.query;
 
 import com.juu.juulabel.alcohol.domain.QSensory;
 import com.juu.juulabel.alcohol.domain.QSensoryLevel;
-import com.juu.juulabel.alcohol.request.UsedSensoryInfo;
+import com.juu.juulabel.alcohol.response.UsedSensoryInfo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

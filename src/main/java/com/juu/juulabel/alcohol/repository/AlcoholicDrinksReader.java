@@ -2,12 +2,11 @@ package com.juu.juulabel.alcohol.repository;
 
 import com.juu.juulabel.alcohol.domain.AlcoholicDrinks;
 import com.juu.juulabel.alcohol.domain.SortType;
-import com.juu.juulabel.alcohol.request.*;
+import com.juu.juulabel.alcohol.response.*;
 import com.juu.juulabel.common.annotation.Reader;
 import com.juu.juulabel.common.dto.response.AlcoholicDrinksListWithSizeResponse;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
-import com.juu.juulabel.alcohol.repository.query.AlcoholDrinksDetailQueryRepository;
 import com.juu.juulabel.alcohol.repository.query.AlcoholDrinksTypeQueryRepository;
 import com.juu.juulabel.alcohol.repository.query.AlcoholicDrinksQueryRepository;
 import com.juu.juulabel.alcohol.repository.query.BreweryQueryRepository;

@@ -1,7 +1,7 @@
 package com.juu.juulabel.alcohol.repository;
 
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.alcohol.request.UsedSensoryInfo;
+import com.juu.juulabel.alcohol.response.UsedSensoryInfo;
 import com.juu.juulabel.alcohol.repository.query.SensoryQueryRepository;
 import lombok.RequiredArgsConstructor;
 

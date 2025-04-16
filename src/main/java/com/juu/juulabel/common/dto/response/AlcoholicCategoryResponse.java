@@ -1,7 +1,7 @@
 package com.juu.juulabel.common.dto.response;
 
 import com.juu.juulabel.common.annotation.SliceResponse;
-import com.juu.juulabel.alcohol.request.AlcoholSearchSummary;
+import com.juu.juulabel.alcohol.response.AlcoholSearchSummary;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Slice;
 

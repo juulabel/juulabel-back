@@ -4,7 +4,7 @@ import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.notification.domain.QNotification;
-import com.juu.juulabel.notification.request.NotificationSummary;
+import com.juu.juulabel.notification.response.NotificationSummary;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

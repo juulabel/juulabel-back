@@ -1,13 +1,13 @@
 package com.juu.juulabel.dailylife.controller;
 
-import com.juu.juulabel.alcohol.request.CommentListRequest;
+import com.juu.juulabel.alcohol.response.CommentListRequest;
 import com.juu.juulabel.common.annotation.LoginMember;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.common.dto.request.*;
 import com.juu.juulabel.common.dto.response.*;
 import com.juu.juulabel.dailylife.service.DailyLifeService;
-import com.juu.juulabel.dailylife.request.DailyLifeListRequest;
+import com.juu.juulabel.dailylife.response.DailyLifeListRequest;
 import com.juu.juulabel.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

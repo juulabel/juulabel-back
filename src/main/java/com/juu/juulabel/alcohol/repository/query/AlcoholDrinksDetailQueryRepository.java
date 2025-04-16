@@ -2,7 +2,7 @@ package com.juu.juulabel.alcohol.repository.query;
 
 import com.juu.juulabel.alcohol.domain.*;
 import com.juu.juulabel.alcohol.repository.jpa.AlcoholicDrinksJpaRepository;
-import com.juu.juulabel.alcohol.request.*;
+import com.juu.juulabel.alcohol.response.*;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.member.domain.QMember;

@@ -1,6 +1,6 @@
 package com.juu.juulabel.tastingnote.domain.embedded;
 
-import com.juu.juulabel.alcohol.request.AlcoholicDrinksDetails;
+import com.juu.juulabel.alcohol.response.AlcoholicDrinksDetails;
 import com.juu.juulabel.alcohol.domain.AlcoholType;
 import com.juu.juulabel.alcohol.domain.AlcoholicDrinks;
 import com.juu.juulabel.alcohol.domain.Brewery;

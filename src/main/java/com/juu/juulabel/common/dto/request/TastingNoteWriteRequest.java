@@ -1,7 +1,7 @@
 package com.juu.juulabel.common.dto.request;
 
 import com.juu.juulabel.common.annotation.Rating;
-import com.juu.juulabel.alcohol.request.AlcoholicDrinksDetails;
+import com.juu.juulabel.alcohol.response.AlcoholicDrinksDetails;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

@@ -1,7 +1,7 @@
 package com.juu.juulabel.tastingnote.request;
 
-import com.juu.juulabel.alcohol.request.FlavorDetail;
-import com.juu.juulabel.alcohol.request.SensoryDetail;
+import com.juu.juulabel.alcohol.response.FlavorDetail;
+import com.juu.juulabel.alcohol.response.SensoryDetail;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

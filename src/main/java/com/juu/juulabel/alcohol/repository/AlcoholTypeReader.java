@@ -1,7 +1,7 @@
 package com.juu.juulabel.alcohol.repository;
 
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.alcohol.request.UsedAlcoholTypeInfo;
+import com.juu.juulabel.alcohol.response.UsedAlcoholTypeInfo;
 import com.juu.juulabel.alcohol.domain.AlcoholType;
 import com.juu.juulabel.alcohol.repository.jpa.AlcoholTypeJpaRepository;
 import com.juu.juulabel.alcohol.repository.query.AlcoholTypeQueryRepository;

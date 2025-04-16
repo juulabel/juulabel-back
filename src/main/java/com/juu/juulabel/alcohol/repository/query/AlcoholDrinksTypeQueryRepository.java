@@ -4,7 +4,7 @@ import com.juu.juulabel.alcohol.domain.QAlcoholType;
 import com.juu.juulabel.alcohol.domain.QAlcoholicDrinks;
 import com.juu.juulabel.alcohol.domain.QBrewery;
 import com.juu.juulabel.alcohol.domain.SortType;
-import com.juu.juulabel.alcohol.request.AlcoholSearchSummary;
+import com.juu.juulabel.alcohol.response.AlcoholSearchSummary;
 import com.juu.juulabel.tastingnote.domain.QTastingNote;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;

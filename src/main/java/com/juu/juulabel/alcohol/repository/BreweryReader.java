@@ -1,7 +1,7 @@
 package com.juu.juulabel.alcohol.repository;
 
 import com.juu.juulabel.common.annotation.Reader;
-import com.juu.juulabel.alcohol.request.BrewerySummary;
+import com.juu.juulabel.alcohol.response.BrewerySummary;
 import com.juu.juulabel.alcohol.repository.query.BreweryQueryRepository;
 import lombok.RequiredArgsConstructor;
 
