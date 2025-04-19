@@ -1,0 +1,13 @@
+package com.juu.juulabel.common.dto.response;
+
+import com.juu.juulabel.alcohol.response.FlavorLevelInfo;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.List;
+
+@Schema(description = "미각 정보 조회")
+public record TastingNoteFlavorListResponse(
+        @Schema(description = "미각 타입과 그에 대한 점수 및 설명 리스트")
+        List<FlavorLevelInfo> flavorLevels
+) {
+}
