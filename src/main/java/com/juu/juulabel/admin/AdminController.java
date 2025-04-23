@@ -9,10 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(
     name = "관리자 API",
@@ -35,4 +33,8 @@ public class AdminController {
         return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
+    @GetMapping("/permission/test")
+    public ResponseEntity<Member> test(@AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok(member);
+    }
 }
