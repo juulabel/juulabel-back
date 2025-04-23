@@ -11,6 +11,7 @@ on:
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment: dev # Github Actions Evironment 설정, 키 분리를 위한 설정
 
