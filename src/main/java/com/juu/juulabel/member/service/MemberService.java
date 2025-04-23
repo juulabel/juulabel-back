@@ -65,6 +65,10 @@ public class MemberService {
     private final FollowReader followReader;
 
 
+    public Member getMemberByEmail(String email) {
+        return memberReader.getByEmail(email);
+    }
+
     @Transactional
     public LoginResponse login(OAuthLoginRequest oAuthLoginRequest) {
         OAuthLoginInfo authLoginInfo = oAuthLoginRequest.toDto();
@@ -86,8 +90,13 @@ public class MemberService {
 
         validateNotWithdrawnMember(email);
 
-        Token token = createTokenForMember(isNewMember, email); // TODO : 카카오와 구글 이메일이 같다면 토큰 중복 사용 가능 여부 확인
-
+        String generatedToken = jwtTokenProvider.createAccessToken(getMemberByEmail(email));
+        Token token;
+        if (isNewMember) {
+            token = new Token(null, null);
+        }else{
+            token = new Token(generatedToken, jwtTokenProvider.getExpirationByToken(generatedToken));
+        }
         return new LoginResponse(
             token,
             isNewMember,
@@ -117,7 +126,7 @@ public class MemberService {
             memberTermsWriter.storeAll(memberTerms);
         }
 
-        String token = jwtTokenProvider.createAccessToken(member.getEmail());
+        String token = jwtTokenProvider.createAccessToken(member);
 
         return new SignUpMemberResponse(
             member.getId(),
@@ -125,14 +134,6 @@ public class MemberService {
         );
     }
 
-    private Token createTokenForMember(boolean isNewMember, String email) {
-        if (isNewMember) {
-            return new Token(null, null);
-        } else {
-            String generatedToken = jwtTokenProvider.createAccessToken(email);
-            return new Token(generatedToken, jwtTokenProvider.getExpirationByToken(generatedToken));
-        }
-    }
 
     private List<MemberAlcoholType> getMemberAlcoholTypeList(Member member, List<Long> alcoholTypeIdList) {
         return alcoholTypeIdList.stream()

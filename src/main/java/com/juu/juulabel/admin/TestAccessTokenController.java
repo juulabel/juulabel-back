@@ -2,6 +2,8 @@ package com.juu.juulabel.admin;
 
 
 import com.juu.juulabel.common.provider.JwtTokenProvider;
+import com.juu.juulabel.member.domain.Member;
+import com.juu.juulabel.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestAccessTokenController {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final MemberService memberService;
 
     @Operation(
             summary = "JWT 테스트용 토큰 발급 API",
@@ -25,7 +28,8 @@ public class TestAccessTokenController {
     )
     @GetMapping("/token")
     public String testAccessToken(@RequestParam(defaultValue = "rldh11111@naver.com") String email) {
-        return jwtTokenProvider.createAccessToken(email);
+        Member member = memberService.getMemberByEmail(email);
+        return jwtTokenProvider.createAccessToken(member);
     }
 
 }

@@ -1,63 +1,71 @@
 package com.juu.juulabel.common.provider;
 
-import com.juu.juulabel.common.principal.CustomUserDetailsService;
-import com.juu.juulabel.common.principal.JuulabelMember;
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.member.domain.Member;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class JwtTokenProvider {
 
-    public static final Long ACCESS_TOKEN_EXPIRE_TIME = Duration.ofHours(6).toMillis();
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = Duration.ofDays(1).toMillis();
+    private static final String ISSUER = "juulabel";
+    private static final String ROLE_CLAIM = "role";
 
     private final SecretKey key;
-    private final CustomUserDetailsService customUserDetailsService;
 
-    public JwtTokenProvider(
-        @Value("${spring.jwt.secret}") String key,
-        CustomUserDetailsService customUserDetailsService
-    ) {
+    public JwtTokenProvider(@Value("${spring.jwt.secret}") String key) {
         byte[] keyBytes = Base64.getDecoder().decode(key);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.customUserDetailsService = customUserDetailsService;
     }
 
-    public String createAccessToken(String email) {
-        Date now = new Date();
-        long accessTokenExpireTime = now.getTime() + ACCESS_TOKEN_EXPIRE_TIME;
-
+    public String createAccessToken(Member member) {
         return Jwts.builder()
-                .subject(email)
-                .issuedAt(now)
-                .expiration(new Date(accessTokenExpireTime))
+                .subject(String.valueOf(member.getId()))
+                .claim(ROLE_CLAIM, member.getRole().name())
+                .issuedAt(new Date())
+                .issuer(ISSUER)
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_TIME))
                 .signWith(key)
                 .compact();
     }
 
-    public Authentication getAuthentication(String token) {
-        JuulabelMember userDetails = (JuulabelMember) customUserDetailsService.loadUserByUsername(getEmailByToken(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+
+    public Authentication getAuthentication(String accessToken) {
+        Claims claims = parseClaims(accessToken);
+
+        Collection<? extends GrantedAuthority> roles =
+                Collections.singletonList(new SimpleGrantedAuthority(claims.get(ROLE_CLAIM, String.class)));
+
+        Member member = Member.builder()
+                .id(Long.parseLong(claims.getSubject()))
+                .build();
+
+        return new UsernamePasswordAuthenticationToken(
+                member,
+                null,
+                roles
+        );
     }
 
     public String resolveToken(String header) {
         return Optional.ofNullable(header)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_AUTHENTICATION))
-            .replace(AuthConstants.TOKEN_PREFIX, "");
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_AUTHENTICATION))
+                .replace(AuthConstants.TOKEN_PREFIX, "");
     }
 
     public boolean isValidateToken(String token) {
@@ -66,10 +74,6 @@ public class JwtTokenProvider {
         }
 
         return !getExpirationByToken(token).before(new Date());
-    }
-
-    public String getEmailByToken(String token) {
-        return parseClaims(token).getSubject();
     }
 
     public Date getExpirationByToken(String token) {
