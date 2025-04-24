@@ -26,7 +26,7 @@ public class DailyLifeReader {
 
     public DailyLife getById(final Long dailyLifeId) {
         return dailyLifeJpaRepository.findByIdAndDeletedAtIsNull(dailyLifeId)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_DAILY_LIFE));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.DAILY_LIFE_NOT_FOUND));
     }
 
     public Slice<DailyLifeSummary> getAllDailyLives(final Member member,

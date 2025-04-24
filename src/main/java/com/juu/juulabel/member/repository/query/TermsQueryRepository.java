@@ -71,7 +71,7 @@ public class TermsQueryRepository {
             .fetchOne();
 
         return Optional.ofNullable(termsDetailResponse)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TERMS));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.TERMS_NOT_FOUND));
     }
 
     private BooleanExpression eqId(QTerms terms, Long termsId) {

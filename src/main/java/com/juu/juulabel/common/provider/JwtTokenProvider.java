@@ -88,13 +88,13 @@ public class JwtTokenProvider {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (MalformedJwtException ex) {
-            throw new CustomJwtException(ErrorCode.MALFORMED_JWT_EXCEPTION);
+            throw new CustomJwtException(ErrorCode.JWT_MALFORMED_EXCEPTION);
         } catch (ExpiredJwtException ex) {
-            throw new CustomJwtException(ErrorCode.EXPIRED_JWT_EXCEPTION);
+            throw new CustomJwtException(ErrorCode.JWT_EXPIRED_EXCEPTION);
         } catch (UnsupportedJwtException ex) {
-            throw new CustomJwtException(ErrorCode.UNSUPPORTED_JWT_EXCEPTION);
+            throw new CustomJwtException(ErrorCode.JWT_UNSUPPORTED_EXCEPTION);
         } catch (IllegalArgumentException ex) {
-            throw new CustomJwtException(ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION);
+            throw new CustomJwtException(ErrorCode.JWT_ILLEGAL_ARGUMENT_EXCEPTION);
         }
     }
 

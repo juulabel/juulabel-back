@@ -80,7 +80,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 isNotDeleted(alcoholicDrinks))
                 .fetchOne();
 
-        return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE)
+        return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(() -> new InvalidParamException(ErrorCode.ALCOHOLIC_DRINKS_TYPE_NOT_FOUND)
         );
     }
 

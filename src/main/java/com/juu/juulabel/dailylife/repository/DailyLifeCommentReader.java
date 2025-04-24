@@ -21,7 +21,7 @@ public class DailyLifeCommentReader {
 
     public DailyLifeComment getById(final Long dailyLifeCommentId) {
         return dailyLifeCommentJpaRepository.findByIdAndDeletedAtIsNull(dailyLifeCommentId)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
     public Slice<CommentSummary> getAllByDailyLifeId(

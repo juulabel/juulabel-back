@@ -156,7 +156,7 @@ public class MemberService {
 
     private void validateTermsList(List<Terms> usedTermsList, List<TermsAgreement> termsAgreements) {
         if (usedTermsList.size() != termsAgreements.size()) {
-            throw new InvalidParamException(ErrorCode.MISMATCH_TERMS_AGREEMENT);
+            throw new InvalidParamException(ErrorCode.TERMS_AGREEMENT_MISMATCH);
         }
     }
 
@@ -168,12 +168,12 @@ public class MemberService {
             TermsAgreement termsAgreement = termsAgreements.stream()
                 .filter(agreement -> agreement.termsId().equals(terms.getId()))
                 .findFirst()
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TERMS));
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.TERMS_NOT_FOUND));
 
             final boolean isAgreed = termsAgreement.isAgreed();
 
             if (terms.isRequired() && !isAgreed) {
-                throw new InvalidParamException(ErrorCode.MISSING_REQUIRED_AGREEMENT);
+                throw new InvalidParamException(ErrorCode.TERMS_AGREEMENT_MISSING_REQUIRED);
             }
 
             mappings.add(MemberTerms.create(member, terms, isAgreed, now));
@@ -336,13 +336,13 @@ public class MemberService {
 
     private void validateNotWithdrawnMember(String email) {
         if (withdrawalRecordReader.existEmail(email)) {
-            throw new InvalidParamException(ErrorCode.WITHDRAWN_MEMBER);
+            throw new InvalidParamException(ErrorCode.MEMBER_WITHDRAWN);
         }
     }
 
     private void validateEmail(String email) {
         if (memberReader.existActiveEmail(email)) {
-            throw new InvalidParamException(ErrorCode.EXIST_EMAIL);
+            throw new InvalidParamException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
         }
     }
 

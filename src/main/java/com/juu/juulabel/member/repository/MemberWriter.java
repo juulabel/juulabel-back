@@ -21,6 +21,6 @@ public class MemberWriter {
 
     public Member getByEmail(String email) {
         return memberJpaRepository.findByEmail(email)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }

@@ -280,7 +280,7 @@ public class TastingNoteQueryRepository {
             .fetchOne();
 
         return Optional.ofNullable(tastingNoteCount)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
     }
 
     public long getTastingNoteCountByMemberId(Long memberId, Member loginMember) {
@@ -295,7 +295,7 @@ public class TastingNoteQueryRepository {
             .fetchOne();
 
         return Optional.ofNullable(tastingNoteCount)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
     }
 
     private OrderSpecifier<String> alcoholicDrinksNameAsc(QAlcoholicDrinks alcoholicDrinks) {
@@ -395,7 +395,7 @@ public class TastingNoteQueryRepository {
             .fetchOne();
 
         return Optional.ofNullable(tastingNoteDetailInfo)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TASTING_NOTE));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
     }
 
     public List<Long> getSensoryLevelIds(Long tastingNoteId, Member member) {
