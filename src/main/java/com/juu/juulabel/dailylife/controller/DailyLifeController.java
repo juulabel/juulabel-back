@@ -1,7 +1,6 @@
 package com.juu.juulabel.dailylife.controller;
 
 import com.juu.juulabel.alcohol.response.CommentListRequest;
-import com.juu.juulabel.common.annotation.LoginMember;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.common.dto.request.*;
@@ -17,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,11 +39,11 @@ public class DailyLifeController {
     )
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<WriteDailyLifeResponse>> write(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid @RequestPart(value = "request") WriteDailyLifeRequest request,
         @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.writeDailyLife(loginMember, request, files));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.writeDailyLife(member, request, files));
     }
 
     @Operation(
@@ -52,10 +52,10 @@ public class DailyLifeController {
     )
     @GetMapping("/{dailyLifeId}")
     public ResponseEntity<CommonResponse<DailyLifeResponse>> loadDailyLife(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long dailyLifeId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLife(loginMember, dailyLifeId));
+        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLife(member, dailyLifeId));
     }
 
     @Operation(
@@ -67,10 +67,10 @@ public class DailyLifeController {
     )
     @GetMapping
     public ResponseEntity<CommonResponse<DailyLifeListResponse>> loadDailyLifeList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid DailyLifeListRequest request
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLifeList(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadDailyLifeList(member, request));
     }
 
     @Operation(
@@ -79,12 +79,12 @@ public class DailyLifeController {
     )
     @PatchMapping(value = "/{dailyLifeId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<UpdateDailyLifeResponse>> updateDailyLife(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid @RequestPart(value = "request") UpdateDailyLifeRequest request,
         @RequestPart(value = "files", required = false) List<MultipartFile> files,
         @PathVariable Long dailyLifeId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, dailyLifeService.updateDailyLife(loginMember, dailyLifeId, request, files));
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, dailyLifeService.updateDailyLife(member, dailyLifeId, request, files));
     }
 
     @Operation(
@@ -93,10 +93,10 @@ public class DailyLifeController {
     )
     @DeleteMapping("/{dailyLifeId}")
     public ResponseEntity<CommonResponse<DeleteDailyLifeResponse>> deleteDailyLife(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long dailyLifeId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, dailyLifeService.deleteDailyLife(loginMember, dailyLifeId));
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, dailyLifeService.deleteDailyLife(member, dailyLifeId));
     }
 
     @Operation(
@@ -105,10 +105,10 @@ public class DailyLifeController {
     )
     @PostMapping("/{dailyLifeId}/likes")
     public ResponseEntity<CommonResponse<Void>> toggleDailyLifeLike(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long dailyLifeId
     ) {
-        boolean isLiked = dailyLifeService.toggleDailyLifeLike(loginMember, dailyLifeId);
+        boolean isLiked = dailyLifeService.toggleDailyLifeLike(member, dailyLifeId);
         return CommonResponse.success(isLiked ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
     }
 
@@ -118,11 +118,11 @@ public class DailyLifeController {
     )
     @PostMapping("/{dailyLifeId}/comments")
     public ResponseEntity<CommonResponse<WriteDailyLifeCommentResponse>> writeComment(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid @RequestBody WriteDailyLifeCommentRequest request,
         @PathVariable Long dailyLifeId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.writeComment(loginMember, request, dailyLifeId));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.writeComment(member, request, dailyLifeId));
     }
 
     @Operation(
@@ -134,11 +134,11 @@ public class DailyLifeController {
     )
     @GetMapping("/{dailyLifeId}/comments")
     public ResponseEntity<CommonResponse<DailyLifeCommentListResponse>> loadCommentList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid CommentListRequest request,
         @PathVariable Long dailyLifeId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadCommentList(loginMember, request, dailyLifeId));
+        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadCommentList(member, request, dailyLifeId));
     }
 
     @Operation(
@@ -150,12 +150,12 @@ public class DailyLifeController {
     )
     @GetMapping("/{dailyLifeId}/comments/{dailyLifeCommentId}")
     public ResponseEntity<CommonResponse<DailyLifeReplyListResponse>> loadReplyList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid ReplyListRequest request,
         @PathVariable Long dailyLifeId,
         @PathVariable Long dailyLifeCommentId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadReplyList(loginMember, request, dailyLifeId, dailyLifeCommentId));
+        return CommonResponse.success(SuccessCode.SUCCESS, dailyLifeService.loadReplyList(member, request, dailyLifeId, dailyLifeCommentId));
     }
 
     @Operation(
@@ -164,12 +164,12 @@ public class DailyLifeController {
     )
     @PatchMapping("/{dailyLifeId}/comments/{commentId}")
     public ResponseEntity<CommonResponse<UpdateCommentResponse>> updateComment(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid @RequestBody UpdateCommentRequest request,
         @PathVariable Long dailyLifeId,
         @PathVariable Long commentId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.updateComment(loginMember, request, dailyLifeId, commentId));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, dailyLifeService.updateComment(member, request, dailyLifeId, commentId));
     }
 
     @Operation(
@@ -178,11 +178,11 @@ public class DailyLifeController {
     )
     @DeleteMapping("/{dailyLifeId}/comments/{commentId}")
     public ResponseEntity<CommonResponse<DeleteCommentResponse>> deleteComment(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long dailyLifeId,
         @PathVariable Long commentId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, dailyLifeService.deleteComment(loginMember, dailyLifeId, commentId));
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, dailyLifeService.deleteComment(member, dailyLifeId, commentId));
     }
 
     @Operation(
@@ -191,11 +191,11 @@ public class DailyLifeController {
     )
     @PostMapping("/{dailyLifeId}/comments/{commentId}/likes")
     public ResponseEntity<CommonResponse<Void>> toggleCommentLike(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long dailyLifeId,
         @PathVariable Long commentId
     ) {
-        boolean isLiked = dailyLifeService.toggleCommentLike(loginMember, dailyLifeId, commentId);
+        boolean isLiked = dailyLifeService.toggleCommentLike(member, dailyLifeId, commentId);
         return CommonResponse.success(isLiked ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
     }
 
