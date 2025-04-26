@@ -9,6 +9,7 @@ import com.juu.juulabel.alcohol.response.AlcoholicDrinksSummary;
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.dto.request.*;
 import com.juu.juulabel.common.dto.response.*;
+import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.factory.OAuthProviderFactory;
@@ -20,6 +21,7 @@ import com.juu.juulabel.dailylife.response.MyDailyLifeSummary;
 import com.juu.juulabel.follow.repository.FollowReader;
 import com.juu.juulabel.member.domain.*;
 import com.juu.juulabel.member.repository.*;
+import com.juu.juulabel.member.repository.jpa.MemberJpaRepository;
 import com.juu.juulabel.member.request.OAuthLoginInfo;
 import com.juu.juulabel.member.request.OAuthUser;
 import com.juu.juulabel.member.request.OAuthUserInfo;
@@ -63,6 +65,7 @@ public class MemberService {
     private final WithdrawalRecordWriter withdrawalRecordWriter;
     private final WithdrawalRecordReader withdrawalRecordReader;
     private final FollowReader followReader;
+    private final MemberJpaRepository memberJpaRepository;
 
 
     @Transactional
@@ -72,9 +75,9 @@ public class MemberService {
 
         // 인가 코드를 이용해 토큰 발급 요청
         String accessToken = providerFactory.getAccessToken(
-            provider,
-            authLoginInfo.propertyMap().get(AuthConstants.REDIRECT_URI),
-            authLoginInfo.propertyMap().get(AuthConstants.CODE)
+                provider,
+                authLoginInfo.propertyMap().get(AuthConstants.REDIRECT_URI),
+                authLoginInfo.propertyMap().get(AuthConstants.CODE)
         );
 
         // 토큰을 이용해 사용자 정보 가져오기
@@ -89,9 +92,9 @@ public class MemberService {
         Token token = createTokenForMember(isNewMember, email); // TODO : 카카오와 구글 이메일이 같다면 토큰 중복 사용 가능 여부 확인
 
         return new LoginResponse(
-            token,
-            isNewMember,
-            new OAuthUserInfo(email, oAuthUser.id(), provider)
+                token,
+                isNewMember,
+                new OAuthUserInfo(email, oAuthUser.id(), provider)
         );
     }
 
@@ -105,14 +108,14 @@ public class MemberService {
 
         // 선호전통주 주종 등록
         List<MemberAlcoholType> memberAlcoholTypeList =
-            getMemberAlcoholTypeList(member, signUpRequest.alcoholTypeIds());
+                getMemberAlcoholTypeList(member, signUpRequest.alcoholTypeIds());
         if (!memberAlcoholTypeList.isEmpty()) {
             memberAlcoholTypeWriter.storeAll(memberAlcoholTypeList);
         }
 
         // 약관 등록
         List<MemberTerms> memberTerms =
-            getAndValidateTermsWithMapping(member, signUpRequest.termsAgreements());
+                getAndValidateTermsWithMapping(member, signUpRequest.termsAgreements());
         if (!memberTerms.isEmpty()) {
             memberTermsWriter.storeAll(memberTerms);
         }
@@ -120,8 +123,8 @@ public class MemberService {
         String token = jwtTokenProvider.createAccessToken(member.getEmail());
 
         return new SignUpMemberResponse(
-            member.getId(),
-            new Token(token, jwtTokenProvider.getExpirationByToken(token))
+                member.getId(),
+                new Token(token, jwtTokenProvider.getExpirationByToken(token))
         );
     }
 
@@ -136,11 +139,11 @@ public class MemberService {
 
     private List<MemberAlcoholType> getMemberAlcoholTypeList(Member member, List<Long> alcoholTypeIdList) {
         return alcoholTypeIdList.stream()
-            .map(alcoholTypeId -> {
-                AlcoholType alcoholType = alcoholTypeReader.getById(alcoholTypeId);
-                return MemberAlcoholType.create(member, alcoholType);
-            })
-            .toList();
+                .map(alcoholTypeId -> {
+                    AlcoholType alcoholType = alcoholTypeReader.getById(alcoholTypeId);
+                    return MemberAlcoholType.create(member, alcoholType);
+                })
+                .toList();
     }
 
     private List<MemberTerms> getAndValidateTermsWithMapping(Member member, List<TermsAgreement> termsAgreements) {
@@ -165,9 +168,9 @@ public class MemberService {
 
         usedTermsList.forEach(terms -> {
             TermsAgreement termsAgreement = termsAgreements.stream()
-                .filter(agreement -> agreement.termsId().equals(terms.getId()))
-                .findFirst()
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TERMS));
+                    .filter(agreement -> agreement.termsId().equals(terms.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TERMS));
 
             final boolean isAgreed = termsAgreement.isAgreed();
 
@@ -210,7 +213,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MyDailyLifeListResponse loadMyDailyLifeList(Member member, DailyLifeListRequest request) {
         Slice<MyDailyLifeSummary> myDailyLifeList =
-            dailyLifeReader.getAllMyDailyLives(member, request.lastDailyLifeId(), request.pageSize());
+                dailyLifeReader.getAllMyDailyLives(member, request.lastDailyLifeId(), request.pageSize());
 
         return new MyDailyLifeListResponse(myDailyLifeList);
     }
@@ -218,7 +221,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MyTastingNoteListResponse loadMyTastingNoteList(Member member, TastingNoteListRequest request) {
         Slice<MyTastingNoteSummary> myTastingNoteList =
-            tastingNoteReader.getAllMyTastingNotes(member, request.lastTastingNoteId(), request.pageSize());
+                tastingNoteReader.getAllMyTastingNotes(member, request.lastTastingNoteId(), request.pageSize());
 
         return new MyTastingNoteListResponse(myTastingNoteList);
     }
@@ -227,24 +230,24 @@ public class MemberService {
     public boolean saveAlcoholicDrinks(Member member, Long alcoholicDrinksId) {
         AlcoholicDrinks alcoholicDrinks = alcoholicDrinksReader.getById(alcoholicDrinksId);
         Optional<MemberAlcoholicDrinks> memberAlcoholicDrinks =
-            memberAlcoholicDrinksReader.findByMemberAndAlcoholicDrinks(member, alcoholicDrinks);
+                memberAlcoholicDrinksReader.findByMemberAndAlcoholicDrinks(member, alcoholicDrinks);
 
         // 전통주가 이미 저장되어 있다면 삭제, 저장되어 있지 않다면 등록
         return memberAlcoholicDrinks
-            .map(save -> {
-                memberAlcoholicDrinksWriter.delete(save);
-                return false;
-            })
-            .orElseGet(() -> {
-                memberAlcoholicDrinksWriter.store(member, alcoholicDrinks);
-                return true;
-            });
+                .map(save -> {
+                    memberAlcoholicDrinksWriter.delete(save);
+                    return false;
+                })
+                .orElseGet(() -> {
+                    memberAlcoholicDrinksWriter.store(member, alcoholicDrinks);
+                    return true;
+                });
     }
 
     @Transactional(readOnly = true)
     public MyAlcoholicDrinksListResponse loadMyAlcoholicDrinks(Member member, MyAlcoholicDrinksListRequest request) {
         Slice<AlcoholicDrinksSummary> alcoholicDrinksSummaries =
-            alcoholicDrinksReader.getAllMyAlcoholicDrinks(member, request.lastAlcoholicDrinksId(), request.pageSize());
+                alcoholicDrinksReader.getAllMyAlcoholicDrinks(member, request.lastAlcoholicDrinksId(), request.pageSize());
 
         return new MyAlcoholicDrinksListResponse(alcoholicDrinksSummaries);
     }
@@ -257,16 +260,16 @@ public class MemberService {
         long followerCount = followReader.countFollower(member);
 
         return new MySpaceResponse(
-            member.getId(),
-            member.getProfileImage(),
-            member.getNickname(),
-            member.getIntroduction(),
-            member.isHasBadge(),
-            tastingNoteCount,
-            dailyLifeCount,
-            followingCount,
-            followerCount,
-            0 // TODO : 시음노트 저장 기능 추가 시 수정 필요
+                member.getId(),
+                member.getProfileImage(),
+                member.getNickname(),
+                member.getIntroduction(),
+                member.isHasBadge(),
+                tastingNoteCount,
+                dailyLifeCount,
+                followingCount,
+                followerCount,
+                0 // TODO : 시음노트 저장 기능 추가 시 수정 필요
         );
     }
 
@@ -274,22 +277,22 @@ public class MemberService {
     public MyInfoResponse getMyInfo(Member member) {
         List<Long> alcoholTypeIdList = memberAlcoholTypeReader.getIdListByMember(member);
         return new MyInfoResponse(
-            member.getId(),
-            member.getNickname(),
-            member.getEmail(),
-            member.isHasBadge(),
-            member.isNotificationsAllowed(),
-            member.getIntroduction(),
-            member.getProfileImage(),
-            member.getGender(),
-            alcoholTypeIdList
+                member.getId(),
+                member.getNickname(),
+                member.getEmail(),
+                member.isHasBadge(),
+                member.isNotificationsAllowed(),
+                member.getIntroduction(),
+                member.getProfileImage(),
+                member.getGender(),
+                alcoholTypeIdList
         );
     }
 
     @Transactional(readOnly = true)
     public DailyLifeListResponse loadMemberDailyLifeList(Member loginMember, DailyLifeListRequest request, Long memberId) {
         Slice<DailyLifeSummary> dailyLifeList =
-            dailyLifeReader.getAllDailyLivesByMember(loginMember, memberId, request.lastDailyLifeId(), request.pageSize());
+                dailyLifeReader.getAllDailyLivesByMember(loginMember, memberId, request.lastDailyLifeId(), request.pageSize());
 
         return new DailyLifeListResponse(dailyLifeList);
     }
@@ -298,7 +301,7 @@ public class MemberService {
     public TastingNoteListResponse loadMemberTastingNoteList(Member loginMember, TastingNoteListRequest request, Long memberId) {
         // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
         Slice<TastingNoteSummary> tastingNoteList =
-            tastingNoteReader.getAllTastingNotesByMember(loginMember, memberId, request.lastTastingNoteId(), request.pageSize());
+                tastingNoteReader.getAllTastingNotesByMember(loginMember, memberId, request.lastTastingNoteId(), request.pageSize());
 
         return new TastingNoteListResponse(tastingNoteList);
     }
@@ -314,15 +317,15 @@ public class MemberService {
         boolean isFollowing = followReader.isFollowing(loginMember, member);
 
         return new MemberProfileResponse(
-            member.getId(),
-            member.getNickname(),
-            member.getProfileImage(),
-            member.getIntroduction(),
-            member.isHasBadge(),
-            tastingNoteCount,
-            dailyLifeCount,
-            followingCount,
-            followerCount,
+                member.getId(),
+                member.getNickname(),
+                member.getProfileImage(),
+                member.getIntroduction(),
+                member.isHasBadge(),
+                tastingNoteCount,
+                dailyLifeCount,
+                followingCount,
+                followerCount,
                 isFollowing
         );
     }
@@ -349,8 +352,14 @@ public class MemberService {
     public void deleteAccount(Member loginMember, WithdrawalRequest request) {
         loginMember.deleteAccount();
         withdrawalRecordWriter.store(
-            WithdrawalRecord.create(request.withdrawalReason(), loginMember.getEmail(), loginMember.getNickname())
+                WithdrawalRecord.create(request.withdrawalReason(), loginMember.getEmail(), loginMember.getNickname())
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Member findById(Long memberId) {
+        return memberJpaRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_MEMBER));
     }
 }
 

@@ -15,7 +15,7 @@ import org.springframework.http.HttpHeaders;
 @OpenAPIDefinition(
         servers = {
                 @Server(url = "https://dev.juulabel.com", description = "Server"),
-                @Server(url = "http://localhost:8084", description = "Local")
+                @Server(url = "http://localhost:8080", description = "Local")
         }
 )
 @Configuration
