@@ -29,25 +29,25 @@ public class SecurityConfig {
     private final JwtExceptionFilter jwtExceptionFilter;
 
     private static final String[] PERMIT_PATHS = {
-            "/swagger-ui/**", "/v3/api-docs/**", "/error", "/favicon.ico", "/", "/actuator/**",
-            "/v1/api/alcohols/**", "/v1/api/terms/**", "/v1/api/images",
-            "/v1/api/members/**", "/v1/api/shared-space/tasting-notes/**", "/v1/api/notifications/**",
-            "/v1/api/daily-lives/**", "/v1/api/alcoholicDrinks/**", "v1/api/follow",
-            "/**"
+        "/swagger-ui/**", "/v3/api-docs/**", "/error", "/favicon.ico", "/", "/actuator/**",
+        "/v1/api/alcohols/**", "/v1/api/terms/**", "/v1/api/images",
+        "/v1/api/members/**", "/v1/api/shared-space/tasting-notes/**", "/v1/api/notifications/**",
+        "/v1/api/daily-lives/**", "/v1/api/alcoholicDrinks/**", "v1/api/follow" , "/**", "/v1/api/reports"
     };
 
     private static final String[] ALLOW_ORIGINS = {
-            "http://localhost:8084",
-            "http://localhost:8080",
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "https://api.juulabel.com",
-            "https://qa.juulabel.com",
-            "https://juulabel.com",
-            "https://juulabel.shop",
-            "https://juulabel-front.vercel.app/",
-            "https://juulabel-front-seven.vercel.app/",
-            "https://d3jwyw9rpnxu8p.cloudfront.net"
+        "http://localhost:8084",
+        "http://localhost:8080",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://api.juulabel.com",
+        "https://dev.juulabel.com",
+        "https://qa.juulabel.com",
+        "https://juulabel.com",
+        "https://juulabel.shop",
+        "https://juulabel-front.vercel.app/",
+        "https://juulabel-front-seven.vercel.app/",
+        "https://d3jwyw9rpnxu8p.cloudfront.net"
     };
 
     @Bean
