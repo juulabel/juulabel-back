@@ -41,6 +41,7 @@ public class SecurityConfig {
         "http://localhost:5173",
         "http://localhost:3000",
         "https://api.juulabel.com",
+        "https://dev.juulabel.com",
         "https://qa.juulabel.com",
         "https://juulabel.com",
         "https://juulabel.shop",
