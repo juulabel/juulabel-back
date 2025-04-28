@@ -17,21 +17,21 @@ public class NotificationPushToken extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "comment '푸시 토큰 고유 번호'")
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "member_id", nullable = false, columnDefinition = "comment '회원 고유 번호'")
+    @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    @Column(name = "push_token", columnDefinition = "comment '푸시 토큰'")
+    @Column(name = "push_token")
     private String pushToken;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "platform", columnDefinition = "comment '플랫폼'")
+    @Column(name = "platform")
     private Platform platform;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "permission_status", columnDefinition = "comment '푸시 알림 권한 상태'")
+    @Column(name = "permission_status")
     private PermissionStatus permissionStatus;
 
     public String getPushToken() {
