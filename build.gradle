@@ -23,6 +23,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' }
 }
 
 
@@ -87,6 +88,11 @@ dependencies {
 
 	//Sentry
 	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:8.5.0'
+
+
+	//expo fcm push notification
+	implementation 'com.github.hlspablo:expo-server-sdk-java:v3.1.2'
+
 }
 
 def generatedQueryDsl = 'src/main/generated'
