@@ -97,7 +97,7 @@ public class MemberService {
         Token token;
         if (isNewMember) {
             token = new Token(null, null);
-        }else{
+        } else {
             token = new Token(generatedToken, jwtTokenProvider.getExpirationByToken(generatedToken));
         }
         return new LoginResponse(
@@ -108,7 +108,7 @@ public class MemberService {
     }
 
     @Transactional
-    public SignUpMemberResponse signUp(SignUpMemberRequest signUpRequest) { // TODO : providerId 검증
+    public SignUpMemberResponse signUp(SignUpMemberRequest signUpRequest) {
         validateNickname(signUpRequest.nickname());
         validateEmail(signUpRequest.email());
 
@@ -169,9 +169,9 @@ public class MemberService {
 
         usedTermsList.forEach(terms -> {
             TermsAgreement termsAgreement = termsAgreements.stream()
-                .filter(agreement -> agreement.termsId().equals(terms.getId()))
-                .findFirst()
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.TERMS_NOT_FOUND));
+                    .filter(agreement -> agreement.termsId().equals(terms.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new InvalidParamException(ErrorCode.TERMS_NOT_FOUND));
 
             final boolean isAgreed = termsAgreement.isAgreed();
 
@@ -270,7 +270,7 @@ public class MemberService {
                 dailyLifeCount,
                 followingCount,
                 followerCount,
-                0 // TODO : 시음노트 저장 기능 추가 시 수정 필요
+                0
         );
     }
 
@@ -300,7 +300,6 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public TastingNoteListResponse loadMemberTastingNoteList(Member loginMember, TastingNoteListRequest request, Long memberId) {
-        // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
         Slice<TastingNoteSummary> tastingNoteList =
                 tastingNoteReader.getAllTastingNotesByMember(loginMember, memberId, request.lastTastingNoteId(), request.pageSize());
 
@@ -309,7 +308,6 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberProfileResponse getMemberProfile(Member loginMember, Long memberId) {
-        // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
         Member member = memberReader.getById(memberId);
         long tastingNoteCount = tastingNoteReader.getTastingNoteCountByMemberId(memberId, loginMember);
         long dailyLifeCount = dailyLifeReader.getDailyLifeCountByMemberId(memberId, loginMember);
@@ -333,7 +331,7 @@ public class MemberService {
 
     private void validateNickname(String nickname) {
         if (memberReader.existActiveNickname(nickname)) {
-            throw new InvalidParamException(ErrorCode.EXIST_NICKNAME);
+            throw new InvalidParamException(ErrorCode.MEMBER_NICKNAME_DUPLICATE);
         }
     }
 
@@ -360,7 +358,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member findById(Long memberId) {
         return memberJpaRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new BaseException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }
 
