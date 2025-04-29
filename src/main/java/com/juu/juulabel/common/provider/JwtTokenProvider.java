@@ -5,6 +5,7 @@ import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.member.domain.Member;
+import com.juu.juulabel.member.domain.MemberRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +54,7 @@ public class JwtTokenProvider {
 
         Member member = Member.builder()
                 .id(Long.parseLong(claims.getSubject()))
+                .role(MemberRole.valueOf(claims.get(ROLE_CLAIM, String.class)))
                 .build();
 
         return new UsernamePasswordAuthenticationToken(
