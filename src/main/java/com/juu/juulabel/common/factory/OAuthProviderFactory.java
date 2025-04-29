@@ -39,7 +39,7 @@ public class OAuthProviderFactory {
     private OAuthProvider getOAuthProvider(Provider provider) {
         OAuthProvider oAuthProvider = OAuthProviderMap.get(provider);
         if (Objects.isNull(oAuthProvider)) {
-            throw new InvalidParamException(ErrorCode.NOT_FOUND_OAUTH_PROVIDER);
+            throw new InvalidParamException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND);
         }
 
         return oAuthProvider;

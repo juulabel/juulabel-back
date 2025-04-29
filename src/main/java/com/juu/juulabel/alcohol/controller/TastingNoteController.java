@@ -1,7 +1,6 @@
 package com.juu.juulabel.alcohol.controller;
 
 import com.juu.juulabel.alcohol.response.CommentListRequest;
-import com.juu.juulabel.common.annotation.LoginMember;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.common.dto.request.*;
@@ -16,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -94,11 +94,11 @@ public class TastingNoteController {
     )
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<TastingNoteWriteResponse>> write(
-            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @AuthenticationPrincipal Member member,
             @Valid @RequestPart(value = "request") TastingNoteWriteRequest request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.write(loginMember, request, files));
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.write(member, request, files));
     }
 
     @Operation(
@@ -110,10 +110,10 @@ public class TastingNoteController {
     )
     @GetMapping
     public ResponseEntity<CommonResponse<TastingNoteListResponse>> loadTastingNoteList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid TastingNoteListRequest request
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteList(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteList(member, request));
     }
 
     @Operation(
@@ -125,11 +125,11 @@ public class TastingNoteController {
     )
     @GetMapping("/by-alcoholicDrinks/{alcoholicDrinksId}")
     public ResponseEntity<CommonResponse<TastingNoteListResponseForAlcoholicDrinks>> loadTastingNoteListByAlcoholicDrinksId(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid TastingNoteListRequest request,
         @PathVariable Long alcoholicDrinksId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteListByAlcoholicDrinksId(loginMember, request, alcoholicDrinksId));
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNoteListByAlcoholicDrinksId(member, request, alcoholicDrinksId));
     }
 
     @Operation(
@@ -138,10 +138,10 @@ public class TastingNoteController {
     )
     @GetMapping("/{tastingNoteId}")
     public ResponseEntity<CommonResponse<TastingNoteResponse>> loadTastingNote(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long tastingNoteId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNote(loginMember, tastingNoteId));
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadTastingNote(member, tastingNoteId));
     }
 
     @Operation(
@@ -150,12 +150,12 @@ public class TastingNoteController {
     )
     @PutMapping(value = "/{tastingNoteId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<TastingNoteWriteResponse>> updateTastingNote(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid @RequestPart(value = "request") TastingNoteWriteRequest request,
         @RequestPart(value = "files", required = false) List<MultipartFile> files,
         @PathVariable Long tastingNoteId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, tastingNoteService.updateTastingNote(loginMember, tastingNoteId, request, files));
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, tastingNoteService.updateTastingNote(member, tastingNoteId, request, files));
     }
 
     @Operation(
@@ -164,10 +164,10 @@ public class TastingNoteController {
     )
     @DeleteMapping("/{tastingNoteId}")
     public ResponseEntity<CommonResponse<DeleteTastingNoteResponse>> deleteTastingNote(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long tastingNoteId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, tastingNoteService.deleteTastingNote(loginMember, tastingNoteId));
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, tastingNoteService.deleteTastingNote(member, tastingNoteId));
     }
 
     @Operation(
@@ -176,10 +176,10 @@ public class TastingNoteController {
     )
     @PostMapping("/{tastingNoteId}/likes")
     public ResponseEntity<CommonResponse<Void>> toggleTastingNoteLike(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long tastingNoteId
     ) {
-        boolean isLiked = tastingNoteService.toggleTastingNoteLike(loginMember, tastingNoteId);
+        boolean isLiked = tastingNoteService.toggleTastingNoteLike(member, tastingNoteId);
         return CommonResponse.success(isLiked ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
     }
 
@@ -189,11 +189,11 @@ public class TastingNoteController {
     )
     @PostMapping("/{tastingNoteId}/comments")
     public ResponseEntity<CommonResponse<WriteTastingNoteCommentResponse>> writeComment(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid @RequestBody WriteTastingNoteCommentRequest request,
         @PathVariable Long tastingNoteId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, tastingNoteService.writeComment(loginMember, request, tastingNoteId));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, tastingNoteService.writeComment(member, request, tastingNoteId));
     }
 
     @Operation(
@@ -205,11 +205,11 @@ public class TastingNoteController {
     )
     @GetMapping("/{tastingNoteId}/comments")
     public ResponseEntity<CommonResponse<TastingNoteCommentListResponse>> loadCommentList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid CommentListRequest request,
         @PathVariable Long tastingNoteId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadCommentList(loginMember, request, tastingNoteId));
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadCommentList(member, request, tastingNoteId));
     }
 
     @Operation(
@@ -221,12 +221,12 @@ public class TastingNoteController {
     )
     @GetMapping("/{tastingNoteId}/comments/{tastingNoteCommentId}")
     public ResponseEntity<CommonResponse<TastingNoteReplyListResponse>> loadReplyList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid ReplyListRequest request,
         @PathVariable Long tastingNoteId,
         @PathVariable Long tastingNoteCommentId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadReplyList(loginMember, request, tastingNoteId, tastingNoteCommentId));
+        return CommonResponse.success(SuccessCode.SUCCESS, tastingNoteService.loadReplyList(member, request, tastingNoteId, tastingNoteCommentId));
     }
 
     @Operation(
@@ -235,12 +235,12 @@ public class TastingNoteController {
     )
     @PatchMapping("/{tastingNoteId}/comments/{commentId}")
     public ResponseEntity<CommonResponse<UpdateCommentResponse>> updateComment(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid @RequestBody UpdateCommentRequest request,
         @PathVariable Long tastingNoteId,
         @PathVariable Long commentId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, tastingNoteService.updateComment(loginMember, request, tastingNoteId, commentId));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, tastingNoteService.updateComment(member, request, tastingNoteId, commentId));
     }
 
     @Operation(
@@ -249,11 +249,11 @@ public class TastingNoteController {
     )
     @DeleteMapping("/{tastingNoteId}/comments/{commentId}")
     public ResponseEntity<CommonResponse<DeleteCommentResponse>> deleteComment(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long tastingNoteId,
         @PathVariable Long commentId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, tastingNoteService.deleteComment(loginMember, tastingNoteId, commentId));
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, tastingNoteService.deleteComment(member, tastingNoteId, commentId));
     }
 
     @Operation(
@@ -262,11 +262,11 @@ public class TastingNoteController {
     )
     @PostMapping("/{tastingNoteId}/comments/{commentId}/likes")
     public ResponseEntity<CommonResponse<Void>> toggleCommentLike(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long tastingNoteId,
         @PathVariable Long commentId
     ) {
-        boolean isLiked = tastingNoteService.toggleCommentLike(loginMember, tastingNoteId, commentId);
+        boolean isLiked = tastingNoteService.toggleCommentLike(member, tastingNoteId, commentId);
         return CommonResponse.success(isLiked ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
     }
 

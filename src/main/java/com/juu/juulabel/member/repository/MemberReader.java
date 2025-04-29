@@ -20,12 +20,12 @@ public class MemberReader {
 
     public Member getById(final Long id) {
         return memberJpaRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     public Member getByEmail(String email) {
         return memberJpaRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     public boolean existsByEmailAndProvider(String email, Provider provider) {

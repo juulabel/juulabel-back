@@ -52,13 +52,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<CommonResponse<String>> handle(ExpiredJwtException e) {
         log.error("ExpiredJwtException :", e);
-        return CommonResponse.fail(ErrorCode.EXPIRED_JWT_EXCEPTION, e.getMessage());
+        return CommonResponse.fail(ErrorCode.JWT_EXPIRED_EXCEPTION, e.getMessage());
     }
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<CommonResponse<String>> handle(MalformedJwtException e) {
         log.error("MalformedJwtException :", e);
-        return CommonResponse.fail(ErrorCode.MALFORMED_JWT_EXCEPTION, "잘못된 토큰 형식입니다.");
+        return CommonResponse.fail(ErrorCode.JWT_MALFORMED_EXCEPTION, "잘못된 토큰 형식입니다.");
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

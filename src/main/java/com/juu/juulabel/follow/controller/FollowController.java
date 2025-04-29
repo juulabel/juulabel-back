@@ -1,6 +1,5 @@
 package com.juu.juulabel.follow.controller;
 
-import com.juu.juulabel.common.annotation.LoginMember;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.common.dto.request.RecommendListRequest;
@@ -20,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 //@Hidden
@@ -44,9 +44,9 @@ public class FollowController {
     )
     @PostMapping("/follow")
     public ResponseEntity<CommonResponse<FollowOrUnfollowResponse>> followOrUnfollow(
-            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @AuthenticationPrincipal Member member,
             @Valid @RequestBody FollowOrUnfollowRequest request) {
-        return CommonResponse.success(SuccessCode.SUCCESS, followService.followOrUnfollow(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.followOrUnfollow(member, request));
     }
 
     @Operation(
@@ -58,10 +58,10 @@ public class FollowController {
     )
     @GetMapping("/members/{memberId}/followings")
     public ResponseEntity<CommonResponse<FollowingListResponse>> loadFollowingList(
-            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @AuthenticationPrincipal Member member,
             @PathVariable Long memberId,
             @Valid FollowingListRequest request) {
-        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadFollowingList(loginMember, memberId, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadFollowingList(member, memberId, request));
     }
 
     @Operation(
@@ -73,10 +73,10 @@ public class FollowController {
     )
     @GetMapping("/members/{memberId}/followers")
     public ResponseEntity<CommonResponse<FollowerListResponse>> loadFollowerList(
-            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @AuthenticationPrincipal Member member,
             @PathVariable Long memberId,
             @Valid FollowerListRequest request) {
-        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadFollowerList(loginMember, memberId, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadFollowerList(member, memberId, request));
     }
 
     @Operation(
@@ -88,9 +88,9 @@ public class FollowController {
     )
     @GetMapping("/members/search")
     public ResponseEntity<CommonResponse<SearchUserListResponse>> loadSearchUserList(
-            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @AuthenticationPrincipal Member member,
             @Valid SearchUserListRequest request ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadSearchUserList(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadSearchUserList(member, request));
     }
 
     @Operation(
@@ -103,9 +103,9 @@ public class FollowController {
     )
     @PostMapping("/delete/following")
     public ResponseEntity<CommonResponse<FollowDeleteResponse>> deleteFollowing(
-            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @AuthenticationPrincipal Member member,
             @Valid @RequestBody FollowDeleteRequest request){
-        return CommonResponse.success(SuccessCode.SUCCESS, followService.deleteFollowing(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.deleteFollowing(member, request));
     }
 
     @Operation(
@@ -114,10 +114,10 @@ public class FollowController {
     )
     @GetMapping("/members/recommendations")
     public ResponseEntity<CommonResponse<RecommendListResponse>> loadRecommendList(
-            @Parameter(hidden = true) @LoginMember Member loginMember,
+            @AuthenticationPrincipal Member member,
             @Valid RecommendListRequest request
     ){
-        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadRecommendList(loginMember,request));
+        return CommonResponse.success(SuccessCode.SUCCESS, followService.loadRecommendList(member,request));
     }
 
 }

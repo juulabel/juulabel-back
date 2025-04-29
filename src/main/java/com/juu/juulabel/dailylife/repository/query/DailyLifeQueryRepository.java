@@ -70,7 +70,7 @@ public class DailyLifeQueryRepository {
             .fetchOne();
 
         return Optional.ofNullable(dailyLifeDetailInfo)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_DAILY_LIFE));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.DAILY_LIFE_NOT_FOUND));
     }
 
     public Slice<DailyLifeSummary> getAllDailyLife(Member member, Long lastDailyLifeId, int pageSize) {
@@ -224,7 +224,7 @@ public class DailyLifeQueryRepository {
             .fetchOne();
 
         return Optional.ofNullable(dailyLifeCount)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_DAILY_LIFE));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.DAILY_LIFE_NOT_FOUND));
     }
 
     public long getDailyLifeCountByMemberId(Long memberId, Member loginMember) {
@@ -239,7 +239,7 @@ public class DailyLifeQueryRepository {
             .fetchOne();
 
         return Optional.ofNullable(dailyLifeCount)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_DAILY_LIFE));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.DAILY_LIFE_NOT_FOUND));
     }
 
     private BooleanExpression noOffsetByDailyLifeId(QDailyLife dailyLife, Long lastDailyLifeId) {

@@ -48,7 +48,7 @@ public class AlcoholTypeQueryRepository {
             .fetchOne();
 
         return Optional.ofNullable(activeAlcoholType)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOL_TYPE));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.ALCOHOL_TYPE_NOT_FOUND));
     }
 
     private BooleanExpression isNotDeleted(QAlcoholType alcoholType) {

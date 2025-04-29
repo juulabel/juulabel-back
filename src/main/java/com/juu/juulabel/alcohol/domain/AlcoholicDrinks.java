@@ -70,7 +70,7 @@ public class AlcoholicDrinks extends BaseTimeEntity {
 
     public void addRating(Double newRating) {
         if (newRating == null || newRating < 0 || newRating > 5) {
-            throw new InvalidParamException(ErrorCode.INVALID_RATING);
+            throw new InvalidParamException(ErrorCode.ALCOHOLIC_DRINKS_INVALID_RATING);
         }
 
         double currentRating = this.rating;
@@ -86,7 +86,7 @@ public class AlcoholicDrinks extends BaseTimeEntity {
 
     public void updateRating(Double existingRating, Double newRating) {
         if (newRating == null || newRating < 0 || newRating > 5) {
-            throw new InvalidParamException(ErrorCode.INVALID_RATING);
+            throw new InvalidParamException(ErrorCode.ALCOHOLIC_DRINKS_INVALID_RATING);
         }
         double currentRating = this.rating;
         int count = this.tastingNoteCount;

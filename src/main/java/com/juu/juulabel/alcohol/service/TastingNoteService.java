@@ -316,7 +316,7 @@ public class TastingNoteService {
 
 	private static void validateTastingNoteWriter(Member member, TastingNote tastingNote) {
 		if (!member.getId().equals(tastingNote.getMember().getId())) {
-			throw new InvalidParamException(ErrorCode.NOT_TASTING_NOTE_WRITER);
+			throw new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_WRITER);
 		}
 	}
 
@@ -457,7 +457,7 @@ public class TastingNoteService {
 
 	private static void validateCommentWriter(Member member, TastingNoteComment comment) {
 		if (!member.getId().equals(comment.getMember().getId())) {
-			throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
+			throw new InvalidParamException(ErrorCode.COMMENT_NOT_WRITER);
 		}
 	}
 

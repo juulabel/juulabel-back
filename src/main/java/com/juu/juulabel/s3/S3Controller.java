@@ -1,12 +1,9 @@
 package com.juu.juulabel.s3;
 
-import com.juu.juulabel.common.annotation.LoginMember;
 import com.juu.juulabel.common.dto.response.ImageUploadResponse;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
-import com.juu.juulabel.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -31,7 +28,6 @@ public class S3Controller {
     @Operation(summary = "이미지 파일 업로드")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CommonResponse<ImageUploadResponse>> uploadImage(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
         @RequestPart(value = "image") MultipartFile image
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, s3Service.uploadMemberImage(image));

@@ -302,13 +302,13 @@ public class DailyLifeService {
 
 	private static void validateCommentWriter(final Member member, final DailyLifeComment comment) {
 		if (!member.getId().equals(comment.getMember().getId())) {
-			throw new InvalidParamException(ErrorCode.NOT_COMMENT_WRITER);
+			throw new InvalidParamException(ErrorCode.COMMENT_NOT_WRITER);
 		}
 	}
 
 	private static void validateDailyLifeWriter(final Member member, final DailyLife dailyLife) {
 		if (!member.getId().equals(dailyLife.getMember().getId())) {
-			throw new InvalidParamException(ErrorCode.NOT_DAILY_LIFE_WRITER);
+			throw new InvalidParamException(ErrorCode.DAILY_LIFE_NOT_WRITER);
 		}
 	}
 
