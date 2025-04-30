@@ -13,12 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    private final MemberService MemberService;
+    private final MemberService memberService;
     private final ReportProcessorFactory reportProcessorFactory;
 
     @Transactional
     public void createReport(long reporterId, ReportCreateRequest request) {
-        Member reporter = MemberService.findById(reporterId);
+        Member reporter = memberService.findById(reporterId);
 
         ReportProcessor processor = reportProcessorFactory.getProcessor(request.type());
         processor.process(request);
