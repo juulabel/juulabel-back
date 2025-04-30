@@ -2,10 +2,10 @@ package com.juu.juulabel.common.exception.handler;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.juu.juulabel.common.exception.BaseException;
+import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -46,25 +46,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CommonResponse<String>> handle(MethodArgumentNotValidException e) {
         log.error("MethodArgumentNotValidException :", e);
-        return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
+        return CommonResponse.fail(ErrorCode.VALIDATION_ERROR,
+                Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<CommonResponse<String>> handle(ExpiredJwtException e) {
-        log.error("ExpiredJwtException :", e);
-        return CommonResponse.fail(ErrorCode.JWT_EXPIRED_EXCEPTION, e.getMessage());
-    }
-
-    @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<CommonResponse<String>> handle(MalformedJwtException e) {
-        log.error("MalformedJwtException :", e);
-        return CommonResponse.fail(ErrorCode.JWT_MALFORMED_EXCEPTION, "잘못된 토큰 형식입니다.");
+    @ExceptionHandler(CustomJwtException.class)
+    public ResponseEntity<CommonResponse<String>> handle(CustomJwtException e) {
+        log.error("CustomJwtException :", e);
+        return CommonResponse.fail(e.getErrorCode(), e.getMessage());
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public void handle(NoResourceFoundException e) {
         // 이거 키면 출력이 너무 많이 됨
-        //log.warn("NoResourceFoundException : {}", e.getMessage());
+        // log.warn("NoResourceFoundException : {}", e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -75,8 +70,7 @@ public class GlobalExceptionHandler {
             if (invalidFormatException.getTargetType() != null && invalidFormatException.getTargetType().isEnum()) {
                 errorDetails = String.format("'%s'. 값은 다음 중 하나여야 합니다: %s.",
                         invalidFormatException.getPath().getLast().getFieldName(),
-                        Arrays.toString(invalidFormatException.getTargetType().getEnumConstants())
-                );
+                        Arrays.toString(invalidFormatException.getTargetType().getEnumConstants()));
             }
         }
         if (errorDetails.isEmpty()) {

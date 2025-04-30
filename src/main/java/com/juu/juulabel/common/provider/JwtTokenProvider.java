@@ -8,6 +8,8 @@ import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.domain.MemberRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,12 +47,11 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
-        Collection<? extends GrantedAuthority> roles =
-                Collections.singletonList(new SimpleGrantedAuthority(claims.get(ROLE_CLAIM, String.class)));
+        Collection<? extends GrantedAuthority> roles = Collections
+                .singletonList(new SimpleGrantedAuthority(claims.get(ROLE_CLAIM, String.class)));
 
         Member member = Member.builder()
                 .id(Long.parseLong(claims.getSubject()))
@@ -60,8 +61,7 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(
                 member,
                 null,
-                roles
-        );
+                roles);
     }
 
     public String resolveToken(String header) {
@@ -89,7 +89,7 @@ public class JwtTokenProvider {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-        } catch (MalformedJwtException ex) {
+        } catch (SignatureException | MalformedJwtException ex) {
             throw new CustomJwtException(ErrorCode.JWT_MALFORMED_EXCEPTION);
         } catch (ExpiredJwtException ex) {
             throw new CustomJwtException(ErrorCode.JWT_EXPIRED_EXCEPTION);
