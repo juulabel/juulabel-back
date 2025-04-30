@@ -9,12 +9,9 @@ import com.juu.juulabel.common.dto.request.*;
 import com.juu.juulabel.common.dto.response.*;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
-import com.juu.juulabel.dailylife.domain.DailyLife;
-import com.juu.juulabel.dailylife.domain.DailyLifeComment;
-import com.juu.juulabel.dailylife.domain.DailyLifeImage;
-import com.juu.juulabel.dailylife.domain.DailyLifeCommentLike;
-import com.juu.juulabel.dailylife.domain.DailyLifeLike;
+import com.juu.juulabel.dailylife.domain.*;
 import com.juu.juulabel.dailylife.repository.*;
+import com.juu.juulabel.dailylife.repository.jpa.DailyLifeJpaRepository;
 import com.juu.juulabel.dailylife.response.DailyLifeDetailInfo;
 import com.juu.juulabel.dailylife.response.DailyLifeListRequest;
 import com.juu.juulabel.dailylife.response.DailyLifeSummary;
@@ -52,6 +49,7 @@ public class DailyLifeService {
 	private final DailyLifeCommentLikeReader dailyLifeCommentLikeReader;
 	private final NotificationService notificationService;
 	private final S3Service s3Service;
+	private final DailyLifeJpaRepository dailyLifeJpaRepository;
 
 	@Transactional
 	public WriteDailyLifeResponse writeDailyLife(
@@ -362,4 +360,8 @@ public class DailyLifeService {
 		}
 	}
 
+	@Transactional(readOnly = true)
+	public void findById(long dailyLifeId) {
+		dailyLifeJpaRepository.findById(dailyLifeId);
+	}
 }

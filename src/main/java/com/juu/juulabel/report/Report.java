@@ -24,9 +24,8 @@ public class Report extends BaseTimeEntity {
     @JoinColumn(name = "reporter_id", nullable = false)
     private Member reporter;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reported_user_id", nullable = false)
-    private Member reportedUser;
+    @Column(name = "reported_content_id", nullable = false)
+    private Long reportedContentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewer")

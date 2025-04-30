@@ -74,9 +74,10 @@ public enum ErrorCode {
     /**
      * DailyLife
      */
-    DAILY_LIFE_NOT_FOUND(HttpStatus.BAD_REQUEST, "일상생활 게시글을 찾을 수 없습니다."),
+    DAILY_LIFE_NOT_FOUND(HttpStatus.NOT_FOUND, "일상생활 게시글을 찾을 수 없습니다."),
     DAILY_LIFE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 일상생활 게시글입니다."),
     DAILY_LIFE_NOT_WRITER(HttpStatus.BAD_REQUEST, "게시글 작성자가 아닙니다."),
+    DAILY_LIFE_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "일상생활 댓글을 찾을 수 없습니다."),
 
     /**
      * FILE
@@ -97,7 +98,14 @@ public enum ErrorCode {
 
     TASTING_NOTE_NOT_FOUND(HttpStatus.BAD_REQUEST, "시음노트 게시글을 찾을 수 없습니다."),
     TASTING_NOTE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 시음노트 게시글입니다."),
-    TASTING_NOTE_NOT_WRITER(HttpStatus.BAD_REQUEST, "게시글 작성자가 아닙니다.")
+    TASTING_NOTE_NOT_WRITER(HttpStatus.BAD_REQUEST, "게시글 작성자가 아닙니다."),
+
+    TASTING_NOTE_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "시음노트 댓글을 찾을 수 없습니다."),
+
+    /**
+     * Report
+     */
+    REPORT_PROCESSOR_NOT_FOUND(HttpStatus.BAD_REQUEST, "처리할 수 있는 신고 유형이 아닙니다."),
     ;
 
     private final HttpStatus httpStatus;

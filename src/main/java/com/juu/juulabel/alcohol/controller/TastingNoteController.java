@@ -5,7 +5,7 @@ import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.common.dto.request.*;
 import com.juu.juulabel.common.dto.response.*;
-import com.juu.juulabel.alcohol.service.TastingNoteService;
+import com.juu.juulabel.tastingnote.service.TastingNoteService;
 import com.juu.juulabel.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
