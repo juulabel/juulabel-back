@@ -1,7 +1,7 @@
 package com.juu.juulabel.common.filter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.response.CommonResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,24 +21,28 @@ import java.io.IOException;
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
+    private static final String UTF_8 = "UTF-8";
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
         } catch (AuthenticationException ex) {
-            sendJwtException(response, ex);
+            setErrorResponse(response, HttpStatus.BAD_REQUEST,
+                    objectMapper.writeValueAsString(CommonResponse.fail(ex)));
+        } catch (CustomJwtException ex) {
+            setErrorResponse(
+                    response,
+                    ex.getErrorCode().getHttpStatus(),
+                    objectMapper.writeValueAsString(CommonResponse.fail(ex.getErrorCode(), ex.getMessage())));
         }
     }
 
-    private void sendJwtException(HttpServletResponse response, AuthenticationException exception) throws IOException {
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpStatus.BAD_REQUEST.value());
+    private void setErrorResponse(HttpServletResponse response, HttpStatus status, String body) throws IOException {
+        response.setCharacterEncoding(UTF_8);
+        response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(getErrorResponseEntity(exception));
-    }
-
-    private String getErrorResponseEntity(AuthenticationException exception) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(CommonResponse.fail(exception));
+        response.getWriter().write(body);
     }
 }
