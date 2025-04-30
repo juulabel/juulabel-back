@@ -2,6 +2,8 @@ package com.juu.juulabel.report;
 
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.service.MemberService;
+import com.juu.juulabel.report.processor.ReportProcessor;
+import com.juu.juulabel.report.processor.ReportProcessorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,16 +13,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    private final MemberService MemberService;
+    private final MemberService memberService;
+    private final ReportProcessorFactory reportProcessorFactory;
 
     @Transactional
-    public void createReport(Long reporterId, ReportCreateRequest request) {
-        Member reporter = MemberService.findById(reporterId);
-        Member reportedUser = MemberService.findById(request.reportedUserId());
+    public void createReport(long reporterId, ReportCreateRequest request) {
+        Member reporter = memberService.findById(reporterId);
+
+        ReportProcessor processor = reportProcessorFactory.getProcessor(request.type());
+        processor.process(request);
 
         Report report = Report.builder()
                 .reporter(reporter)
-                .reportedUser(reportedUser)
+                .reportedContentId(request.reportedContentId())
                 .reason(request.reason())
                 .type(request.type())
                 .status(ReportStatus.PENDING)
