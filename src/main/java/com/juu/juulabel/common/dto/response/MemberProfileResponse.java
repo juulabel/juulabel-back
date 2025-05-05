@@ -1,6 +1,5 @@
 package com.juu.juulabel.common.dto.response;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record MemberProfileResponse(

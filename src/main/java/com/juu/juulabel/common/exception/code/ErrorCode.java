@@ -28,12 +28,16 @@ public enum ErrorCode {
     JWT_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     JWT_UNSUPPORTED_EXCEPTION(HttpStatus.BAD_REQUEST, "지원되지 않는 토큰입니다."),
     JWT_MALFORMED_EXCEPTION(HttpStatus.UNAUTHORIZED, "잘못된 형식의 토큰입니다."),
-    JWT_ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
+    JWT_ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),    
 
     /**
      * Authentication
      */
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Provider를 찾을 수 없습니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "토큰을 찾을 수 없습니다."),
+    REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    REFRESH_TOKEN_REUSE_DETECTED(HttpStatus.UNAUTHORIZED, "토큰 재사용 감지"),
+    REFRESH_TOKEN_ALREADY_ROTATED(HttpStatus.UNAUTHORIZED, "이미 회전된 토큰입니다."),
 
     /**
      * Admin, Member

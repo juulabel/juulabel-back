@@ -10,13 +10,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.juu.juulabel.common.util.HttpRequestUtil;
 
 import java.io.IOException;
 
@@ -25,14 +26,15 @@ import java.io.IOException;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final HttpRequestUtil httpRequestUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String header = httpRequestUtil.extractAuthorization(request);
         if (header != null) {
-            String token = jwtTokenProvider.resolveToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            String token = jwtTokenProvider.resolveToken(header);
             try {
                 if (jwtTokenProvider.isValidateToken(token)) {
                     authenticate(token);
@@ -55,7 +57,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(CommonResponse.fail(ErrorCode.INVALID_AUTHENTICATION, "만료되었거나 잘못된 토큰입니다.").toString());
+        response.getWriter()
+                .write(CommonResponse.fail(ErrorCode.INVALID_AUTHENTICATION, "만료되었거나 잘못된 토큰입니다.").toString());
     }
 
 }

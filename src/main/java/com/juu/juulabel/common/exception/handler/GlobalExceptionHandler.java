@@ -5,7 +5,6 @@ import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -36,13 +35,6 @@ public class GlobalExceptionHandler {
         return CommonResponse.fail(e.getErrorCode());
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<CommonResponse<String>> handle(RuntimeException e) {
-        log.error("RuntimeException :", e);
-        Sentry.captureException(e);
-        return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CommonResponse<String>> handle(MethodArgumentNotValidException e) {
         log.error("MethodArgumentNotValidException :", e);
@@ -58,8 +50,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public void handle(NoResourceFoundException e) {
-        // 이거 키면 출력이 너무 많이 됨
-        // log.warn("NoResourceFoundException : {}", e.getMessage());
+        log.warn("NoResourceFoundException : {}", e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

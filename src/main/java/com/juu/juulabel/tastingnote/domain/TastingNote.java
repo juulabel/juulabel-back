@@ -21,9 +21,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-@Table(
-        name = "tasting_note"
-)
+@Table(name = "tasting_note")
 public class TastingNote extends BaseTimeEntity {
 
     @Id
@@ -67,15 +65,14 @@ public class TastingNote extends BaseTimeEntity {
     @OneToMany(mappedBy = "tastingNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TastingNoteScent> tastingNoteScents = new ArrayList<>();
 
-
     public static TastingNote of(Member member,
-                                 AlcoholType alcoholType,
-                                 AlcoholicDrinks alcoholicDrinks,
-                                 Color color,
-                                 AlcoholicDrinksSnapshot alcoholDrinksInfo,
-                                 Double rating,
-                                 String content,
-                                 boolean isPrivate) {
+            AlcoholType alcoholType,
+            AlcoholicDrinks alcoholicDrinks,
+            Color color,
+            AlcoholicDrinksSnapshot alcoholDrinksInfo,
+            Double rating,
+            String content,
+            boolean isPrivate) {
         return TastingNote.builder()
                 .member(member)
                 .alcoholType(alcoholType)
@@ -89,14 +86,13 @@ public class TastingNote extends BaseTimeEntity {
     }
 
     public void update(
-        AlcoholType alcoholType,
-        AlcoholicDrinks alcoholicDrinks,
-        Color color,
-        AlcoholicDrinksSnapshot alcoholDrinksInfo,
-        Double rating,
-        String content,
-        boolean isPrivate
-        ) {
+            AlcoholType alcoholType,
+            AlcoholicDrinks alcoholicDrinks,
+            Color color,
+            AlcoholicDrinksSnapshot alcoholDrinksInfo,
+            Double rating,
+            String content,
+            boolean isPrivate) {
         this.alcoholType = alcoholType;
         this.alcoholicDrinks = alcoholicDrinks;
         this.color = color;
