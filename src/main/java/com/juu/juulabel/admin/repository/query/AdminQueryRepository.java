@@ -15,6 +15,8 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Slice;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -40,6 +42,7 @@ public class AdminQueryRepository {
                 .where(
                         containsNickName(request.nickName()),
                         containsEmail(request.email()),
+                        afterCreatedAt(request.createdAt()),
                         eqStatus(request.status()),
                         eqProvider(request.provider()),
                         eqHasBadge(request.hasBadge())
@@ -73,5 +76,9 @@ public class AdminQueryRepository {
 
     private BooleanExpression eqHasBadge(Boolean hasBadge){
         return hasBadge !=null ? member.hasBadge.eq(hasBadge) : null;
+    }
+
+    private BooleanExpression afterCreatedAt(LocalDate createdAt) {
+        return createdAt != null ? member.createdAt.after(createdAt.atStartOfDay()) : null;
     }
 }

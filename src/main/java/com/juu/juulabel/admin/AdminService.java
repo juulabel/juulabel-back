@@ -1,6 +1,7 @@
 package com.juu.juulabel.admin;
 
 import com.juu.juulabel.admin.repository.AdminReader;
+import com.juu.juulabel.admin.repository.query.AdminQueryRepository;
 import com.juu.juulabel.admin.response.MemberListSummary;
 import com.juu.juulabel.common.dto.request.MemberListRequest;
 import com.juu.juulabel.common.dto.response.MemberListResponse;
@@ -27,6 +28,7 @@ public class AdminService {
     private final MemberReader memberReader;
     private final AdminReader adminReader;
     private final NotificationService notificationService;
+    private final AdminQueryRepository adminQueryRepository;
 
     @Transactional
     public void assignBadge(String email, Member loginMember) {
@@ -48,8 +50,7 @@ public class AdminService {
     @Transactional(readOnly = true)
     public MemberListResponse loadMemberList(Member loginMember, MemberListRequest request) {
         final Slice<MemberListSummary> memberList =
-                adminReader.getMemberList(loginMember,request,request.pageSize());
-
+                adminQueryRepository.getMemberList(loginMember,request,request.pageSize());
         return new MemberListResponse(memberList);
     }
 }
