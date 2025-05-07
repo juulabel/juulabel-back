@@ -21,7 +21,7 @@ public class TastingNoteCommentReader {
 
     public TastingNoteComment getById(Long tastingNoteCommentId) {
         return tastingNoteCommentJpaRepository.findByIdAndDeletedAtIsNull(tastingNoteCommentId)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT));
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
     public Slice<CommentSummary> getAllByTastingNoteId(

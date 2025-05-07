@@ -51,7 +51,7 @@ public class TastingNoteImage extends BaseTimeEntity {
 
     public void delete() {
         if (this.deletedAt != null) {
-            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_TASTING_NOTE);
+            throw new InvalidParamException(ErrorCode.TASTING_NOTE_ALREADY_DELETED);
         }
 
         this.deletedAt = LocalDateTime.now();

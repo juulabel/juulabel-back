@@ -1,6 +1,5 @@
 package com.juu.juulabel.notification.controller;
 
-import com.juu.juulabel.common.annotation.LoginMember;
 import com.juu.juulabel.notification.request.CreateNotificationRequest;
 import com.juu.juulabel.common.dto.request.NotificationListRequest;
 import com.juu.juulabel.common.dto.response.NotificationListResponse;
@@ -9,13 +8,13 @@ import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -36,11 +35,11 @@ public class NotificationController {
     )
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId,
         HttpServletResponse response
     ) {
-        return notificationService.subscribe(loginMember, lastEventId, response);
+        return notificationService.subscribe(member, lastEventId, response);
     }
 
     @Operation(
@@ -49,10 +48,10 @@ public class NotificationController {
     )
     @PostMapping("/users")
     public ResponseEntity<CommonResponse<Void>> sendToAllUsers(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @RequestBody @Valid CreateNotificationRequest request
     ) {
-        notificationService.sendNotificationToAllUsers(loginMember, request);
+        notificationService.sendNotificationToAllUsers(member, request);
         return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
@@ -62,10 +61,10 @@ public class NotificationController {
     )
     @GetMapping()
     public ResponseEntity<CommonResponse<NotificationListResponse>> getNotifications(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid NotificationListRequest request
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, notificationService.getNotifications(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, notificationService.getNotifications(member, request));
     }
 
     @Operation(
@@ -74,10 +73,10 @@ public class NotificationController {
     )
     @PostMapping("/{notificationId}/read")
     public ResponseEntity<CommonResponse<Void>> setNotificationAsRead(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long notificationId
     ) {
-        notificationService.setNotificationsAsRead(loginMember, notificationId);
+        notificationService.setNotificationsAsRead(member, notificationId);
         return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
@@ -87,9 +86,9 @@ public class NotificationController {
     )
     @PostMapping("/read-all")
     public ResponseEntity<CommonResponse<Void>> setAllNotificationAsRead(
-        @Parameter(hidden = true) @LoginMember Member loginMember
+        @AuthenticationPrincipal Member member
     ) {
-        notificationService.setAllNotificationsAsRead(loginMember);
+        notificationService.setAllNotificationsAsRead(member);
         return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
@@ -99,10 +98,10 @@ public class NotificationController {
     )
     @DeleteMapping("/{notificationId}/delete")
     public ResponseEntity<CommonResponse<Void>> deleteNotification(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long notificationId
     ) {
-        notificationService.deleteNotification(loginMember, notificationId);
+        notificationService.deleteNotification(member, notificationId);
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }
 
@@ -112,9 +111,9 @@ public class NotificationController {
     )
     @DeleteMapping("delete-all")
     public ResponseEntity<CommonResponse<Void>> deleteAllNotifications(
-        @Parameter(hidden = true) @LoginMember Member loginMember
+        @AuthenticationPrincipal Member member
     ) {
-        notificationService.deleteAllNotifications(loginMember);
+        notificationService.deleteAllNotifications(member);
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }
 

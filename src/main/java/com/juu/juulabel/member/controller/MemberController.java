@@ -1,6 +1,5 @@
 package com.juu.juulabel.member.controller;
 
-import com.juu.juulabel.common.annotation.LoginMember;
 import com.juu.juulabel.common.dto.request.*;
 import com.juu.juulabel.common.dto.response.*;
 import com.juu.juulabel.common.exception.code.SuccessCode;
@@ -16,6 +15,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,40 +57,40 @@ public class MemberController {
     @Operation(summary = "프로필 수정")
     @PutMapping("/me/profile")
     public ResponseEntity<CommonResponse<UpdateProfileResponse>> updateProfile(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid @RequestPart(value = "request") UpdateProfileRequest request,
         @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.updateProfile(loginMember, request, image));
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.updateProfile(member, request, image));
     }
 
     @Operation(summary = "내가 작성한 일상생활 목록 조회")
     @Parameters(@Parameter(name = "request", description = "내가 작성한 일상생활 목록 조회 요청", required = true))
     @GetMapping("/daily-lives/my")
     public ResponseEntity<CommonResponse<MyDailyLifeListResponse>> loadMyDailyLifeList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid DailyLifeListRequest request
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyDailyLifeList(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyDailyLifeList(member, request));
     }
 
     @Operation(summary = "내가 작성한 시음노트 목록 조회")
     @Parameters(@Parameter(name = "request", description = "내가 작성한 시음노트 목록 조회 요청", required = true))
     @GetMapping("/tasting_notes/my")
     public ResponseEntity<CommonResponse<MyTastingNoteListResponse>> loadMyTastingNoteList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid TastingNoteListRequest request
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyTastingNoteList(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyTastingNoteList(member, request));
     }
 
     @Operation(hidden = true, summary = "전통주 저장")
     @PostMapping("/{alcoholicDrinksId}/save")
     public ResponseEntity<CommonResponse<Void>> saveAlcoholicDrinks(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long alcoholicDrinksId
     ) {
-        boolean isSaved = memberService.saveAlcoholicDrinks(loginMember, alcoholicDrinksId);
+        boolean isSaved = memberService.saveAlcoholicDrinks(member, alcoholicDrinksId);
         return CommonResponse.success(isSaved ? SuccessCode.SUCCESS_INSERT : SuccessCode.SUCCESS_DELETE);
     }
 
@@ -98,62 +98,62 @@ public class MemberController {
     @Parameters(@Parameter(name = "request", description = "내가 저장한 전통주 목록 조회 요청", required = true))
     @GetMapping("/alcoholic-drinks/my")
     public ResponseEntity<CommonResponse<MyAlcoholicDrinksListResponse>> loadMyAlcoholicDrinks(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid MyAlcoholicDrinksListRequest request
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyAlcoholicDrinks(loginMember, request));
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMyAlcoholicDrinks(member, request));
     }
 
     @Operation(summary = "내 공간 조회")
     @GetMapping("/my-space")
-    public ResponseEntity<CommonResponse<MySpaceResponse>> getMySpace(@Parameter(hidden = true) @LoginMember Member loginMember) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMySpace(loginMember));
+    public ResponseEntity<CommonResponse<MySpaceResponse>> getMySpace(@AuthenticationPrincipal Member member) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMySpace(member));
     }
 
     @Operation(summary = "내 정보 조회")
     @GetMapping("/my-info")
-    public ResponseEntity<CommonResponse<MyInfoResponse>> getMyInfo(@Parameter(hidden = true) @LoginMember Member loginMember) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMyInfo(loginMember));
+    public ResponseEntity<CommonResponse<MyInfoResponse>> getMyInfo(@AuthenticationPrincipal Member member) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMyInfo(member));
     }
 
     @Operation(summary = "타 유저 프로필 조회")
     @GetMapping("/{memberId}/profile")
     public ResponseEntity<CommonResponse<MemberProfileResponse>> getMemberProfile(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @PathVariable Long memberId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMemberProfile(loginMember, memberId));
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.getMemberProfile(member, memberId));
     }
 
     @Operation(summary = "특정 회원이 작성한 시음노트 목록 조회")
     @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 시음노트 목록 조회 요청", required = true))
     @GetMapping("/{memberId}/tasting_notes")
     public ResponseEntity<CommonResponse<TastingNoteListResponse>> loadMemberTastingNoteList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid TastingNoteListRequest request,
         @PathVariable Long memberId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMemberTastingNoteList(loginMember, request, memberId));
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMemberTastingNoteList(member, request, memberId));
     }
 
     @Operation(summary = "특정 회원이 작성한 일상생활 목록 조회")
     @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 일상생활 목록 조회 요청", required = true))
     @GetMapping("/{memberId}/daily-lives")
     public ResponseEntity<CommonResponse<DailyLifeListResponse>> loadMemberDailyLifeList(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @Valid DailyLifeListRequest request,
         @PathVariable Long memberId
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMemberDailyLifeList(loginMember, request, memberId));
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.loadMemberDailyLifeList(member, request, memberId));
     }
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/me")
     public ResponseEntity<CommonResponse<Void>> deleteAccount(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @RequestBody WithdrawalRequest request
     ) {
-        memberService.deleteAccount(loginMember, request);
+        memberService.deleteAccount(member, request);
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }
 

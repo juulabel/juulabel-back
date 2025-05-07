@@ -1,17 +1,13 @@
 package com.juu.juulabel.admin;
 
-import com.juu.juulabel.common.annotation.LoginMember;
-import com.juu.juulabel.common.dto.request.MemberListRequest;
-import com.juu.juulabel.common.dto.response.MemberListResponse;
 import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(
@@ -23,32 +19,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final com.juu.juulabel.admin.AdminService adminService;
+    private final AdminService adminService;
 
     @Operation(summary = "뱃지 부여")
     @PostMapping("/badges")
     public ResponseEntity<CommonResponse<Void>> assignBadge(
-        @Parameter(hidden = true) @LoginMember Member loginMember,
+        @AuthenticationPrincipal Member member,
         @RequestParam(value = "email") String email
     ) {
-        adminService.assignBadge(email, loginMember);
+        adminService.assignBadge(email, member);
         return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
-
-    //### 🔹 **회원 리스트 (검색/필터)**
-    //- 검색: 닉네임, 이메일, 가입일, 상태(활성/정지/경고)
-    //- 필터: 가입 소셜 계정(이메일/카카오/네이버), 뱃지 보유 여부
-
-    @Operation(summary = "회원리스트 조회")
-    @GetMapping("/pages/members")
-    public ResponseEntity<CommonResponse<MemberListResponse>> loadMemberList(
-            @Parameter(hidden = true) @LoginMember Member loginMember,
-            MemberListRequest request
-    ){
-        return CommonResponse.success(SuccessCode.SUCCESS, adminService.loadMemberList(loginMember, request));
+    @GetMapping("/permission/test")
+    public ResponseEntity<Member> test(@AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok(member);
     }
-
-
-
 }

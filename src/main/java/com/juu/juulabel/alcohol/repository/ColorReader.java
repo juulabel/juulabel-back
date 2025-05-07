@@ -15,7 +15,7 @@ public class ColorReader {
 
     public Color getById(Long id) {
         return colorJpaRepository.findById(id)
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COLOR));
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.COLOR_NOT_FOUND));
     }
 
 }

@@ -41,7 +41,6 @@ public class AlcoholicDrinksController {
     )
     @GetMapping("/typeSearch")
     public ResponseEntity<CommonResponse<AlcoholicCategoryResponse>> loadAlcoholDrinksList(
-            // @Parameter(hidden = true) @LoginMember Member loginMember,
             @Valid CategorySearchAlcoholRequest request
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.loadAlcoholDrinksList(request));
@@ -53,8 +52,6 @@ public class AlcoholicDrinksController {
     )
     @GetMapping("/{alcoholicDrinksId}")
     public ResponseEntity<CommonResponse<AlcoholicDrinksDetailResponse>> loadAlcoholDrinks(
-//            @Parameter(hidden = true)
-//            @LoginMember Member loginMember,
             @PathVariable Long alcoholicDrinksId
     ) {
         return CommonResponse.success(SuccessCode.SUCCESS, alcoholicDrinksService.loadAlcoholicDrinks(alcoholicDrinksId));

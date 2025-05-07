@@ -68,6 +68,10 @@ public class MemberService {
     private final MemberJpaRepository memberJpaRepository;
 
 
+    public Member getMemberByEmail(String email) {
+        return memberReader.getByEmail(email);
+    }
+
     @Transactional
     public LoginResponse login(OAuthLoginRequest oAuthLoginRequest) {
         OAuthLoginInfo authLoginInfo = oAuthLoginRequest.toDto();
@@ -89,8 +93,13 @@ public class MemberService {
 
         validateNotWithdrawnMember(email);
 
-        Token token = createTokenForMember(isNewMember, email); // TODO : 카카오와 구글 이메일이 같다면 토큰 중복 사용 가능 여부 확인
-
+        String generatedToken = jwtTokenProvider.createAccessToken(getMemberByEmail(email));
+        Token token;
+        if (isNewMember) {
+            token = new Token(null, null);
+        } else {
+            token = new Token(generatedToken, jwtTokenProvider.getExpirationByToken(generatedToken));
+        }
         return new LoginResponse(
                 token,
                 isNewMember,
@@ -99,7 +108,7 @@ public class MemberService {
     }
 
     @Transactional
-    public SignUpMemberResponse signUp(SignUpMemberRequest signUpRequest) { // TODO : providerId 검증
+    public SignUpMemberResponse signUp(SignUpMemberRequest signUpRequest) {
         validateNickname(signUpRequest.nickname());
         validateEmail(signUpRequest.email());
 
@@ -120,7 +129,7 @@ public class MemberService {
             memberTermsWriter.storeAll(memberTerms);
         }
 
-        String token = jwtTokenProvider.createAccessToken(member.getEmail());
+        String token = jwtTokenProvider.createAccessToken(member);
 
         return new SignUpMemberResponse(
                 member.getId(),
@@ -128,14 +137,6 @@ public class MemberService {
         );
     }
 
-    private Token createTokenForMember(boolean isNewMember, String email) {
-        if (isNewMember) {
-            return new Token(null, null);
-        } else {
-            String generatedToken = jwtTokenProvider.createAccessToken(email);
-            return new Token(generatedToken, jwtTokenProvider.getExpirationByToken(generatedToken));
-        }
-    }
 
     private List<MemberAlcoholType> getMemberAlcoholTypeList(Member member, List<Long> alcoholTypeIdList) {
         return alcoholTypeIdList.stream()
@@ -158,7 +159,7 @@ public class MemberService {
 
     private void validateTermsList(List<Terms> usedTermsList, List<TermsAgreement> termsAgreements) {
         if (usedTermsList.size() != termsAgreements.size()) {
-            throw new InvalidParamException(ErrorCode.MISMATCH_TERMS_AGREEMENT);
+            throw new InvalidParamException(ErrorCode.TERMS_AGREEMENT_MISMATCH);
         }
     }
 
@@ -170,12 +171,12 @@ public class MemberService {
             TermsAgreement termsAgreement = termsAgreements.stream()
                     .filter(agreement -> agreement.termsId().equals(terms.getId()))
                     .findFirst()
-                    .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TERMS));
+                    .orElseThrow(() -> new InvalidParamException(ErrorCode.TERMS_NOT_FOUND));
 
             final boolean isAgreed = termsAgreement.isAgreed();
 
             if (terms.isRequired() && !isAgreed) {
-                throw new InvalidParamException(ErrorCode.MISSING_REQUIRED_AGREEMENT);
+                throw new InvalidParamException(ErrorCode.TERMS_AGREEMENT_MISSING_REQUIRED);
             }
 
             mappings.add(MemberTerms.create(member, terms, isAgreed, now));
@@ -269,7 +270,7 @@ public class MemberService {
                 dailyLifeCount,
                 followingCount,
                 followerCount,
-                0 // TODO : 시음노트 저장 기능 추가 시 수정 필요
+                0
         );
     }
 
@@ -299,7 +300,6 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public TastingNoteListResponse loadMemberTastingNoteList(Member loginMember, TastingNoteListRequest request, Long memberId) {
-        // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
         Slice<TastingNoteSummary> tastingNoteList =
                 tastingNoteReader.getAllTastingNotesByMember(loginMember, memberId, request.lastTastingNoteId(), request.pageSize());
 
@@ -308,7 +308,6 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberProfileResponse getMemberProfile(Member loginMember, Long memberId) {
-        // TODO : 해당 회원(loginMember) 차단 여부 검증 로직
         Member member = memberReader.getById(memberId);
         long tastingNoteCount = tastingNoteReader.getTastingNoteCountByMemberId(memberId, loginMember);
         long dailyLifeCount = dailyLifeReader.getDailyLifeCountByMemberId(memberId, loginMember);
@@ -332,19 +331,19 @@ public class MemberService {
 
     private void validateNickname(String nickname) {
         if (memberReader.existActiveNickname(nickname)) {
-            throw new InvalidParamException(ErrorCode.EXIST_NICKNAME);
+            throw new InvalidParamException(ErrorCode.MEMBER_NICKNAME_DUPLICATE);
         }
     }
 
     private void validateNotWithdrawnMember(String email) {
         if (withdrawalRecordReader.existEmail(email)) {
-            throw new InvalidParamException(ErrorCode.WITHDRAWN_MEMBER);
+            throw new InvalidParamException(ErrorCode.MEMBER_WITHDRAWN);
         }
     }
 
     private void validateEmail(String email) {
         if (memberReader.existActiveEmail(email)) {
-            throw new InvalidParamException(ErrorCode.EXIST_EMAIL);
+            throw new InvalidParamException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
         }
     }
 
@@ -359,7 +358,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member findById(Long memberId) {
         return memberJpaRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new BaseException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }
 

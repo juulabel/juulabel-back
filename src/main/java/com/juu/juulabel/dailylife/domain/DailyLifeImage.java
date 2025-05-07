@@ -46,7 +46,7 @@ public class DailyLifeImage extends BaseTimeEntity {
 
     public void delete() {
         if (this.deletedAt != null) {
-            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_DAILY_LIFE);
+            throw new InvalidParamException(ErrorCode.DAILY_LIFE_ALREADY_DELETED);
         }
 
         this.deletedAt = LocalDateTime.now();

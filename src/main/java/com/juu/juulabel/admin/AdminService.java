@@ -31,7 +31,7 @@ public class AdminService {
     @Transactional
     public void assignBadge(String email, Member loginMember) {
         if (loginMember.getRole() != MemberRole.ROLE_ADMIN) {
-            throw new BaseException(ErrorCode.NOT_FOUND_ADMIN);
+            throw new BaseException(ErrorCode.ADMIN_NOT_FOUND);
         }
         Member member = memberReader.getByEmail(email); // 닉네임은 변경 가능하기 때문에 이메일로만 검증
         member.assignBadge();

@@ -43,7 +43,7 @@ public class AlcoholicDrinksReader {
 
     public AlcoholicDrinks getById(Long id) {
         return Optional.ofNullable(findById(id))
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE));
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.ALCOHOLIC_DRINKS_TYPE_NOT_FOUND));
     }
 
     public Slice<AlcoholicDrinksSummary> getAllMyAlcoholicDrinks(Member member, Long lastAlcoholicDrinksId, int pageSize) {

@@ -80,7 +80,7 @@ public class AlcoholDrinksDetailQueryRepository {
                 isNotDeleted(alcoholicDrinks))
                 .fetchOne();
 
-        return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ALCOHOLIC_DRINKS_TYPE)
+        return Optional.ofNullable(alcoholicDrinksDetailInfo).orElseThrow(() -> new InvalidParamException(ErrorCode.ALCOHOLIC_DRINKS_TYPE_NOT_FOUND)
         );
     }
 
@@ -98,7 +98,6 @@ public Map<String, VolumePriceDetail> getVolumePriceDetailsList(Long alcoholicId
 
     // 이름에서 prefix 추출
     String prefix = extractPrefix(fullName);
-    System.out.println("Prefix: " + prefix);
 
     // prefix로 시작하는 항목들을 조회
     List<VolumePriceDetail> volumePriceDetails = jpaQueryFactory
@@ -131,7 +130,6 @@ public Map<String, VolumePriceDetail> getVolumePriceDetailsList(Long alcoholicId
                 while (startIndex >= 0 && Character.isDigit(name.charAt(startIndex))) {
                     startIndex--; // 숫자를 계속 탐색
                 }
-                startIndex++;
 
                 return name.substring(0, index + 1).trim(); // 마지막 "도"까지 포함
             }

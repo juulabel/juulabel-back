@@ -67,7 +67,7 @@ public class NotificationQueryRepository {
             .execute();
 
         if (updatedCount == 0) {
-            throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
+            throw new InvalidParamException(ErrorCode.NOTIFICATION_NOT_FOUND);
         }
     }
 
@@ -81,7 +81,7 @@ public class NotificationQueryRepository {
             .execute();
 
         if (updatedCount == 0) {
-            throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
+            throw new InvalidParamException(ErrorCode.NOTIFICATION_NOT_FOUND);
         }
     }
 
@@ -95,7 +95,7 @@ public class NotificationQueryRepository {
             .execute();
 
         if (deleteCount == 0) {
-            throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
+            throw new InvalidParamException(ErrorCode.NOTIFICATION_NOT_FOUND);
         }
     }
 
@@ -112,7 +112,7 @@ public class NotificationQueryRepository {
             .execute();
 
         if (deleteCount == 0) {
-            throw new InvalidParamException(ErrorCode.NOT_FOUND_NOTIFICATION);
+            throw new InvalidParamException(ErrorCode.NOTIFICATION_NOT_FOUND);
         }
     }
 }

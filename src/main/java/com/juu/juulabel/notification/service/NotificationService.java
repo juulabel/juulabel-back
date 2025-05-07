@@ -131,7 +131,7 @@ public class NotificationService {
 
     private void validateAdmin(Member loginMember) {
         if (loginMember.getRole() != MemberRole.ROLE_ADMIN) {
-            throw new InvalidParamException(ErrorCode.NOT_FOUND_ADMIN);
+            throw new InvalidParamException(ErrorCode.ADMIN_NOT_FOUND);
         }
     }
 
