@@ -1,7 +1,5 @@
 package com.juu.juulabel.admin;
 
-import com.juu.juulabel.admin.response.MemberListSummary;
-import com.juu.juulabel.alcohol.response.CategorySearchAlcoholRequest;
 import com.juu.juulabel.common.dto.request.MemberListRequest;
 import com.juu.juulabel.common.dto.response.MemberListResponse;
 import com.juu.juulabel.common.exception.code.SuccessCode;

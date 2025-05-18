@@ -1,5 +1,9 @@
-package com.juu.juulabel.member.controller;
+package com.juu.juulabel.auth.controller;
 
+import com.juu.juulabel.auth.aop.SetRefreshTokenCookie;
+import com.juu.juulabel.auth.service.MemberAuthService;
+import com.juu.juulabel.auth.service.OAuthService;
+import com.juu.juulabel.auth.service.TokenService;
 import com.juu.juulabel.common.dto.request.OAuthLoginRequest;
 import com.juu.juulabel.common.dto.request.SignUpMemberRequest;
 import com.juu.juulabel.common.dto.request.WithdrawalRequest;
@@ -10,11 +14,9 @@ import com.juu.juulabel.common.exception.code.SuccessCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.domain.Provider;
-import com.juu.juulabel.member.service.AuthService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,15 +29,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final TokenService tokenService;
+    private final OAuthService oAuthService;
+    private final MemberAuthService memberAuthService;
 
     @Operation(summary = "OAuth 로그인 (소셜 로그인)")
     @PostMapping("/login/{provider}")
+    @SetRefreshTokenCookie
     public ResponseEntity<CommonResponse<LoginResponse>> oauthLogin(
             @PathVariable String provider,
-            @Valid @RequestBody OAuthLoginRequest requestBody,
-            HttpServletRequest httpServletRequest,
-            HttpServletResponse httpServletResponse) {
+            @Valid @RequestBody OAuthLoginRequest requestBody) {
 
         // 경로에서 제공자 정보를 파싱하여 새 요청 객체를 생성
         OAuthLoginRequest request = new OAuthLoginRequest(
@@ -43,41 +46,34 @@ public class AuthController {
                 requestBody.redirectUri(),
                 Provider.valueOf(provider.toUpperCase()));
 
-        LoginResponse loginResponse = authService.login(request);
-        if (!loginResponse.isNewMember()) {
-            authService.registerRefreshToken(loginResponse.oAuthUserInfo().memberId(), httpServletRequest,
-                    httpServletResponse);
-        }
+        LoginResponse loginResponse = oAuthService.login(request);
         return CommonResponse.success(SuccessCode.SUCCESS, loginResponse);
     }
 
     @Operation(summary = "회원가입")
     @PostMapping("/sign-up")
+    @SetRefreshTokenCookie
     public ResponseEntity<CommonResponse<SignUpMemberResponse>> signUp(
-            @Valid @RequestBody SignUpMemberRequest request,
-            HttpServletRequest httpServletRequest,
-            HttpServletResponse httpServletResponse) {
-        SignUpMemberResponse signUpMemberResponse = authService.signUp(request);
-        authService.registerRefreshToken(signUpMemberResponse.memberId(), httpServletRequest,
-                httpServletResponse);
+            @Valid @RequestBody SignUpMemberRequest request) {
+        SignUpMemberResponse signUpMemberResponse = memberAuthService.signUp(request);
         return CommonResponse.success(SuccessCode.SUCCESS, signUpMemberResponse);
     }
 
     @Operation(summary = "액세스 토큰 갱신")
     @PostMapping("/refresh")
+    @SetRefreshTokenCookie(parentTokenId = "#refreshToken", isNewSession = false)
     public ResponseEntity<CommonResponse<RefreshResponse>> refresh(
-            @CookieValue(value = "refreshToken", required = true) String refreshTokenCookie,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-        return CommonResponse.success(SuccessCode.SUCCESS, authService.refresh(refreshTokenCookie, request,
-                response));
+            @AuthenticationPrincipal Member member,
+            @CookieValue(value = "refreshToken", required = true) String refreshToken) {
+        return CommonResponse.success(SuccessCode.SUCCESS, tokenService.refresh(refreshToken));
     }
 
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<CommonResponse<Void>> logout(
-            @CookieValue(value = "refreshToken", required = true) String refreshTokenCookie) {
-        authService.logout(refreshTokenCookie);
+            @CookieValue(value = "refreshToken", required = true) String refreshToken,
+            @AuthenticationPrincipal Member member) {
+        tokenService.logout(refreshToken, member.getId());
         return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
@@ -86,13 +82,8 @@ public class AuthController {
     public ResponseEntity<CommonResponse<Void>> deleteAccount(
             @AuthenticationPrincipal Member member,
             @RequestBody WithdrawalRequest request) {
-        authService.deleteAccount(member, request);
+        memberAuthService.deleteAccount(member, request);
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }
 
-    @Operation(summary = "닉네임 중복 검사")
-    @GetMapping("/nicknames/{nickname}/exists")
-    public ResponseEntity<CommonResponse<Boolean>> checkNickname(@PathVariable String nickname) {
-        return CommonResponse.success(SuccessCode.SUCCESS, authService.checkNickname(nickname));
-    }
 }

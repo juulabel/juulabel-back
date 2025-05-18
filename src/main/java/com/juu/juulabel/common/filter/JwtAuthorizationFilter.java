@@ -25,14 +25,13 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
-    private final HttpRequestUtil httpRequestUtil;
+    private final JwtTokenProvider jwtTokenProvider;    
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String header = httpRequestUtil.extractAuthorization(request);
+        String header = HttpRequestUtil.getAuthorization(request);
         if (header != null) {
             String token = jwtTokenProvider.resolveToken(header);
             try {

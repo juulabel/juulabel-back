@@ -33,6 +33,8 @@ public enum ErrorCode {
     /**
      * Authentication
      */
+    DEVICE_ID_REQUIRED(HttpStatus.BAD_REQUEST, "Device-Id 헤더가 필요합니다."),
+    
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Provider를 찾을 수 없습니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "토큰을 찾을 수 없습니다."),
     REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),

@@ -13,8 +13,14 @@ public class AuthConstants {
 
     public static final String TOKEN_PREFIX = "Bearer ";
 
+    public static final String REFRESH_TOKEN_HASH_PREFIX = "RefreshToken";
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(30);
-    public static final String REFRESH_TOKEN_HEADER_NAME = "X-Refresh-Token";
+
+    // The RFC 6648 (published in 2012) deprecated the X- prefix for custom headers:
+    public static final String REFRESH_TOKEN_HEADER_NAME = "Refresh-Token";
+    public static final String DEVICE_ID_HEADER_NAME = "Device-Id";
+
+    public static final Long REFRESH_TOKEN_TTL_IN_SECONDS = REFRESH_TOKEN_DURATION.getSeconds() + Duration.ofDays(15).getSeconds();
 
 }

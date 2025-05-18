@@ -1,8 +1,13 @@
 package com.juu.juulabel.common.provider;
 
+import com.juu.juulabel.auth.domain.ClientId;
+import com.juu.juulabel.auth.domain.RefreshToken;
+import com.juu.juulabel.auth.repository.redis.RefreshTokenRedisRepository;
 import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.common.util.HttpRequestUtil;
+import com.juu.juulabel.common.util.HttpResponseUtil;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.domain.MemberRole;
 
@@ -15,10 +20,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import static com.juu.juulabel.common.constants.AuthConstants.ACCESS_TOKEN_DURATION;
 import static com.juu.juulabel.common.constants.AuthConstants.REFRESH_TOKEN_DURATION;
+import static com.juu.juulabel.common.constants.AuthConstants.REFRESH_TOKEN_HEADER_NAME;
 import static com.juu.juulabel.common.constants.AuthConstants.TOKEN_PREFIX;
 
 import javax.crypto.SecretKey;
@@ -35,10 +43,13 @@ public class JwtTokenProvider {
 
     private final SecretKey key;
     private final JwtParser jwtParser;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
-    public JwtTokenProvider(@Value("${spring.jwt.secret}") String key) {
+    public JwtTokenProvider(@Value("${spring.jwt.secret}") String key,
+            RefreshTokenRedisRepository refreshTokenRedisRepository) {
         this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(key));
         this.jwtParser = Jwts.parser().verifyWith(this.key).build();
+        this.refreshTokenRedisRepository = refreshTokenRedisRepository;
     }
 
     /**
@@ -57,8 +68,24 @@ public class JwtTokenProvider {
      * @param member The member for whom to create the token
      * @return A RefreshToken entity
      */
-    public String createRefreshToken(Long memberId) {
-        return buildToken(memberId, null, REFRESH_TOKEN_DURATION);
+    public RefreshToken createRefreshToken(Long memberId, String parentTokenId) {
+        String ipAddress = HttpRequestUtil.getClientIpAddress();
+        String userAgent = HttpRequestUtil.getUserAgent();
+        String deviceId = HttpRequestUtil.getDeviceId();
+
+        String token = buildToken(memberId, null, REFRESH_TOKEN_DURATION);
+
+        HttpResponseUtil.addCookie(REFRESH_TOKEN_HEADER_NAME, token,
+                (int) REFRESH_TOKEN_DURATION.getSeconds());
+
+        return RefreshToken.builder()
+                .token(token)
+                .memberId(memberId)
+                .clientId(ClientId.WEB)
+                .deviceId(deviceId)
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .build();
     }
 
     /**
@@ -70,7 +97,7 @@ public class JwtTokenProvider {
      * @return The JWT token string
      */
     private String buildToken(Long memberId, String role, Duration duration) {
-        Date expirationDate = getExpirationDate(duration);
+        Date expirationDate = new Date(System.currentTimeMillis() + duration.toMillis());
         JwtBuilder builder = Jwts.builder()
                 .subject(String.valueOf(memberId))
                 .issuedAt(new Date())
@@ -91,7 +118,7 @@ public class JwtTokenProvider {
      * @param accessToken The access token
      * @return The Authentication object
      */
-    public Authentication getAuthentication(String accessToken) {                
+    public Authentication getAuthentication(String accessToken) {
         return extractFromClaims(accessToken, claims -> {
             String role = claims.get(ROLE_CLAIM, String.class);
             Long memberId = Long.parseLong(claims.getSubject());
@@ -200,13 +227,72 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Gets an expiration date based on current time plus duration
+     * Validates a refresh token
      * 
-     * @param duration The duration
-     * @return The expiration date
+     * @param token     The refresh token
+     * @param ipAddress Current request IP address
+     * @param userAgent Current request user agent
+     * @return true if valid, throws exception otherwise
      */
-    private Date getExpirationDate(Duration duration) {
-        return new Date(System.currentTimeMillis() + duration.toMillis());
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void rotateRefreshToken(RefreshToken token) {
+        String ipAddress = HttpRequestUtil.getClientIpAddress();
+        String userAgent = HttpRequestUtil.getUserAgent();
+        String deviceId = HttpRequestUtil.getDeviceId();
+
+        Long memberId = token.getMemberId();
+
+        // Case 1: Device ID doesn’t match the previous token
+        // • Revoke the entire chain of the previous token (current + descendants).
+        // • This blocks access from the stolen session while allowing the user to
+        // continue on the new device.
+        // • Keep the new device’s session active if validated correctly (e.g., fresh
+        // login or MFA).
+
+        if (!token.getDeviceId().equals(deviceId)) {
+            refreshTokenRedisRepository.revokeByDeviceId(memberId, deviceId);
+            throw new CustomJwtException(
+                    String.format(
+                            "Device ID mismatch: Device ID=%s, Current Token Device ID=%s",
+                            deviceId, token.getDeviceId()),
+                    ErrorCode.REFRESH_TOKEN_INVALID);
+        }
+
+        // Case 2: Token is reused/revoked
+        // • Revoke the entire token from the member.
+        // • This blocks access from the stolen session while allowing the user to
+        // continue on the new device.
+        // • Keep the new device’s session active if validated correctly (e.g., fresh
+        // login or MFA).
+
+        if (token.getRevokedAt() != null) {
+            refreshTokenRedisRepository.revokeByMemberId(memberId);
+            throw new CustomJwtException(
+                    String.format(
+                            "Parent token is revoked: Device ID=%s IP=%s User-Agent=%s, Parent Token Device ID=%s IP=%s User-Agent=%s",
+                            deviceId, ipAddress, userAgent, token.getDeviceId(), token.getIpAddress(),
+                            token.getUserAgent()),
+                    ErrorCode.REFRESH_TOKEN_INVALID);
+        }
+
+    }
+
+    /**
+     * Checks for token reuse
+     * 
+     * @param token          The refresh token
+     * @param hasChildTokens Whether the token has child tokens
+     * @param ipAddress      Current request IP
+     * @param userAgent      Current request user agent
+     * @throws CustomJwtException when token reuse is detected
+     */
+    public void checkTokenReuse(RefreshToken token, boolean hasChildTokens, String ipAddress, String userAgent) {
+        if (token.getRevokedAt() != null && hasChildTokens) {
+            throw new CustomJwtException(
+                    String.format("Refresh token reuse detected: IP=%s User-Agent=%s",
+                            ipAddress, userAgent),
+                    ErrorCode.REFRESH_TOKEN_INVALID);
+        }
     }
 
 }

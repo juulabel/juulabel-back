@@ -32,6 +32,9 @@ dependencies {
 
 	// jpa
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	// security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -47,6 +50,10 @@ dependencies {
 
 	// jjwt
 	implementation 'io.jsonwebtoken:jjwt:0.12.5'
+
+	// GeoIP
+	implementation 'com.maxmind.geoip2:geoip2:4.1.0'
+
 
 	// lombok
 	implementation 'org.projectlombok:lombok'

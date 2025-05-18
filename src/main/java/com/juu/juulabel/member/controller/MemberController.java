@@ -26,6 +26,12 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @Operation(summary = "닉네임 중복 검사")
+    @GetMapping("/nicknames/{nickname}/exists")
+    public ResponseEntity<CommonResponse<Boolean>> checkNickname(@PathVariable String nickname) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberService.checkNickname(nickname));
+    }
+
     @Operation(summary = "프로필 수정")
     @PutMapping("/me/profile")
     public ResponseEntity<CommonResponse<UpdateProfileResponse>> updateProfile(
@@ -93,7 +99,7 @@ public class MemberController {
 
     @Operation(summary = "특정 회원이 작성한 시음노트 목록 조회")
     @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 시음노트 목록 조회 요청", required = true))
-    @GetMapping("/members/{memberId}/tasting-notes")
+    @GetMapping("/{memberId}/tasting-notes")
     public ResponseEntity<CommonResponse<TastingNoteListResponse>> loadMemberTastingNoteList(
             @AuthenticationPrincipal Member member,
             @Valid TastingNoteListRequest request,
@@ -104,7 +110,7 @@ public class MemberController {
 
     @Operation(summary = "특정 회원이 작성한 일상생활 목록 조회")
     @Parameters(@Parameter(name = "request", description = "특정 회원이 작성한 일상생활 목록 조회 요청", required = true))
-    @GetMapping("/members/{memberId}/daily-lives")
+    @GetMapping("/{memberId}/daily-lives")
     public ResponseEntity<CommonResponse<DailyLifeListResponse>> loadMemberDailyLifeList(
             @AuthenticationPrincipal Member member,
             @Valid DailyLifeListRequest request,
