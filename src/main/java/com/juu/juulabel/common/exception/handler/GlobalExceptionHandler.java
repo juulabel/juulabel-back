@@ -5,7 +5,6 @@ import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +12,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Arrays;
@@ -36,13 +36,6 @@ public class GlobalExceptionHandler {
         return CommonResponse.fail(e.getErrorCode());
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<CommonResponse<String>> handle(RuntimeException e) {
-        log.error("RuntimeException :", e);
-        Sentry.captureException(e);
-        return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CommonResponse<String>> handle(MethodArgumentNotValidException e) {
         log.error("MethodArgumentNotValidException :", e);
@@ -57,9 +50,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public void handle(NoResourceFoundException e) {
-        // 이거 키면 출력이 너무 많이 됨
-        // log.warn("NoResourceFoundException : {}", e.getMessage());
+    public ResponseEntity<CommonResponse<String>> handle(NoResourceFoundException e) {
+        log.warn("NoResourceFoundException : {}", e.getMessage());
+        return CommonResponse.fail(ErrorCode.NOT_FOUND);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -77,5 +70,21 @@ public class GlobalExceptionHandler {
             errorDetails = exception.getMessage();
         }
         return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, errorDetails);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CommonResponse<String>> handle(MethodArgumentTypeMismatchException e) {
+        log.error("MethodArgumentTypeMismatchException :", e);
+        
+        // Check if the underlying cause is a BaseException
+        Throwable cause = e.getCause();
+        while (cause != null) {
+            if (cause instanceof BaseException baseException) {
+                return CommonResponse.fail(baseException.getErrorCode());
+            }
+            cause = cause.getCause();
+        }
+        
+        return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, e.getMessage());
     }
 }

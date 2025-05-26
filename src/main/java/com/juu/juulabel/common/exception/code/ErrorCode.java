@@ -21,6 +21,7 @@ public enum ErrorCode {
     IS_NULL(HttpStatus.BAD_REQUEST, "NULL 값이 들어왔습니다."),
     COMMON_INVALID_PARAM(HttpStatus.BAD_REQUEST, "요청한 값이 올바르지 않습니다."),
     INVALID_AUTHENTICATION(HttpStatus.UNAUTHORIZED, "인증이 올바르지 않습니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 
     /**
      * Json Web Token
@@ -33,7 +34,13 @@ public enum ErrorCode {
     /**
      * Authentication
      */
+    DEVICE_ID_REQUIRED(HttpStatus.BAD_REQUEST, "Device-Id 헤더가 필요합니다."),
+
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Provider를 찾을 수 없습니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "토큰을 찾을 수 없습니다."),
+    DEVICE_ID_MISMATCH(HttpStatus.BAD_REQUEST, "Device-Id 불일치"),
+    REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    REFRESH_TOKEN_REUSE_DETECTED(HttpStatus.FORBIDDEN, "토큰 재사용 감지"),
 
     /**
      * Admin, Member
@@ -58,12 +65,10 @@ public enum ErrorCode {
     ALCOHOLIC_DRINKS_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "전통주를 찾을 수 없습니다."),
     ALCOHOLIC_DRINKS_INVALID_RATING(HttpStatus.BAD_REQUEST, "잘못된 평점입니다. 평점은 0.00에서 5.00 사이여야 합니다."),
 
-
     /**
      * Notification
      */
     NOTIFICATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 알림이 존재하지 않거나, 권한이 없습니다."),
-
 
     /**
      * Comment
@@ -84,7 +89,6 @@ public enum ErrorCode {
      */
     EXCEEDED_FILE_COUNT(HttpStatus.BAD_REQUEST, "파일 첨부 허용 개수를 초과했습니다."),
     FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "파일 크기가 10MB를 초과했습니다."),
-
 
     /**
      * Tasting Note
