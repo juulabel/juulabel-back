@@ -117,6 +117,6 @@ journalctl -u socat-redis
 ## 📎 참고 자료
 
 - [AWS Blog - Port Forwarding with SSM to ElastiCache Redis](https://aws.amazon.com/blogs/mt/aws-systems-manager-session-manager-port-forwarding-to-amazon-elasticache-redis-inside-private-subnet/)
-- [PR #139](): 인증 전략 개선 및 Redis 기반 세션 관리 적용 상세 내역
+- [PR #139](https://github.com/juulabel/juulabel-back/pull/141): 인증 전략 개선 및 Redis 기반 세션 관리 적용 상세 내역
 
 ---

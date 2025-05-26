@@ -1,4 +1,4 @@
-# Auth API 리팩터링 및 인증 전략 고도화 (PR [#139]())
+# Auth API 리팩터링 및 인증 전략 고도화 (PR [#139](https://github.com/juulabel/juulabel-back/pull/141))
 
 ## 📌 Summary
 
