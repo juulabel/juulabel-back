@@ -132,15 +132,30 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
      * Check if IP is in private ranges
      */
     private static boolean isPrivateIpAddress(String ip) {
+        // Check IPv6 private ranges first
+        if (ip.contains(":")) {
+            return isPrivateIpv6(ip);
+        }
+
         if (ip.startsWith("10.") || ip.startsWith("192.168.")) {
             return true;
         }
-
         if (ip.startsWith("172.")) {
             return isPrivate172Range(ip);
         }
-
         return false;
+    }
+
+    private static boolean isPrivateIpv6(String ip) {
+        try {
+            InetAddress addr = InetAddress.getByName(ip);
+            return addr.isSiteLocalAddress()
+                    || addr.isLinkLocalAddress()
+                    || ip.toLowerCase().startsWith("fc")
+                    || ip.toLowerCase().startsWith("fd");
+        } catch (UnknownHostException e) {
+            return false;
+        }
     }
 
     /**

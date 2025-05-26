@@ -1,7 +1,6 @@
 package com.juu.juulabel.common.converter;
 
 import com.juu.juulabel.common.exception.BaseException;
-import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.member.domain.Provider;
 
@@ -20,7 +19,7 @@ public class ProviderConverter implements Converter<String, Provider> {
         try {
             final Provider provider = Provider.valueOf(source.toUpperCase());
             if (!ALLOWED_PROVIDERS.contains(provider)) {
-                throw new InvalidParamException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND);
+                throw new BaseException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND);
             }
             return provider;
         } catch (IllegalArgumentException e) {
