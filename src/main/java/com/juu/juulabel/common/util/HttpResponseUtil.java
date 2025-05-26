@@ -11,15 +11,32 @@ public final class HttpResponseUtil extends AbstractHttpUtil {
         super();
     }
 
+    /**
+     * Adds a secure HTTP-only cookie to the response
+     */
     public static void addCookie(String name, String value, int maxAge) {
         HttpServletResponse response = getCurrentResponse();
+        Cookie cookie = createSecureCookie(name, value, maxAge);
+        response.addCookie(cookie);
+    }
+
+    /**
+     * Removes a cookie by setting its max age to 0
+     */
+    public static void removeCookie(String name) {
+        addCookie(name, "", 0);
+    }
+
+    /**
+     * Creates a secure cookie with default settings
+     */
+    private static Cookie createSecureCookie(String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setMaxAge(maxAge);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-
-        response.addCookie(cookie);
+        return cookie;
     }
 
     public static HttpServletResponse getCurrentResponse() {

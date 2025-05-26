@@ -3,6 +3,8 @@ package com.juu.juulabel.common.filter;
 import com.juu.juulabel.common.provider.JwtTokenProvider;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
+import com.juu.juulabel.common.util.AuthorizationExtractor;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
@@ -17,21 +19,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.juu.juulabel.common.util.HttpRequestUtil;
-
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;    
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String header = HttpRequestUtil.getAuthorization(request);
+        String header = AuthorizationExtractor.getAuthorization();
         if (header != null) {
             String token = jwtTokenProvider.resolveToken(header);
             try {

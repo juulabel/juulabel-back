@@ -25,67 +25,99 @@ import static org.springframework.http.HttpMethod.OPTIONS;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthorizationFilter jwtAuthenticationFilter;
-    private final JwtExceptionFilter jwtExceptionFilter;
+        private final JwtAuthorizationFilter jwtAuthenticationFilter;
+        private final JwtExceptionFilter jwtExceptionFilter;
 
-    private static final String[] PERMIT_PATHS = {
-            "/swagger-ui/**", "/v3/api-docs/**", "/error", "/favicon.ico", "/", "/actuator/**",
-            "/v1/api/alcohols/**", "/v1/api/terms/**", "/v1/api/images",
-            "/v1/api/auth/**", "/v1/api/shared-space/tasting-notes/**", "/v1/api/notifications/**",
-            "/v1/api/daily-lives/**", "/v1/api/alcoholicDrinks/**", "v1/api/follow", "/**", "/v1/api/reports"
-    };
+        // Public endpoints that don't require authentication
+        private static final String[] PUBLIC_ENDPOINTS = {
+                        "/swagger-ui/**", "/v3/api-docs/**", "/error", "/favicon.ico", "/", "/actuator/**",
+                        "/v1/api/alcohols/**", "/v1/api/terms/**", "/v1/api/images",
+                        "/v1/api/auth/**", "/v1/api/shared-space/tasting-notes/**", "/v1/api/notifications/**",
+                        "/v1/api/daily-lives/**", "/v1/api/alcoholicDrinks/**", "v1/api/follow", "/**",
+                        "/v1/api/reports"
+        };
 
-    private static final String[] ALLOW_ORIGINS = {
-            "http://localhost:8084",
-            "http://localhost:8080",
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "https://api.juulabel.com",
-            "https://dev.juulabel.com",
-            "https://qa.juulabel.com",
-            "https://juulabel.com",
-            "https://juulabel.shop",
-            "https://juulabel-front.vercel.app/",
-            "https://juulabel-front-seven.vercel.app/",
-            "https://d3jwyw9rpnxu8p.cloudfront.net"
-    };
+        // Admin-only endpoints
+        private static final String[] ADMIN_ENDPOINTS = {
+                        "/v1/api/admins/permission/test"
+        };
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // Allowed origins for CORS
+        private static final String[] ALLOWED_ORIGINS = {
+                        "http://localhost:8084",
+                        "http://localhost:8080",
+                        "http://localhost:5173",
+                        "http://localhost:3000",
+                        "https://api.juulabel.com",
+                        "https://dev.juulabel.com",
+                        "https://qa.juulabel.com",
+                        "https://juulabel.com",
+                        "https://juulabel.shop",
+                        "https://juulabel-front.vercel.app/",
+                        "https://juulabel-front-seven.vercel.app/",
+                        "https://d3jwyw9rpnxu8p.cloudfront.net"
+        };
 
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/v1/api/members/logout").authenticated()
-                        .requestMatchers(OPTIONS, "**").permitAll()
-                        .requestMatchers(PERMIT_PATHS).permitAll()
-                        .requestMatchers("/v1/api/admins/permission/test").hasAnyAuthority(MemberRole.ROLE_ADMIN.name())
-                        .anyRequest().authenticated())
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                return http
+                                // Disable unnecessary features for stateless API
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .httpBasic(AbstractHttpConfigurer::disable)
+                                .formLogin(AbstractHttpConfigurer::disable)
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtExceptionFilter, JwtAuthorizationFilter.class)
+                                // Configure headers
+                                .headers(headers -> headers
+                                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
 
-                .build();
-    }
+                                // Configure CORS
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-    @Bean
-    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        config.setAllowedOrigins(List.of(ALLOW_ORIGINS));
-        config.addExposedHeader(HttpHeaders.AUTHORIZATION);
-        config.setAllowCredentials(true);
+                                // Configure authorization rules
+                                .authorizeHttpRequests(this::configureAuthorization)
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+                                // Add custom filters
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterBefore(jwtExceptionFilter, JwtAuthorizationFilter.class)
 
+                                .build();
+        }
+
+        private void configureAuthorization(
+                        org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
+                authorize
+                                // Allow OPTIONS requests for CORS preflight
+                                .requestMatchers(OPTIONS, "**").permitAll()
+
+                                // Public endpoints
+                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+
+                                // Admin endpoints
+                                .requestMatchers(ADMIN_ENDPOINTS).hasAuthority(MemberRole.ROLE_ADMIN.name())
+
+                                // Specific authenticated endpoints
+                                .requestMatchers("/v1/api/members/logout").authenticated()
+
+                                // All other requests require authentication
+                                .anyRequest().authenticated();
+        }
+
+        @Bean
+        public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
+
+                // Configure CORS settings
+                config.addAllowedHeader("*");
+                config.addAllowedMethod("*");
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedOrigins(List.of(ALLOWED_ORIGINS));
+                config.addExposedHeader(HttpHeaders.AUTHORIZATION);
+                config.setAllowCredentials(true);
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+                return source;
+        }
 }

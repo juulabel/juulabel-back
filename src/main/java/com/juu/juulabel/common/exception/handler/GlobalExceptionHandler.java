@@ -12,6 +12,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Arrays;
@@ -49,8 +50,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public void handle(NoResourceFoundException e) {
+    public ResponseEntity<CommonResponse<String>> handle(NoResourceFoundException e) {
         log.warn("NoResourceFoundException : {}", e.getMessage());
+        return CommonResponse.fail(ErrorCode.NOT_FOUND);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -68,5 +70,21 @@ public class GlobalExceptionHandler {
             errorDetails = exception.getMessage();
         }
         return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, errorDetails);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CommonResponse<String>> handle(MethodArgumentTypeMismatchException e) {
+        log.error("MethodArgumentTypeMismatchException :", e);
+        
+        // Check if the underlying cause is a BaseException
+        Throwable cause = e.getCause();
+        while (cause != null) {
+            if (cause instanceof BaseException baseException) {
+                return CommonResponse.fail(baseException.getErrorCode());
+            }
+            cause = cause.getCause();
+        }
+        
+        return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, e.getMessage());
     }
 }

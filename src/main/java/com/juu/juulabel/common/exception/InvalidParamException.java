@@ -1,6 +1,5 @@
 package com.juu.juulabel.common.exception;
 
-
 import com.juu.juulabel.common.exception.code.ErrorCode;
 
 public class InvalidParamException extends BaseException {
