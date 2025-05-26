@@ -1,5 +1,6 @@
 package com.juu.juulabel.common.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -13,14 +14,29 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration("localhost", 6379);
+    @Value("${spring.data.redis.host}")
+    private String redisHost;
 
-        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-                .useSsl()
-                .disablePeerVerification() // trust any certificate (disable hostname check)
-                .build();
+    @Value("${spring.data.redis.port}")
+    private int redisPort;
+
+    @Value("${spring.data.redis.ssl.enabled}")
+    private boolean sslEnabled;
+
+    @Bean
+    LettuceConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
+
+        LettuceClientConfiguration clientConfig;
+
+        if (sslEnabled) {
+            clientConfig = LettuceClientConfiguration.builder()
+                    .useSsl()
+                    .disablePeerVerification() // trust any certificate (disable hostname check)
+                    .build();
+        } else {
+            clientConfig = LettuceClientConfiguration.builder().build();
+        }
 
         return new LettuceConnectionFactory(config, clientConfig);
     }
