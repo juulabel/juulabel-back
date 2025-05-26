@@ -37,7 +37,7 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
 
     // IPv6 pattern (simplified)
     private static final Pattern IPV6_PATTERN = Pattern.compile(
-            "^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$");
+            "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|:((:[0-9a-fA-F]{1,4}){1,7}|:)|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})$");
 
     /**
      * Private constructor to prevent instantiation
