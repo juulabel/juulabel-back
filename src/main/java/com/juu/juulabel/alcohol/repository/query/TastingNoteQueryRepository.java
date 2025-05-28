@@ -16,6 +16,7 @@ import com.juu.juulabel.tastingnote.request.TastingNoteSummary;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -47,7 +48,10 @@ public class TastingNoteQueryRepository {
     QTastingNoteLike tastingNoteLike = QTastingNoteLike.tastingNoteLike;
     QTastingNoteComment tastingNoteComment = QTastingNoteComment.tastingNoteComment;
 
-    public Slice<AlcoholicDrinksSummary> findAllAlcoholicDrinks(String search, String lastAlcoholicDrinksName, int pageSize) {
+    private static final String THUMBNAIL_PATH = "thumbnailPath";
+
+    public Slice<AlcoholicDrinksSummary> findAllAlcoholicDrinks(String search, String lastAlcoholicDrinksName,
+            int pageSize) {
         List<AlcoholicDrinksSummary> alcoholicDrinksList = jpaQueryFactory
                 .select(
                         Projections.constructor(
@@ -59,24 +63,19 @@ public class TastingNoteQueryRepository {
                                 Projections.constructor(
                                         AlcoholTypeSummary.class,
                                         alcoholType.id,
-                                        alcoholType.name
-                                ),
+                                        alcoholType.name),
                                 Projections.constructor(
                                         BrewerySummary.class,
                                         brewery.id,
                                         brewery.name,
                                         brewery.region,
-                                        brewery.message
-                                )
-                        )
-                )
+                                        brewery.message)))
                 .from(alcoholicDrinks)
                 .innerJoin(alcoholType).on(alcoholicDrinks.alcoholType.eq(alcoholType))
                 .innerJoin(brewery).on(alcoholicDrinks.brewery.eq(brewery))
                 .where(
                         containSearch(alcoholicDrinks, search),
-                        noOffsetAlcoholicDrinksName(alcoholicDrinks, lastAlcoholicDrinksName)
-                )
+                        noOffsetAlcoholicDrinksName(alcoholicDrinks, lastAlcoholicDrinksName))
                 .orderBy(alcoholicDrinksNameAsc(alcoholicDrinks))
                 .limit(pageSize + 1L)
                 .fetch();
@@ -91,36 +90,32 @@ public class TastingNoteQueryRepository {
 
     public Slice<TastingNoteSummary> getAllTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
         List<TastingNoteSummary> tastingNoteSummaryList = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    TastingNoteSummary.class,
-                    tastingNote.id,
-                    tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
-                    Projections.constructor(
-                        MemberInfo.class,
-                        tastingNote.member.id,
-                        tastingNote.member.nickname,
-                        tastingNote.member.profileImage
-                    ),
-                    tastingNoteImage.imagePath.as("thumbnailPath"),
-                    tastingNote.alcoholDrinksInfo.alcoholTypeName,
-                    tastingNote.createdAt,
-                    hasMultipleImagesSubQuery(tastingNote, tastingNoteImage)
-                )
-            )
-            .from(tastingNote)
-            .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
-                .and(tastingNoteImage.seq.eq(1))
-                .and(isNotDeleted(tastingNoteImage)))
-            .where(
-                isNotPrivateOrAuthor(tastingNote, member),
-                isNotDeleted(tastingNote),
-                noOffsetByTastingNoteId(tastingNote, lastTastingNoteId)
-            )
-            .groupBy(tastingNote.id)
-            .orderBy(tastingNote.id.desc())
-            .limit(pageSize + 1L)
-            .fetch();
+                .select(
+                        Projections.constructor(
+                                TastingNoteSummary.class,
+                                tastingNote.id,
+                                tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
+                                Projections.constructor(
+                                        MemberInfo.class,
+                                        tastingNote.member.id,
+                                        tastingNote.member.nickname,
+                                        tastingNote.member.profileImage),
+                                tastingNoteImage.imagePath.as(THUMBNAIL_PATH),
+                                tastingNote.alcoholDrinksInfo.alcoholTypeName,
+                                tastingNote.createdAt,
+                                hasMultipleImagesSubQuery(tastingNote, tastingNoteImage)))
+                .from(tastingNote)
+                .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
+                        .and(tastingNoteImage.seq.eq(1))
+                        .and(isNotDeleted(tastingNoteImage)))
+                .where(
+                        getPrivacyCondition(tastingNote, member),
+                        isNotDeleted(tastingNote),
+                        noOffsetByTastingNoteId(tastingNote, lastTastingNoteId))
+                .groupBy(tastingNote.id)
+                .orderBy(tastingNote.id.desc())
+                .limit(pageSize + 1L)
+                .fetch();
 
         boolean hasNext = tastingNoteSummaryList.size() > pageSize;
         if (hasNext) {
@@ -130,40 +125,37 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(tastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public Slice<AlcoholicDrinksTastingNoteSummary> getAllTastingNotesByAlcoholicDrinksId(Member member, Long lastTastingNoteId, int pageSize, Long alcoholicDrinksId) {
+    public Slice<AlcoholicDrinksTastingNoteSummary> getAllTastingNotesByAlcoholicDrinksId(Member member,
+            Long lastTastingNoteId, int pageSize, Long alcoholicDrinksId) {
         List<AlcoholicDrinksTastingNoteSummary> tastingNoteSummaryList = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    AlcoholicDrinksTastingNoteSummary.class,
-                    tastingNote.id,
-                    tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
-                    Projections.constructor(
-                        MemberInfo.class,
-                        tastingNote.member.id,
-                        tastingNote.member.nickname,
-                        tastingNote.member.profileImage
-                    ),
-                    tastingNoteImage.imagePath.as("thumbnailPath"),
-                    tastingNote.alcoholDrinksInfo.alcoholTypeName,
-                    tastingNote.createdAt,
-                    hasMultipleImagesSubQuery(tastingNote, tastingNoteImage),
-                    alcoholicDrinks.tastingNoteCount
-                )
-            )
-            .from(tastingNote)
-            .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
-                .and(tastingNoteImage.seq.eq(1))
-                .and(isNotDeleted(tastingNoteImage)))
-            .where(
-                isNotPrivateOrAuthor(tastingNote, member),
-                isNotDeleted(tastingNote),
-                noOffsetByTastingNoteId(tastingNote, lastTastingNoteId),
-                tastingNote.alcoholicDrinks.id.eq(alcoholicDrinksId)
-            )
-            .groupBy(tastingNote.id)
-            .orderBy(tastingNote.id.desc())
-            .limit(pageSize + 1L)
-            .fetch();
+                .select(
+                        Projections.constructor(
+                                AlcoholicDrinksTastingNoteSummary.class,
+                                tastingNote.id,
+                                tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
+                                Projections.constructor(
+                                        MemberInfo.class,
+                                        tastingNote.member.id,
+                                        tastingNote.member.nickname,
+                                        tastingNote.member.profileImage),
+                                tastingNoteImage.imagePath.as(THUMBNAIL_PATH),
+                                tastingNote.alcoholDrinksInfo.alcoholTypeName,
+                                tastingNote.createdAt,
+                                hasMultipleImagesSubQuery(tastingNote, tastingNoteImage),
+                                alcoholicDrinks.tastingNoteCount))
+                .from(tastingNote)
+                .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
+                        .and(tastingNoteImage.seq.eq(1))
+                        .and(isNotDeleted(tastingNoteImage)))
+                .where(
+                        getPrivacyCondition(tastingNote, member),
+                        isNotDeleted(tastingNote),
+                        noOffsetByTastingNoteId(tastingNote, lastTastingNoteId),
+                        tastingNote.alcoholicDrinks.id.eq(alcoholicDrinksId))
+                .groupBy(tastingNote.id)
+                .orderBy(tastingNote.id.desc())
+                .limit(pageSize + 1L)
+                .fetch();
 
         boolean hasNext = tastingNoteSummaryList.size() > pageSize;
         if (hasNext) {
@@ -175,37 +167,33 @@ public class TastingNoteQueryRepository {
 
     public Slice<MyTastingNoteSummary> getAllMyTastingNotes(Member member, Long lastTastingNoteId, int pageSize) {
         List<MyTastingNoteSummary> myTastingNoteSummaryList = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    MyTastingNoteSummary.class,
-                    tastingNote.id,
-                    tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
-                    Projections.constructor(
-                        MemberInfo.class,
-                        tastingNote.member.id,
-                        tastingNote.member.nickname,
-                        tastingNote.member.profileImage
-                    ),
-                    tastingNoteImage.imagePath.as("thumbnailPath"),
-                    tastingNote.alcoholDrinksInfo.alcoholTypeName,
-                    tastingNote.createdAt,
-                    hasMultipleImagesSubQuery(tastingNote, tastingNoteImage),
-                    tastingNote.isPrivate
-                )
-            )
-            .from(tastingNote)
-            .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
-                .and(tastingNoteImage.seq.eq(1))
-                .and(isNotDeleted(tastingNoteImage)))
-            .where(
-                tastingNote.member.eq(member),
-                isNotDeleted(tastingNote),
-                noOffsetByTastingNoteId(tastingNote, lastTastingNoteId)
-            )
-            .groupBy(tastingNote.id)
-            .orderBy(tastingNote.id.desc())
-            .limit(pageSize + 1L)
-            .fetch();
+                .select(
+                        Projections.constructor(
+                                MyTastingNoteSummary.class,
+                                tastingNote.id,
+                                tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
+                                Projections.constructor(
+                                        MemberInfo.class,
+                                        tastingNote.member.id,
+                                        tastingNote.member.nickname,
+                                        tastingNote.member.profileImage),
+                                tastingNoteImage.imagePath.as(THUMBNAIL_PATH),
+                                tastingNote.alcoholDrinksInfo.alcoholTypeName,
+                                tastingNote.createdAt,
+                                hasMultipleImagesSubQuery(tastingNote, tastingNoteImage),
+                                tastingNote.isPrivate))
+                .from(tastingNote)
+                .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
+                        .and(tastingNoteImage.seq.eq(1))
+                        .and(isNotDeleted(tastingNoteImage)))
+                .where(
+                        tastingNote.member.eq(member),
+                        isNotDeleted(tastingNote),
+                        noOffsetByTastingNoteId(tastingNote, lastTastingNoteId))
+                .groupBy(tastingNote.id)
+                .orderBy(tastingNote.id.desc())
+                .limit(pageSize + 1L)
+                .fetch();
 
         boolean hasNext = myTastingNoteSummaryList.size() > pageSize;
         if (hasNext) {
@@ -215,39 +203,36 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(myTastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public Slice<TastingNoteSummary> getAllTastingNotesByMember(Member loginMember, Long memberId, Long lastTastingNoteId, int pageSize) {
+    public Slice<TastingNoteSummary> getAllTastingNotesByMember(Member loginMember, Long memberId,
+            Long lastTastingNoteId, int pageSize) {
         List<TastingNoteSummary> tastingNoteSummaryList = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    TastingNoteSummary.class,
-                    tastingNote.id,
-                    tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
-                    Projections.constructor(
-                        MemberInfo.class,
-                        tastingNote.member.id,
-                        tastingNote.member.nickname,
-                        tastingNote.member.profileImage
-                    ),
-                    tastingNoteImage.imagePath.as("thumbnailPath"),
-                    tastingNote.alcoholDrinksInfo.alcoholTypeName,
-                    tastingNote.createdAt,
-                    hasMultipleImagesSubQuery(tastingNote, tastingNoteImage)
-                )
-            )
-            .from(tastingNote)
-            .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
-                .and(tastingNoteImage.seq.eq(1))
-                .and(isNotDeleted(tastingNoteImage)))
-            .where(
-                tastingNote.member.id.eq(memberId),
-                isNotPrivateOrAuthor(tastingNote, loginMember),
-                isNotDeleted(tastingNote),
-                noOffsetByTastingNoteId(tastingNote, lastTastingNoteId)
-            )
-            .groupBy(tastingNote.id)
-            .orderBy(tastingNote.id.desc())
-            .limit(pageSize + 1L)
-            .fetch();
+                .select(
+                        Projections.constructor(
+                                TastingNoteSummary.class,
+                                tastingNote.id,
+                                tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
+                                Projections.constructor(
+                                        MemberInfo.class,
+                                        tastingNote.member.id,
+                                        tastingNote.member.nickname,
+                                        tastingNote.member.profileImage),
+                                tastingNoteImage.imagePath.as(THUMBNAIL_PATH),
+                                tastingNote.alcoholDrinksInfo.alcoholTypeName,
+                                tastingNote.createdAt,
+                                hasMultipleImagesSubQuery(tastingNote, tastingNoteImage)))
+                .from(tastingNote)
+                .leftJoin(tastingNoteImage).on(tastingNoteImage.tastingNote.eq(tastingNote)
+                        .and(tastingNoteImage.seq.eq(1))
+                        .and(isNotDeleted(tastingNoteImage)))
+                .where(
+                        tastingNote.member.id.eq(memberId),
+                        getPrivacyCondition(tastingNote, loginMember),
+                        isNotDeleted(tastingNote),
+                        noOffsetByTastingNoteId(tastingNote, lastTastingNoteId))
+                .groupBy(tastingNote.id)
+                .orderBy(tastingNote.id.desc())
+                .limit(pageSize + 1L)
+                .fetch();
 
         boolean hasNext = tastingNoteSummaryList.size() > pageSize;
         if (hasNext) {
@@ -257,45 +242,41 @@ public class TastingNoteQueryRepository {
         return new SliceImpl<>(tastingNoteSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public long countBySearch (String search){
+    public long countBySearch(String search) {
         return jpaQueryFactory
                 .select(alcoholicDrinks.count())
                 .from(alcoholicDrinks)
                 .where(
-                        alcoholicDrinks.name.contains(search).
-                                or(brewery.name.contains(search)),
-                        isNotDeleted(alcoholicDrinks)
-                )
+                        alcoholicDrinks.name.contains(search).or(brewery.name.contains(search)),
+                        isNotDeleted(alcoholicDrinks))
                 .fetchOne();
     }
 
     public long getMyTastingNoteCount(Member member) {
         Long tastingNoteCount = jpaQueryFactory
-            .select(tastingNote.count())
-            .from(tastingNote)
-            .where(
-                tastingNote.member.eq(member),
-                isNotDeleted(tastingNote)
-            )
-            .fetchOne();
+                .select(tastingNote.count())
+                .from(tastingNote)
+                .where(
+                        tastingNote.member.eq(member),
+                        isNotDeleted(tastingNote))
+                .fetchOne();
 
         return Optional.ofNullable(tastingNoteCount)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
     }
 
     public long getTastingNoteCountByMemberId(Long memberId, Member loginMember) {
         Long tastingNoteCount = jpaQueryFactory
-            .select(tastingNote.count())
-            .from(tastingNote)
-            .where(
-                tastingNote.member.id.eq(memberId),
-                isNotPrivateOrAuthor(tastingNote, loginMember),
-                isNotDeleted(tastingNote)
-            )
-            .fetchOne();
+                .select(tastingNote.count())
+                .from(tastingNote)
+                .where(
+                        tastingNote.member.id.eq(memberId),
+                        getPrivacyCondition(tastingNote, loginMember),
+                        isNotDeleted(tastingNote))
+                .fetchOne();
 
         return Optional.ofNullable(tastingNoteCount)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
     }
 
     private OrderSpecifier<String> alcoholicDrinksNameAsc(QAlcoholicDrinks alcoholicDrinks) {
@@ -311,7 +292,8 @@ public class TastingNoteQueryRepository {
                 .or(brewery.name.containsIgnoreCase(search));
     }
 
-    private BooleanExpression noOffsetAlcoholicDrinksName(QAlcoholicDrinks alcoholicDrinks, String lastAlcoholicDrinksName) {
+    private BooleanExpression noOffsetAlcoholicDrinksName(QAlcoholicDrinks alcoholicDrinks,
+            String lastAlcoholicDrinksName) {
         if (Objects.isNull(lastAlcoholicDrinksName)) {
             return null;
         }
@@ -321,6 +303,10 @@ public class TastingNoteQueryRepository {
 
     private BooleanExpression noOffsetByTastingNoteId(QTastingNote tastingNote, Long lastTastingNoteId) {
         return io.jsonwebtoken.lang.Objects.isEmpty(lastTastingNoteId) ? null : tastingNote.id.lt(lastTastingNoteId);
+    }
+
+    private BooleanExpression getPrivacyCondition(QTastingNote tastingNote, Member member) {
+        return Objects.isNull(member) ? isNotPrivate(tastingNote) : isNotPrivateOrAuthor(tastingNote, member);
     }
 
     private BooleanExpression isNotPrivate(QTastingNote tastingNote) {
@@ -339,115 +325,111 @@ public class TastingNoteQueryRepository {
         return tastingNoteImage.deletedAt.isNull();
     }
 
-    private BooleanExpression isNotDeleted (QAlcoholicDrinks alcoholicDrinks){
+    private BooleanExpression isNotDeleted(QAlcoholicDrinks alcoholicDrinks) {
         return alcoholicDrinks.deletedAt.isNull();
     }
 
     private BooleanExpression hasMultipleImagesSubQuery(QTastingNote tastingNote, QTastingNoteImage tastingNoteImage) {
         return jpaQueryFactory
-            .selectFrom(tastingNoteImage)
-            .where(
-                tastingNoteImage.tastingNote.eq(tastingNote),
-                isNotDeleted(tastingNoteImage)
-            )
-            .groupBy(tastingNoteImage.tastingNote)
-            .having(tastingNoteImage.count().goe(2))
-            .exists();
+                .selectFrom(tastingNoteImage)
+                .where(
+                        tastingNoteImage.tastingNote.eq(tastingNote),
+                        isNotDeleted(tastingNoteImage))
+                .groupBy(tastingNoteImage.tastingNote)
+                .having(tastingNoteImage.count().goe(2))
+                .exists();
     }
 
     public TastingNoteDetailInfo getTastingNoteDetailById(Long tastingNoteId, Member member) {
         TastingNoteDetailInfo tastingNoteDetailInfo = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    TastingNoteDetailInfo.class,
-                    tastingNote.id,
-                    Projections.constructor(
-                        MemberInfo.class,
-                        tastingNote.member.id,
-                        tastingNote.member.nickname,
-                        tastingNote.member.profileImage
-                    ),
-                    tastingNote.createdAt,
-                    tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
-                    tastingNote.alcoholDrinksInfo.alcoholTypeName,
-                    tastingNote.alcoholDrinksInfo.alcoholContent,
-                    tastingNote.alcoholDrinksInfo.breweryName,
-                    tastingNote.color.rgb,
-//                    getSensoryLevelIds(tastingNote, tastingNoteSensoryLevel, sensoryLevel),
-//                    getScentIds(tastingNote, tastingNoteScent, scent),
-//                    getFlavorLevelIds(tastingNote, tastingNoteFlavorLevel, flavorLevel),
-                    tastingNote.content,
-                    tastingNote.rating,
-                    tastingNoteLike.countDistinct().as("likeCount"),
-                    tastingNoteComment.countDistinct().as("commentCount"),
-                    isLikedSubQuery(tastingNote, member)
-                )
-            )
-            .from(tastingNote)
-            .leftJoin(tastingNoteLike).on(tastingNoteLike.tastingNote.eq(tastingNote))
-            .leftJoin(tastingNoteComment).on(tastingNoteComment.tastingNote.eq(tastingNote))
-            .where(
-                eqId(tastingNote, tastingNoteId),
-                isNotPrivateOrAuthor(tastingNote, member),
-                isNotDeleted(tastingNote)
-            )
-            .groupBy(tastingNote.id)
-            .fetchOne();
+                .select(
+                        Projections.constructor(
+                                TastingNoteDetailInfo.class,
+                                tastingNote.id,
+                                Projections.constructor(
+                                        MemberInfo.class,
+                                        tastingNote.member.id,
+                                        tastingNote.member.nickname,
+                                        tastingNote.member.profileImage),
+                                tastingNote.createdAt,
+                                tastingNote.alcoholDrinksInfo.alcoholicDrinksName,
+                                tastingNote.alcoholDrinksInfo.alcoholTypeName,
+                                tastingNote.alcoholDrinksInfo.alcoholContent,
+                                tastingNote.alcoholDrinksInfo.breweryName,
+                                tastingNote.color.rgb,
+                                // getSensoryLevelIds(tastingNote, tastingNoteSensoryLevel, sensoryLevel),
+                                // getScentIds(tastingNote, tastingNoteScent, scent),
+                                // getFlavorLevelIds(tastingNote, tastingNoteFlavorLevel, flavorLevel),
+                                tastingNote.content,
+                                tastingNote.rating,
+                                tastingNoteLike.countDistinct().as("likeCount"),
+                                tastingNoteComment.countDistinct().as("commentCount"),
+                                isLikedSubQuery(tastingNote, member)))
+                .from(tastingNote)
+                .leftJoin(tastingNoteLike).on(tastingNoteLike.tastingNote.eq(tastingNote))
+                .leftJoin(tastingNoteComment).on(tastingNoteComment.tastingNote.eq(tastingNote))
+                .where(
+                        eqId(tastingNote, tastingNoteId),
+                        getPrivacyCondition(tastingNote, member),
+                        isNotDeleted(tastingNote))
+                .groupBy(tastingNote.id)
+                .fetchOne();
 
         return Optional.ofNullable(tastingNoteDetailInfo)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.TASTING_NOTE_NOT_FOUND));
     }
 
     public List<Long> getSensoryLevelIds(Long tastingNoteId, Member member) {
         return jpaQueryFactory
-            .select(sensoryLevel.id)
-            .from(tastingNoteSensoryLevel)
-            .join(tastingNoteSensoryLevel.sensoryLevel, sensoryLevel)
-            .where(
-                tastingNoteSensoryLevel.tastingNote.eq(tastingNote),
-                eqId(tastingNote, tastingNoteId),
-                isNotPrivateOrAuthor(tastingNote, member),
-                isNotDeleted(tastingNote)
-            )
-            .fetch();
+                .select(sensoryLevel.id)
+                .from(tastingNoteSensoryLevel)
+                .join(tastingNoteSensoryLevel.sensoryLevel, sensoryLevel)
+                .where(
+                        tastingNoteSensoryLevel.tastingNote.eq(tastingNote),
+                        eqId(tastingNote, tastingNoteId),
+                        getPrivacyCondition(tastingNote, member),
+                        isNotDeleted(tastingNote))
+                .fetch();
     }
 
     public List<Long> getScentIds(Long tastingNoteId, Member member) {
         return jpaQueryFactory
-            .select(scent.id)
-            .from(tastingNoteScent)
-            .join(tastingNoteScent.scent, scent)
-            .where(
-                tastingNoteScent.tastingNote.eq(tastingNote),
-                eqId(tastingNote, tastingNoteId),
-                isNotPrivateOrAuthor(tastingNote, member),
-                isNotDeleted(tastingNote)
-            )
-            .fetch();
+                .select(scent.id)
+                .from(tastingNoteScent)
+                .join(tastingNoteScent.scent, scent)
+                .where(
+                        tastingNoteScent.tastingNote.eq(tastingNote),
+                        eqId(tastingNote, tastingNoteId),
+                        getPrivacyCondition(tastingNote, member),
+                        isNotDeleted(tastingNote))
+                .fetch();
     }
 
     public List<Long> getFlavorLevelIds(Long tastingNoteId, Member member) {
         return jpaQueryFactory
-            .select(flavorLevel.id)
-            .from(tastingNoteFlavorLevel)
-            .join(tastingNoteFlavorLevel.flavorLevel, flavorLevel)
-            .where(
-                tastingNoteFlavorLevel.tastingNote.eq(tastingNote),
-                eqId(tastingNote, tastingNoteId),
-                isNotPrivateOrAuthor(tastingNote, member),
-                isNotDeleted(tastingNote)
-            )
-            .fetch();
+                .select(flavorLevel.id)
+                .from(tastingNoteFlavorLevel)
+                .join(tastingNoteFlavorLevel.flavorLevel, flavorLevel)
+                .where(
+                        tastingNoteFlavorLevel.tastingNote.eq(tastingNote),
+                        eqId(tastingNote, tastingNoteId),
+                        getPrivacyCondition(tastingNote, member),
+                        isNotDeleted(tastingNote))
+                .fetch();
     }
 
     private BooleanExpression isLikedSubQuery(QTastingNote tastingNote, Member member) {
+        // 로그인 안한 경우 좋아요 여부 체크 안함
+        if (Objects.isNull(member)) {            
+            return Expressions.FALSE;
+        }
+
         return jpaQueryFactory
-            .selectFrom(tastingNoteLike)
-            .where(
-                tastingNoteLike.tastingNote.eq(tastingNote),
-                tastingNoteLike.member.eq(member)
-            )
-            .exists();
+                .selectFrom(tastingNoteLike)
+                .where(
+                        tastingNoteLike.tastingNote.eq(tastingNote),
+                        tastingNoteLike.member.eq(member))
+                .exists();
     }
 
     private BooleanExpression eqId(QTastingNote tastingNote, Long tastingNoteId) {
@@ -456,11 +438,10 @@ public class TastingNoteQueryRepository {
 
     public Long getAlcoholicDrinksByTastingNoteId(Long tastingNoteId) {
         return jpaQueryFactory
-            .select(alcoholicDrinks.id)
-            .from(tastingNote)
-            .where(
-                eqId(tastingNote, tastingNoteId)
-            )
-            .fetchOne();
+                .select(alcoholicDrinks.id)
+                .from(tastingNote)
+                .where(
+                        eqId(tastingNote, tastingNoteId))
+                .fetchOne();
     }
 }
