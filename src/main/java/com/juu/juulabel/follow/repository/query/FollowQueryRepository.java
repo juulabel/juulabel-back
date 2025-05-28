@@ -203,10 +203,6 @@ public class FollowQueryRepository {
                                 .where(memberAlcoholType.member.eq(loginMember))
                                 .fetch();
 
-                System.out.println("preferredAlcoholTypes = " + preferredAlcoholTypes.stream()
-                                .map(AlcoholType::getId)
-                                .toList());
-
                 List<FollowUser> TastingRecommendUserList1 = jpaQueryFactory
                                 .select(
                                                 Projections.constructor(
