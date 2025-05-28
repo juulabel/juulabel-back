@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -16,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.http.HttpMethod.OPTIONS;
@@ -28,21 +28,27 @@ public class SecurityConfig {
         private final JwtAuthorizationFilter jwtAuthenticationFilter;
         private final JwtExceptionFilter jwtExceptionFilter;
 
-        // Public endpoints that don't require authentication
+        // 완전 공개 엔드 포인트 (우선순위 최상)
         private static final String[] PUBLIC_ENDPOINTS = {
                         "/swagger-ui/**", "/v3/api-docs/**", "/error", "/favicon.ico", "/", "/actuator/**",
-                        "/v1/api/alcohols/**", "/v1/api/terms/**", "/v1/api/images",
-                        "/v1/api/auth/**", "/v1/api/shared-space/tasting-notes/**", "/v1/api/notifications/**",
-                        "/v1/api/daily-lives/**", "/v1/api/alcoholicDrinks/**", "v1/api/follow", "/**",
-                        "/v1/api/reports"
+                        "/v1/api/auth/login/**", "/v1/api/auth/sign-up"
         };
 
-        // Admin-only endpoints
+        // 관리자 전용 엔드포인트
         private static final String[] ADMIN_ENDPOINTS = {
                         "/v1/api/admins/permission/test"
         };
 
-        // Allowed origins for CORS
+        // 인증/인가 필요한 특정 GET 엔드포인트
+        private static final String[] PROTECTED_GET_ENDPOINTS = {
+                        "/v1/api/members/my-info",
+                        "/v1/api/members/my-space",
+                        "/v1/api/members/tasting-notes/my",
+                        "/v1/api/members/daily-lives/my",
+                        "/v1/api/members/alcoholic-drinks/my"
+        };
+
+        // CORS 허용 원본
         private static final String[] ALLOWED_ORIGINS = {
                         "http://localhost:8084",
                         "http://localhost:8080",
@@ -52,9 +58,6 @@ public class SecurityConfig {
                         "https://dev.juulabel.com",
                         "https://qa.juulabel.com",
                         "https://juulabel.com",
-                        "https://juulabel.shop",
-                        "https://juulabel-front.vercel.app/",
-                        "https://juulabel-front-seven.vercel.app/",
                         "https://d3jwyw9rpnxu8p.cloudfront.net"
         };
 
@@ -85,23 +88,28 @@ public class SecurityConfig {
                                 .build();
         }
 
+        // Spring Security processes authorization rules in order, and the first match
+        // wins
         private void configureAuthorization(
                         org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
                 authorize
-                                // Allow OPTIONS requests for CORS preflight
-                                .requestMatchers(OPTIONS, "**").permitAll()
-
-                                // Public endpoints
+                                // 1️⃣ 완전 공개 엔드포인트 (우선순위 최상)
                                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 
-                                // Admin endpoints
+                                // 2️⃣ CORS preflight 요청
+                                .requestMatchers(OPTIONS, "**").permitAll()
+
+                                // 3️⃣ 관리자 전용 엔드포인트
                                 .requestMatchers(ADMIN_ENDPOINTS).hasAuthority(MemberRole.ROLE_ADMIN.name())
 
-                                // Specific authenticated endpoints
-                                .requestMatchers("/v1/api/members/logout").authenticated()
+                                // 4️⃣ 인증이 필요한 특정 GET 엔드포인트
+                                .requestMatchers(HttpMethod.GET, PROTECTED_GET_ENDPOINTS).authenticated();
 
-                                // All other requests require authentication
-                                .anyRequest().authenticated();
+                // 5️⃣ 나머지 GET 요청 (비인가 사용자에게 허용)
+                authorize.requestMatchers(HttpMethod.GET, "**").permitAll();
+
+                // 6️⃣ 나머지 POST, PUT, DELETE 요청 (기본적으로 인증 필요)
+                authorize.anyRequest().authenticated();
         }
 
         @Bean
@@ -111,7 +119,6 @@ public class SecurityConfig {
                 // Configure CORS settings
                 config.addAllowedHeader("*");
                 config.addAllowedMethod("*");
-                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 config.setAllowedOrigins(List.of(ALLOWED_ORIGINS));
                 config.addExposedHeader(HttpHeaders.AUTHORIZATION);
                 config.setAllowCredentials(true);

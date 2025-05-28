@@ -9,9 +9,9 @@ import com.juu.juulabel.tastingnote.domain.QTastingNoteCommentLike;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import io.jsonwebtoken.lang.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -19,6 +19,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,45 +30,41 @@ public class TastingNoteCommentQueryRepository {
     QTastingNoteComment tastingNoteComment = QTastingNoteComment.tastingNoteComment;
     QTastingNoteCommentLike tastingNoteCommentLike = QTastingNoteCommentLike.tastingNoteCommentLike;
 
-    public Slice<CommentSummary> getAllByTastingNoteId(Member member, Long tastingNoteId, Long lastCommentId, int pageSize) {
+    public Slice<CommentSummary> getAllByTastingNoteId(Member member, Long tastingNoteId, Long lastCommentId,
+            int pageSize) {
         QTastingNoteComment reply = new QTastingNoteComment("reply");
         List<CommentSummary> commentSummaryList = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    CommentSummary.class,
-                    tastingNoteComment.content,
-                    tastingNoteComment.id,
-                    Projections.constructor(
-                        MemberInfo.class,
-                        tastingNoteComment.member.id,
-                        tastingNoteComment.member.nickname,
-                        tastingNoteComment.member.profileImage
-                    ),
-                    tastingNoteComment.createdAt,
-                    tastingNoteCommentLike.count().as("likeCount"),
-                    JPAExpressions.select(reply.count())
-                        .from(reply)
-                        .where(
-                            reply.parent.id.eq(tastingNoteComment.id),
-                            isNotDeleted(reply)
-                        ),
-                    isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike),
-                    new CaseBuilder()
-                        .when(tastingNoteComment.deletedAt.isNotNull()).then(true)
-                        .otherwise(false)
-                )
-            )
-            .from(tastingNoteComment)
-            .leftJoin(tastingNoteCommentLike).on(tastingNoteCommentLike.tastingNoteComment.eq(tastingNoteComment))
-            .where(
-                tastingNoteComment.tastingNote.id.eq(tastingNoteId),
-                isNotReply(tastingNoteComment),
-                noOffsetByCommentId(tastingNoteComment, lastCommentId)
-            )
-            .groupBy(tastingNoteComment.id)
-            .orderBy(tastingNoteComment.id.desc())
-            .limit(pageSize + 1L)
-            .fetch();
+                .select(
+                        Projections.constructor(
+                                CommentSummary.class,
+                                tastingNoteComment.content,
+                                tastingNoteComment.id,
+                                Projections.constructor(
+                                        MemberInfo.class,
+                                        tastingNoteComment.member.id,
+                                        tastingNoteComment.member.nickname,
+                                        tastingNoteComment.member.profileImage),
+                                tastingNoteComment.createdAt,
+                                tastingNoteCommentLike.count().as("likeCount"),
+                                JPAExpressions.select(reply.count())
+                                        .from(reply)
+                                        .where(
+                                                reply.parent.id.eq(tastingNoteComment.id),
+                                                isNotDeleted(reply)),
+                                isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike),
+                                new CaseBuilder()
+                                        .when(tastingNoteComment.deletedAt.isNotNull()).then(true)
+                                        .otherwise(false)))
+                .from(tastingNoteComment)
+                .leftJoin(tastingNoteCommentLike).on(tastingNoteCommentLike.tastingNoteComment.eq(tastingNoteComment))
+                .where(
+                        tastingNoteComment.tastingNote.id.eq(tastingNoteId),
+                        isNotReply(tastingNoteComment),
+                        noOffsetByCommentId(tastingNoteComment, lastCommentId))
+                .groupBy(tastingNoteComment.id)
+                .orderBy(tastingNoteComment.id.desc())
+                .limit(pageSize + 1L)
+                .fetch();
 
         boolean hasNext = commentSummaryList.size() > pageSize;
         if (hasNext) {
@@ -77,38 +74,35 @@ public class TastingNoteCommentQueryRepository {
         return new SliceImpl<>(commentSummaryList, PageRequest.ofSize(pageSize), hasNext);
     }
 
-    public Slice<ReplySummary> getAllRepliesByParentId(Member member, Long tastingNoteId, Long tastingNoteCommentId, Long lastReplyId, int pageSize) {
+    public Slice<ReplySummary> getAllRepliesByParentId(Member member, Long tastingNoteId, Long tastingNoteCommentId,
+            Long lastReplyId, int pageSize) {
         List<ReplySummary> replySummaryList = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    ReplySummary.class,
-                    tastingNoteComment.content,
-                    tastingNoteComment.id,
-                    Projections.constructor(
-                        MemberInfo.class,
-                        tastingNoteComment.member.id,
-                        tastingNoteComment.member.nickname,
-                        tastingNoteComment.member.profileImage
-                    ),
-                    tastingNoteComment.createdAt,
-                    tastingNoteCommentLike.count().as("likeCount"),
-                    isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike),
-                    new CaseBuilder()
-                        .when(tastingNoteComment.deletedAt.isNotNull()).then(true)
-                        .otherwise(false)
-                )
-            )
-            .from(tastingNoteComment)
-            .leftJoin(tastingNoteCommentLike).on(tastingNoteCommentLike.tastingNoteComment.eq(tastingNoteComment))
-            .where(
-                tastingNoteComment.tastingNote.id.eq(tastingNoteId),
-                tastingNoteComment.parent.id.eq(tastingNoteCommentId),
-                noOffsetByCommentId(tastingNoteComment, lastReplyId)
-            )
-            .groupBy(tastingNoteComment.id)
-            .orderBy(tastingNoteComment.id.desc())
-            .limit(pageSize + 1L)
-            .fetch();
+                .select(
+                        Projections.constructor(
+                                ReplySummary.class,
+                                tastingNoteComment.content,
+                                tastingNoteComment.id,
+                                Projections.constructor(
+                                        MemberInfo.class,
+                                        tastingNoteComment.member.id,
+                                        tastingNoteComment.member.nickname,
+                                        tastingNoteComment.member.profileImage),
+                                tastingNoteComment.createdAt,
+                                tastingNoteCommentLike.count().as("likeCount"),
+                                isLikedSubQuery(tastingNoteComment, member, tastingNoteCommentLike),
+                                new CaseBuilder()
+                                        .when(tastingNoteComment.deletedAt.isNotNull()).then(true)
+                                        .otherwise(false)))
+                .from(tastingNoteComment)
+                .leftJoin(tastingNoteCommentLike).on(tastingNoteCommentLike.tastingNoteComment.eq(tastingNoteComment))
+                .where(
+                        tastingNoteComment.tastingNote.id.eq(tastingNoteId),
+                        tastingNoteComment.parent.id.eq(tastingNoteCommentId),
+                        noOffsetByCommentId(tastingNoteComment, lastReplyId))
+                .groupBy(tastingNoteComment.id)
+                .orderBy(tastingNoteComment.id.desc())
+                .limit(pageSize + 1L)
+                .fetch();
 
         boolean hasNext = replySummaryList.size() > pageSize;
         if (hasNext) {
@@ -122,14 +116,19 @@ public class TastingNoteCommentQueryRepository {
         return tastingNoteComment.deletedAt.isNull();
     }
 
-    private BooleanExpression isLikedSubQuery(QTastingNoteComment tastingNoteComment, Member member, QTastingNoteCommentLike tastingNoteCommentLike) {
+    private BooleanExpression isLikedSubQuery(QTastingNoteComment tastingNoteComment, Member member,
+            QTastingNoteCommentLike tastingNoteCommentLike) {
+        // 비인가 사용자에 대한 좋아요 조회 처리
+        if (Objects.isNull(member)) {
+            return Expressions.FALSE;            
+        }
+
         return jpaQueryFactory
-            .selectFrom(tastingNoteComment)
-            .where(
-                tastingNoteCommentLike.tastingNoteComment.eq(tastingNoteComment),
-                tastingNoteCommentLike.member.eq(member)
-            )
-            .exists();
+                .selectFrom(tastingNoteComment)
+                .where(
+                        tastingNoteCommentLike.tastingNoteComment.eq(tastingNoteComment),
+                        tastingNoteCommentLike.member.eq(member))
+                .exists();
     }
 
     private BooleanExpression isNotReply(QTastingNoteComment tastingNoteComment) {
@@ -137,6 +136,6 @@ public class TastingNoteCommentQueryRepository {
     }
 
     private BooleanExpression noOffsetByCommentId(QTastingNoteComment tastingNoteComment, Long lastCommentId) {
-        return Objects.isEmpty(lastCommentId) ? null : tastingNoteComment.id.lt(lastCommentId);
+        return Objects.isNull(lastCommentId) ? null : tastingNoteComment.id.lt(lastCommentId);
     }
 }
