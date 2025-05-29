@@ -1,4 +1,4 @@
-package com.juu.juulabel.auth.executor;
+package com.juu.juulabel.redis;
 
 import org.springframework.data.redis.RedisSystemException;
 

@@ -1,4 +1,4 @@
-package com.juu.juulabel.auth.executor;
+package com.juu.juulabel.redis;
 
 import java.util.List;
 import java.util.Map;

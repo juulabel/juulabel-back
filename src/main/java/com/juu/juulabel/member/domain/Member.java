@@ -2,6 +2,9 @@ package com.juu.juulabel.member.domain;
 
 import com.juu.juulabel.common.dto.request.SignUpMemberRequest;
 import com.juu.juulabel.common.dto.request.UpdateProfileRequest;
+import com.juu.juulabel.common.exception.AuthException;
+import com.juu.juulabel.common.exception.BaseException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,9 +17,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-@Table(
-        name = "member"
-)
+@Table(name = "member")
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -25,13 +26,12 @@ public class Member extends BaseTimeEntity {
     private Long id;
 
     @Column(name = "email", nullable = false, unique = true, columnDefinition = "varchar(255) comment '이메일'")
-    // TODO : unique에 대한 커스텀 예외 처리
     private String email;
 
     @Column(name = "name", columnDefinition = "varchar(45) comment '회원 이름'")
     private String name;
 
-    @Column(name = "nickname", nullable = false, columnDefinition = "varchar(45) comment '닉네임'")
+    @Column(name = "nickname", nullable = false, unique = true, columnDefinition = "varchar(45) comment '닉네임'")
     private String nickname;
 
     @Column(name = "introduction", columnDefinition = "varchar(600) comment '자기소개'")
@@ -77,15 +77,15 @@ public class Member extends BaseTimeEntity {
 
     public static Member create(SignUpMemberRequest signUpMemberRequest) {
         return Member.builder()
-            .email(signUpMemberRequest.email())
-            .nickname(signUpMemberRequest.nickname())
-            .gender(signUpMemberRequest.gender())
-            .provider(signUpMemberRequest.provider())
-            .providerId(signUpMemberRequest.providerId())
-            .status(MemberStatus.ACTIVE)
-            .hasBadge(false)
-            .role(MemberRole.ROLE_USER)
-            .build();
+                .email(signUpMemberRequest.email())
+                .nickname(signUpMemberRequest.nickname())
+                .gender(signUpMemberRequest.gender())
+                .provider(signUpMemberRequest.provider())
+                .providerId(signUpMemberRequest.providerId())
+                .status(MemberStatus.ACTIVE)
+                .hasBadge(false)
+                .role(MemberRole.ROLE_USER)
+                .build();
     }
 
     public void updateProfile(UpdateProfileRequest request, String profileImageUrl) {
@@ -104,10 +104,24 @@ public class Member extends BaseTimeEntity {
         return this.equals(other);
     }
 
+    public void validateLoginMember(Provider provider, String providerId) {
+        if (this.deletedAt != null) {
+            throw new BaseException(ErrorCode.MEMBER_WITHDRAWN);
+        }
+        if (!this.provider.equals(provider)) {
+            throw new BaseException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
+        }
+        if (!this.providerId.equals(providerId)) {
+            throw new AuthException(ErrorCode.PROVIDER_ID_MISMATCH);
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
         Member member = (Member) obj;
         return Objects.equals(this.id, member.id);
     }

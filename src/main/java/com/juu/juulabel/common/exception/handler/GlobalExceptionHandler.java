@@ -3,6 +3,8 @@ package com.juu.juulabel.common.exception.handler;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.CustomJwtException;
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
 import io.sentry.Sentry;
@@ -10,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -29,36 +32,43 @@ public class GlobalExceptionHandler {
         return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
+    @ExceptionHandler(InvalidParamException.class)
+    public ResponseEntity<CommonResponse<String>> handle(InvalidParamException e) {
+        return CommonResponse.fail(e.getErrorCode());
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<CommonResponse<String>> handle(AuthException e) {
+        log.error("AuthException :", e);
+        Sentry.captureException(e);
+        return CommonResponse.fail(e.getErrorCode(), e.getMessage());
+    }
+
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<CommonResponse<String>> handle(BaseException e) {
-        log.error("BaseException :", e);
         Sentry.captureException(e);
         return CommonResponse.fail(e.getErrorCode());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CommonResponse<String>> handle(MethodArgumentNotValidException e) {
-        log.error("MethodArgumentNotValidException :", e);
         return CommonResponse.fail(ErrorCode.VALIDATION_ERROR,
                 Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
     }
 
     @ExceptionHandler(CustomJwtException.class)
     public ResponseEntity<CommonResponse<String>> handle(CustomJwtException e) {
-        log.error("CustomJwtException :", e);
         return CommonResponse.fail(e.getErrorCode(), e.getMessage());
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<CommonResponse<String>> handle(NoResourceFoundException e) {
-        log.warn("NoResourceFoundException : {}", e.getMessage());
         return CommonResponse.fail(ErrorCode.NOT_FOUND);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<CommonResponse<String>> handleValidationException(HttpMessageNotReadableException exception) {
         String errorDetails = "";
-        log.error("HttpMessageNotReadableException :", exception);
         if (exception.getCause() instanceof InvalidFormatException invalidFormatException) {
             if (invalidFormatException.getTargetType() != null && invalidFormatException.getTargetType().isEnum()) {
                 errorDetails = String.format("'%s'. 값은 다음 중 하나여야 합니다: %s.",
@@ -74,9 +84,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<CommonResponse<String>> handle(MethodArgumentTypeMismatchException e) {
-        log.error("MethodArgumentTypeMismatchException :", e);
-        
-        // Check if the underlying cause is a BaseException
         Throwable cause = e.getCause();
         while (cause != null) {
             if (cause instanceof BaseException baseException) {
@@ -84,7 +91,7 @@ public class GlobalExceptionHandler {
             }
             cause = cause.getCause();
         }
-        
+
         return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, e.getMessage());
     }
 }
