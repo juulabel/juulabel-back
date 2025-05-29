@@ -69,7 +69,7 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
                             .map(ip -> ip.split(",")[0].trim())
                             .filter(IpAddressExtractor::isValidIpAddress)
                             .findFirst()
-                            .orElse(request.getRemoteAddr());
+                            .orElseGet(request::getRemoteAddr);
 
                     return fallbackIp != null ? fallbackIp : "unknown";
                 });

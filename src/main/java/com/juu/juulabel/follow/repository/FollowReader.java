@@ -22,7 +22,7 @@ public class FollowReader {
 
     public Follow findOrNullByFollowerAndFollowee(final Member follower, final Member followee) {
         return followJpaRepository.findByFollowerAndFollowee(follower, followee)
-                .orElse(null);
+                .orElseGet(() -> null);
     }
 
     public Slice<FollowUser> findAllFollowing(final Member loginMember,

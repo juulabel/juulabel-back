@@ -45,7 +45,6 @@ public enum ErrorCode {
 
     SOCIAL_LINK_NOT_FOUND(HttpStatus.BAD_REQUEST, "소셜 링크를 찾을 수 없습니다."),
     SOCIAL_LINK_ALREADY_USED(HttpStatus.BAD_REQUEST, "소셜 링크가 이미 사용되었습니다."),
-    PROVIDER_MISMATCH(HttpStatus.FORBIDDEN, "Provider 불일치"),
     PROVIDER_ID_MISMATCH(HttpStatus.FORBIDDEN, "소셜 아이디 불일치"),
     DEVICE_ID_MISMATCH(HttpStatus.FORBIDDEN, "Device-Id 불일치"),
     USER_AGENT_MISMATCH(HttpStatus.FORBIDDEN, "User-Agent 불일치"),

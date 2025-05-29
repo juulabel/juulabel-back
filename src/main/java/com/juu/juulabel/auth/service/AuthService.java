@@ -60,9 +60,9 @@ public class AuthService {
         }
 
         Token accessToken = tokenService.createAccessToken(memberOpt)
-                .orElse(new Token(null, null));
+                .orElseGet(() -> new Token(null, null));
 
-        Long memberId = memberOpt.map(Member::getId).orElse(null);
+        Long memberId = memberOpt.map(Member::getId).orElseGet(() -> null);
 
         return new LoginResponse(
                 accessToken,

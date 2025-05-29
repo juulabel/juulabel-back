@@ -71,10 +71,7 @@ public class SocialLink implements Serializable {
 
         // Validate parameters match stored values
         if (!isValidationParametersMatch(provider, providerId, deviceId, userAgent)) {
-            throw new AuthException("Suspicious activity detected Expected: " + this.provider + " "
-                    + this.providerId
-                    + " " + this.deviceId + " " + this.userAgent + " " + "Actual: " + provider + " " + providerId + " "
-                    + deviceId + " " + userAgent);
+            throw new AuthException("Validation failed due to parameter mismatch");
         }
     }
 

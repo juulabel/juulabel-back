@@ -17,7 +17,7 @@ public class AuthConstants {
 
     // Redis Prefix
     public static final String SOCIAL_LINK_PREFIX = "social_link";
-    public static final String REFRESH_TOKEN_HASH_PREFIX = "refresh_toekn";
+    public static final String REFRESH_TOKEN_HASH_PREFIX = "refresh_token";
     public static final String REFRESH_TOKEN_INDEX_PREFIX = "refresh_index";
 
 }
