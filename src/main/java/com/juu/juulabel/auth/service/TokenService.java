@@ -6,6 +6,7 @@ import com.juu.juulabel.auth.repository.RefreshTokenRepository;
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.provider.JwtTokenProvider;
 import com.juu.juulabel.common.util.DeviceIdExtractor;
+import com.juu.juulabel.common.util.HashingUtil;
 import com.juu.juulabel.common.util.IpAddressExtractor;
 import com.juu.juulabel.common.util.UserAgentExtractor;
 import com.juu.juulabel.common.util.HttpResponseUtil;
@@ -68,7 +69,7 @@ public class TokenService {
     @Transactional
     public Token rotateRefreshToken(String oldToken) {
         Member member = jwtTokenProvider.getMemberFromToken(oldToken);
-        String hashedOldToken = jwtTokenProvider.hashToken(oldToken);
+        String hashedOldToken = HashingUtil.hashSha256(oldToken);
 
         RefreshToken newRefreshToken = createRefreshToken(member);
 
@@ -105,7 +106,7 @@ public class TokenService {
 
     private RefreshToken createRefreshToken(Member member) {
         String token = jwtTokenProvider.createRefreshToken(member);
-        String hashedToken = jwtTokenProvider.hashToken(token);
+        String hashedToken = HashingUtil.hashSha256(token);
 
         return RefreshToken.builder()
                 .token(token)

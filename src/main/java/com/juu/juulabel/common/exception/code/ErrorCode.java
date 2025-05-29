@@ -32,15 +32,23 @@ public enum ErrorCode {
     JWT_ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
 
     /**
-     * Authentication
+     * Authorization
      */
     DEVICE_ID_REQUIRED(HttpStatus.BAD_REQUEST, "Device-Id 헤더가 필요합니다."),
-
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Provider를 찾을 수 없습니다."),
+
+    /**
+     * AuthException
+     */
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "토큰을 찾을 수 없습니다."),
-    DEVICE_ID_MISMATCH(HttpStatus.BAD_REQUEST, "Device-Id 불일치"),
-    REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
-    REFRESH_TOKEN_REUSE_DETECTED(HttpStatus.FORBIDDEN, "토큰 재사용 감지"),
+    REFRESH_TOKEN_REUSE_DETECTED(HttpStatus.UNAUTHORIZED, "토큰 재사용 감지"),
+
+    SOCIAL_LINK_NOT_FOUND(HttpStatus.BAD_REQUEST, "소셜 링크를 찾을 수 없습니다."),
+    SOCIAL_LINK_ALREADY_USED(HttpStatus.BAD_REQUEST, "소셜 링크가 이미 사용되었습니다."),
+    PROVIDER_ID_MISMATCH(HttpStatus.FORBIDDEN, "소셜 아이디 불일치"),
+    DEVICE_ID_MISMATCH(HttpStatus.FORBIDDEN, "Device-Id 불일치"),
+    USER_AGENT_MISMATCH(HttpStatus.FORBIDDEN, "User-Agent 불일치"),
+    HIGH_SECURITY_RISK(HttpStatus.FORBIDDEN, "높은 보안 위협이 감지되었습니다."),
 
     /**
      * Admin, Member

@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
 import com.juu.juulabel.auth.domain.RefreshToken;
+import com.juu.juulabel.redis.RedisScriptExecutor;
 
 @Component
 public class SaveRefreshTokenScriptExecutor implements RedisScriptExecutor<Object, RefreshToken> {

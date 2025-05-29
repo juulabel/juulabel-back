@@ -10,6 +10,7 @@ import com.juu.juulabel.member.repository.jpa.MemberQueryRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @Reader
 @RequiredArgsConstructor
@@ -26,6 +27,10 @@ public class MemberReader {
     public Member getByEmail(String email) {
         return memberJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    public Optional<Member> getOptionalByEmail(String email) {
+        return memberJpaRepository.findByEmail(email);
     }
 
     public boolean existsByEmailAndProvider(String email, Provider provider) {

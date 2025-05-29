@@ -24,11 +24,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-
 @Component
 public class JwtTokenProvider {
     private static final String ISSUER = "juulabel";
@@ -137,13 +132,4 @@ public class JwtTokenProvider {
         }
     }
 
-    public String hashToken(String token) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = digest.digest(token.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(hashedBytes);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available", e);
-        }
-    }
 }

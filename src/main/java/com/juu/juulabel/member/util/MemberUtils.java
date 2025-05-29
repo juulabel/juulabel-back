@@ -49,6 +49,22 @@ public class MemberUtils {
     private final AlcoholTypeReader alcoholTypeReader;
     private final MemberTermsWriter memberTermsWriter;
 
+    public void processMemberData(Member member, SignUpMemberRequest signUpRequest) {
+        try {
+            // Process alcohol types if provided
+            if (signUpRequest.alcoholTypeIds() != null && !signUpRequest.alcoholTypeIds().isEmpty()) {
+                processAlcoholTypes(member, signUpRequest);
+            }
+
+            // Process terms agreements if provided
+            if (signUpRequest.termsAgreements() != null && !signUpRequest.termsAgreements().isEmpty()) {
+                processTermsAgreements(member, signUpRequest);
+            }
+        } catch (Exception e) {
+            throw new InvalidParamException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public List<MemberAlcoholType> getMemberAlcoholTypeList(Member member, List<Long> alcoholTypeIdList,
             AlcoholTypeReader alcoholTypeReader) {
         return alcoholTypeIdList.stream()

@@ -15,8 +15,10 @@ import org.springframework.stereotype.Component;
 import com.juu.juulabel.auth.domain.RefreshToken;
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.BaseException;
+import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.util.HttpResponseUtil;
+import com.juu.juulabel.redis.RedisScriptExecutor;
 
 @Component
 public class RotateRefreshTokenScriptExecutor implements RedisScriptExecutor<Object, RefreshToken> {
@@ -52,11 +54,11 @@ public class RotateRefreshTokenScriptExecutor implements RedisScriptExecutor<Obj
     public void handleRedisScriptError(String errorMessage) {
         HttpResponseUtil.addCookie(AuthConstants.REFRESH_TOKEN_HEADER_NAME, "", 0);
         if (errorMessage.contains("OLD_TOKEN_NOT_FOUND")) {
-            throw new BaseException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
+            throw new AuthException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
         } else if (errorMessage.contains("OLD_TOKEN_ALREADY_REVOKED_ALL_TOKENS_INVALIDATED")) {
-            throw new BaseException(ErrorCode.REFRESH_TOKEN_REUSE_DETECTED);
+            throw new AuthException(ErrorCode.REFRESH_TOKEN_REUSE_DETECTED);
         } else if (errorMessage.contains("DEVICE_ID_MISMATCH")) {
-            throw new BaseException(ErrorCode.DEVICE_ID_MISMATCH);
+            throw new AuthException(ErrorCode.DEVICE_ID_MISMATCH);
         } else {
             throw new BaseException(errorMessage, ErrorCode.INTERNAL_SERVER_ERROR);
         }

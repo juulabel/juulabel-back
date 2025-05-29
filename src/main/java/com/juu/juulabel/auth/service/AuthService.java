@@ -5,21 +5,16 @@ import com.juu.juulabel.common.dto.request.WithdrawalRequest;
 import com.juu.juulabel.common.dto.response.LoginResponse;
 import com.juu.juulabel.common.dto.response.RefreshResponse;
 import com.juu.juulabel.common.dto.response.SignUpMemberResponse;
-import com.juu.juulabel.common.exception.InvalidParamException;
-import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.factory.OAuthProviderFactory;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.domain.WithdrawalRecord;
 import com.juu.juulabel.member.repository.MemberReader;
 import com.juu.juulabel.member.repository.MemberWriter;
-import com.juu.juulabel.member.repository.WithdrawalRecordReader;
 import com.juu.juulabel.member.repository.WithdrawalRecordWriter;
-import com.juu.juulabel.member.request.OAuthLoginInfo;
 import com.juu.juulabel.member.token.Token;
 import com.juu.juulabel.member.util.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import com.juu.juulabel.member.domain.Provider;
-import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.member.request.OAuthUser;
 import com.juu.juulabel.member.request.OAuthUserInfo;
 import com.juu.juulabel.common.dto.request.OAuthLoginRequest;
@@ -37,60 +32,65 @@ public class AuthService {
     private final WithdrawalRecordWriter withdrawalRecordWriter;
     private final MemberUtils memberUtils;
     private final OAuthProviderFactory providerFactory;
-    private final WithdrawalRecordReader withdrawalRecordReader;
     private final TokenService tokenService;
+    private final SocialLinkService socialLinkService;
 
     @Transactional
     public LoginResponse login(OAuthLoginRequest oAuthLoginRequest) {
-        OAuthLoginInfo authLoginInfo = oAuthLoginRequest.toDto();
-        Provider provider = authLoginInfo.provider();
+        // Extract OAuth information
+        final OAuthUser oAuthUser = providerFactory.getOAuthUser(oAuthLoginRequest);
 
-        String accessToken = providerFactory.getAccessToken(
-                provider,
-                authLoginInfo.propertyMap().get(AuthConstants.REDIRECT_URI),
-                authLoginInfo.propertyMap().get(AuthConstants.CODE));
+        final Provider provider = oAuthLoginRequest.provider();
+        final String providerId = oAuthUser.id();
+        final String email = oAuthUser.email();
 
-        OAuthUser oAuthUser = providerFactory.getOAuthUser(provider, accessToken);
-        String email = oAuthUser.email();
+        // Check if member exists
+        final Optional<Member> memberOpt = memberReader.getOptionalByEmail(email);
+        final boolean isNewMember = memberOpt.isEmpty();
 
-        validateNotWithdrawnMember(email);
+        if (isNewMember) {
+            socialLinkService.save(email, provider, providerId);
+        } else {
+            // For existing members, validate and create tokens
+            final Member member = memberOpt.get();
+            member.validateLoginMember(provider, providerId);
 
-        boolean isNewMember = !memberReader.existsByEmailAndProvider(email, provider);
-        Optional<Member> memberOpt = isNewMember ? Optional.empty() : Optional.of(memberReader.getByEmail(email));
+            // Create refresh token for login (handles device management)
+            tokenService.createLoginRefreshToken(member);
+        }
 
-        Optional<Token> token = tokenService.createAccessToken(memberOpt);
+        Token accessToken = tokenService.createAccessToken(memberOpt)
+                .orElseGet(() -> new Token(null, null));
 
-        // Create refresh token for existing members
-        memberOpt.ifPresent(member -> tokenService.createLoginRefreshToken(member));
+        Long memberId = memberOpt.map(Member::getId).orElseGet(() -> null);
 
         return new LoginResponse(
-                token.orElse(new Token(null, null)),
+                accessToken,
                 isNewMember,
                 new OAuthUserInfo(
-                        memberOpt.map(Member::getId).orElse(null),
+                        memberId,
                         email,
-                        oAuthUser.id(),
+                        providerId,
                         provider));
     }
 
     @Transactional
     public SignUpMemberResponse signUp(SignUpMemberRequest signUpRequest) {
-        validateSignUpRequest(signUpRequest);
+        socialLinkService.verify(signUpRequest.email(), signUpRequest.provider(), signUpRequest.providerId());
 
-        Member member = Member.create(signUpRequest);
+        final Member member = Member.create(signUpRequest);
         memberWriter.store(member);
 
-        memberUtils.processAlcoholTypes(member, signUpRequest);
-        memberUtils.processTermsAgreements(member, signUpRequest);
+        memberUtils.processMemberData(member, signUpRequest);
 
-        Token token = tokenService.createTokenPair(member);
+        // Create token pair for new member
+        final Token token = tokenService.createTokenPair(member);
 
         return new SignUpMemberResponse(member.getId(), token);
     }
 
-    @Transactional
     public RefreshResponse refresh(String oldToken) {
-        Token newToken = tokenService.rotateRefreshToken(oldToken);
+        final Token newToken = tokenService.rotateRefreshToken(oldToken);
         return new RefreshResponse(newToken.accessToken());
     }
 
@@ -100,26 +100,17 @@ public class AuthService {
 
     @Transactional
     public void deleteAccount(Member loginMember, WithdrawalRequest request, String oldToken) {
+        // Mark member as deleted
         loginMember.deleteAccount();
-        withdrawalRecordWriter.store(
-                WithdrawalRecord.create(request.withdrawalReason(), loginMember.getEmail(), loginMember.getNickname()));
 
+        // Create withdrawal record
+        final WithdrawalRecord withdrawalRecord = WithdrawalRecord.create(
+                request.withdrawalReason(),
+                loginMember.getEmail(),
+                loginMember.getNickname());
+        withdrawalRecordWriter.store(withdrawalRecord);
+
+        // Revoke all tokens
         tokenService.revokeAllRefreshTokens(oldToken);
-    }
-
-    private void validateNotWithdrawnMember(String email) {
-        if (withdrawalRecordReader.existEmail(email)) {
-            throw new InvalidParamException(ErrorCode.MEMBER_WITHDRAWN);
-        }
-    }
-
-    private void validateSignUpRequest(SignUpMemberRequest signUpRequest) {
-        if (memberReader.existActiveNickname(signUpRequest.nickname())) {
-            throw new InvalidParamException(ErrorCode.MEMBER_NICKNAME_DUPLICATE);
-        }
-
-        if (memberReader.existActiveEmail(signUpRequest.email())) {
-            throw new InvalidParamException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
-        }
     }
 }

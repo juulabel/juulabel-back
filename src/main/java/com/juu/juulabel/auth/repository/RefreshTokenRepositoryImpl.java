@@ -2,15 +2,16 @@ package com.juu.juulabel.auth.repository;
 
 import com.juu.juulabel.auth.domain.ClientId;
 import com.juu.juulabel.auth.domain.RefreshToken;
-import com.juu.juulabel.auth.executor.RedisScriptName;
-import com.juu.juulabel.auth.executor.ScriptRegistry;
 import com.juu.juulabel.common.constants.AuthConstants;
+import com.juu.juulabel.redis.RedisScriptName;
+import com.juu.juulabel.redis.ScriptRegistry;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class RedisRefreshTokenRepository implements RefreshTokenRepository {
+public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
 
     private final ScriptRegistry scriptRegistry;
 

@@ -1,6 +1,6 @@
--- KEYS[1] = new token key (e.g., "RefreshToken:{hashedToken}")
--- KEYS[2] = indexKey (e.g., "RefreshIndex:{memberId}:{clientId}:{deviceId}")
--- KEYS[3] = old token key (e.g., "RefreshToken:{hashedToken}")
+-- KEYS[1] = new token key (e.g., "refresh_token:{hashedToken}")
+-- KEYS[2] = indexKey (e.g., "refresh_index:{memberId}:{clientId}:{deviceId}")
+-- KEYS[3] = old token key (e.g., "refresh_token:{hashedToken}")
 -- ARGV[1] = memberId
 -- ARGV[2] = clientId
 -- ARGV[3] = deviceId
@@ -20,7 +20,7 @@ local ttl = tonumber(ARGV[6])
 -- Helper function to revoke all member tokens
 local function revokeAllMemberTokens(memberId)    
     local cursor = "0"
-    local pattern = "RefreshIndex:" .. memberId .. ":*"
+    local pattern = "refresh_index:" .. memberId .. ":*"
 
     repeat
         local result = redis.call("SCAN", cursor, "MATCH", pattern, "COUNT", 100)

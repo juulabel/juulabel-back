@@ -11,6 +11,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
+import com.juu.juulabel.redis.RedisScriptExecutor;
+
 @Component
 public class RevokeRefreshTokenByIndexKeyExecutor implements RedisScriptExecutor<Object, String> {
 

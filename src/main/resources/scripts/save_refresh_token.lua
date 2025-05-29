@@ -1,5 +1,5 @@
--- KEYS[1] = newTokenKey (e.g., "RefreshToken:{hashedToken}")
--- KEYS[2] = indexKey (e.g., "RefreshIndex:{memberId}:{clientId}:{deviceId}")
+-- KEYS[1] = newTokenKey (e.g., "refresh_token:{hashedToken}")
+-- KEYS[2] = indexKey (e.g., "refresh_index:{memberId}:{clientId}:{deviceId}")
 -- ARGV[1] = memberId
 -- ARGV[2] = clientId
 -- ARGV[3] = deviceId
