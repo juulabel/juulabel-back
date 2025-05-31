@@ -4,13 +4,13 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import com.juu.juulabel.auth.domain.SignUpToken;
 import com.juu.juulabel.auth.domain.SocialLink;
 import com.juu.juulabel.auth.repository.SocialLinkRepository;
-import com.juu.juulabel.common.util.DeviceIdExtractor;
 import com.juu.juulabel.common.util.HashingUtil;
+import com.juu.juulabel.common.util.HttpRequestUtil;
 import com.juu.juulabel.common.util.IpAddressExtractor;
-import com.juu.juulabel.common.util.UserAgentExtractor;
-import com.juu.juulabel.member.domain.Provider;
+import com.juu.juulabel.member.request.OAuthUser;
 import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 
@@ -20,26 +20,26 @@ public class SocialLinkService {
 
     private final SocialLinkRepository socialLinkRepository;
 
-    public void save(String email, Provider provider, String providerId) {
+    public void save(OAuthUser oAuthUser, String nonce) {
         SocialLink socialLink = SocialLink.builder()
-                .hashedEmail(HashingUtil.hashSha256(email))
-                .provider(provider)
-                .providerId(providerId)
-                .deviceId(DeviceIdExtractor.getDeviceId())
-                .userAgent(UserAgentExtractor.getUserAgent())
+                .hashedEmail(HashingUtil.hashSha256(oAuthUser.email()))
+                .provider(oAuthUser.provider())
+                .providerId(oAuthUser.id())
+                .deviceId(HttpRequestUtil.getDeviceId())
+                .userAgent(HttpRequestUtil.getUserAgent())
                 .ipAddress(IpAddressExtractor.getClientIpAddress())
+                .nonce(nonce)
                 .build();
         socialLinkRepository.save(socialLink);
     }
 
-    public void verify(String email, Provider provider, String providerId) {
-        String hashedEmail = HashingUtil.hashSha256(email);
+    public void verify(SignUpToken signUpToken) {
+        String hashedEmail = HashingUtil.hashSha256(signUpToken.email());
 
         SocialLink socialLink = socialLinkRepository.findById(hashedEmail)
                 .orElseThrow(() -> new AuthException(ErrorCode.SOCIAL_LINK_NOT_FOUND));
 
-        socialLink.validate(provider, providerId, DeviceIdExtractor.getDeviceId(),
-                UserAgentExtractor.getUserAgent());
+        socialLink.validate(signUpToken);
 
         socialLink.markAsUsed();
         socialLinkRepository.save(socialLink);

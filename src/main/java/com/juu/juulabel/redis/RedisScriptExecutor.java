@@ -2,10 +2,8 @@ package com.juu.juulabel.redis;
 
 import org.springframework.data.redis.RedisSystemException;
 
-import com.juu.juulabel.common.constants.AuthConstants;
-import com.juu.juulabel.common.exception.BaseException;
+import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
-import com.juu.juulabel.common.util.HttpResponseUtil;
 
 import io.lettuce.core.RedisCommandExecutionException;
 
@@ -28,7 +26,6 @@ public interface RedisScriptExecutor<T, R> {
     }
 
     default void handleRedisScriptError(String errorMessage) {
-        HttpResponseUtil.addCookie(AuthConstants.REFRESH_TOKEN_HEADER_NAME, "", 0);
-        throw new BaseException(errorMessage, ErrorCode.INTERNAL_SERVER_ERROR);
+        throw new AuthException(errorMessage, ErrorCode.INTERNAL_SERVER_ERROR);
     }
 }

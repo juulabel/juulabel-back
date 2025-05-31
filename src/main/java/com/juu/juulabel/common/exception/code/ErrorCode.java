@@ -34,8 +34,8 @@ public enum ErrorCode {
     /**
      * Authorization
      */
-    DEVICE_ID_REQUIRED(HttpStatus.BAD_REQUEST, "Device-Id 헤더가 필요합니다."),
-    OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Provider를 찾을 수 없습니다."),
+    DEVICE_ID_REQUIRED(HttpStatus.BAD_REQUEST, "헤더에 Device-Id가 누락되었습니다."),
+    OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "소셜 로그인 경로를 찾을 수 없습니다."),
 
     /**
      * AuthException

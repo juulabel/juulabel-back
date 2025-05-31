@@ -14,6 +14,7 @@ import static com.juu.juulabel.common.constants.AuthConstants.SOCIAL_LINK_PREFIX
 
 import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.common.util.HttpRequestUtil;
 import com.juu.juulabel.member.domain.Provider;
 
 import lombok.Builder;
@@ -43,12 +44,14 @@ public class SocialLink implements Serializable {
 
     private Long usedAt;
 
+    private String nonce;
+
     @TimeToLive(unit = TimeUnit.SECONDS)
     private Long ttl;
 
     @Builder
     public SocialLink(String hashedEmail, Provider provider, String providerId, String deviceId, String userAgent,
-            String ipAddress) {
+            String ipAddress, String nonce) {
         this.hashedEmail = hashedEmail;
         this.provider = provider;
         this.providerId = providerId;
@@ -56,6 +59,7 @@ public class SocialLink implements Serializable {
         this.userAgent = userAgent;
         this.ipAddress = ipAddress;
         this.usedAt = null;
+        this.nonce = nonce;
         this.ttl = SOCIAL_LINK_DURATION.getSeconds();
     }
 
@@ -63,14 +67,15 @@ public class SocialLink implements Serializable {
      * Validates the social link against provided parameters for security purposes.
      * Throws AuthException if validation fails.
      */
-    public void validate(Provider provider, String providerId, String deviceId, String userAgent) {
+    public void validate(SignUpToken signUpToken) {
         // Check if already used
         if (isAlreadyUsed()) {
             throw new AuthException(ErrorCode.SOCIAL_LINK_ALREADY_USED);
         }
 
         // Validate parameters match stored values
-        if (!isValidationParametersMatch(provider, providerId, deviceId, userAgent)) {
+        // DISABLE IN DEVELOPMENT ENVIRONMENT
+        if (!isValidationParametersMatch(signUpToken)) {
             throw new AuthException("Validation failed due to parameter mismatch");
         }
     }
@@ -97,11 +102,11 @@ public class SocialLink implements Serializable {
      * Checks if validation parameters match stored values.
      * Uses efficient short-circuit evaluation.
      */
-    private boolean isValidationParametersMatch(Provider provider, String providerId, String deviceId,
-            String userAgent) {
-        return Objects.equals(this.provider, provider) &&
-                Objects.equals(this.providerId, providerId) &&
-                Objects.equals(this.deviceId, deviceId) &&
-                Objects.equals(this.userAgent, userAgent);
+    private boolean isValidationParametersMatch(SignUpToken signUpToken) {
+        return Objects.equals(this.provider, signUpToken.provider()) &&
+                Objects.equals(this.providerId, signUpToken.providerId()) &&
+                Objects.equals(this.deviceId, HttpRequestUtil.getDeviceId()) &&
+                Objects.equals(this.userAgent, HttpRequestUtil.getUserAgent()) &&
+                Objects.equals(this.nonce, signUpToken.nonce());
     }
 }

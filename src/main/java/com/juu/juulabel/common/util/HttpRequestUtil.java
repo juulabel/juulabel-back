@@ -1,21 +1,27 @@
 package com.juu.juulabel.common.util;
 
+import org.springframework.http.HttpHeaders;
+
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+
 import jakarta.servlet.http.HttpServletRequest;
 
-/**
- * Utility class for device ID extraction
- */
-public final class DeviceIdExtractor extends AbstractHttpUtil {
+public class HttpRequestUtil extends AbstractHttpUtil {
 
     private static final String DEVICE_ID_HEADER_NAME = "Device-Id";
 
-    /**
-     * Private constructor to prevent instantiation
-     */
-    private DeviceIdExtractor() {
+    private HttpRequestUtil() {
         super();
+    }
+
+    public static boolean isPathMatch(String path) {
+        return getCurrentRequest().getRequestURI().startsWith(path);
+    }
+
+    public static String getAuthorization() {
+        HttpServletRequest request = getCurrentRequest();
+        return request.getHeader(HttpHeaders.AUTHORIZATION);
     }
 
     /**
@@ -32,4 +38,15 @@ public final class DeviceIdExtractor extends AbstractHttpUtil {
         }
         return deviceId.trim();
     }
-} 
+
+    /**
+     * Extract user agent from request headers
+     * 
+     * @return user agent string from User-Agent header
+     */
+
+    public static String getUserAgent() {
+        HttpServletRequest request = getCurrentRequest();
+        return request.getHeader(HttpHeaders.USER_AGENT);
+    }
+}

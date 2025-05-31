@@ -5,6 +5,8 @@ import com.juu.juulabel.common.dto.request.UpdateProfileRequest;
 import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
+import com.juu.juulabel.member.request.OAuthUser;
+import com.juu.juulabel.auth.domain.SignUpToken;
 import com.juu.juulabel.common.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -75,13 +77,13 @@ public class Member extends BaseTimeEntity {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '탈퇴 일시'")
     private LocalDateTime deletedAt;
 
-    public static Member create(SignUpMemberRequest signUpMemberRequest) {
+    public static Member create(SignUpMemberRequest signUpMemberRequest, SignUpToken signUpToken) {
         return Member.builder()
-                .email(signUpMemberRequest.email())
+                .email(signUpToken.email())
                 .nickname(signUpMemberRequest.nickname())
                 .gender(signUpMemberRequest.gender())
-                .provider(signUpMemberRequest.provider())
-                .providerId(signUpMemberRequest.providerId())
+                .provider(signUpToken.provider())
+                .providerId(signUpToken.providerId())
                 .status(MemberStatus.ACTIVE)
                 .hasBadge(false)
                 .role(MemberRole.ROLE_USER)
@@ -104,14 +106,14 @@ public class Member extends BaseTimeEntity {
         return this.equals(other);
     }
 
-    public void validateLoginMember(Provider provider, String providerId) {
+    public void validateLoginMember(OAuthUser oAuthUser) {
         if (this.deletedAt != null) {
             throw new BaseException(ErrorCode.MEMBER_WITHDRAWN);
         }
-        if (!this.provider.equals(provider)) {
+        if (!this.provider.equals(oAuthUser.provider())) {
             throw new BaseException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
         }
-        if (!this.providerId.equals(providerId)) {
+        if (!this.providerId.equals(oAuthUser.id())) {
             throw new AuthException(ErrorCode.PROVIDER_ID_MISMATCH);
         }
     }

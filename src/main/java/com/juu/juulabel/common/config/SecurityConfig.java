@@ -14,6 +14,8 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -25,13 +27,13 @@ import static org.springframework.http.HttpMethod.OPTIONS;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-        private final JwtAuthorizationFilter jwtAuthenticationFilter;
+        private final JwtAuthorizationFilter jwtAuthorizationFilter;
         private final JwtExceptionFilter jwtExceptionFilter;
 
         // 완전 공개 엔드 포인트 (우선순위 최상)
         private static final String[] PUBLIC_ENDPOINTS = {
                         "/swagger-ui/**", "/v3/api-docs/**", "/error", "/favicon.ico", "/", "/actuator/**",
-                        "/v1/api/auth/login/**", "/v1/api/auth/sign-up"
+                        "/v1/api/auth/refresh", "/v1/api/auth/login/**"
         };
 
         // 관리자 전용 엔드포인트
@@ -64,8 +66,13 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 return http
-                                // Disable unnecessary features for stateless API
-                                .csrf(AbstractHttpConfigurer::disable)
+
+                                .csrf(csrf -> csrf
+                                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                                                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                                                .requireCsrfProtectionMatcher(request -> request.getServletPath()
+                                                                .equals("/v1/api/auth/refresh")))
+
                                 .httpBasic(AbstractHttpConfigurer::disable)
                                 .formLogin(AbstractHttpConfigurer::disable)
                                 .sessionManagement(session -> session
@@ -82,7 +89,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(this::configureAuthorization)
 
                                 // Add custom filters
-                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                                 .addFilterBefore(jwtExceptionFilter, JwtAuthorizationFilter.class)
 
                                 .build();
@@ -121,6 +128,7 @@ public class SecurityConfig {
                 config.addAllowedMethod("*");
                 config.setAllowedOrigins(List.of(ALLOWED_ORIGINS));
                 config.addExposedHeader(HttpHeaders.AUTHORIZATION);
+                config.addExposedHeader("X-XSRF-TOKEN");
                 config.setAllowCredentials(true);
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

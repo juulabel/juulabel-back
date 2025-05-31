@@ -1,5 +1,6 @@
 package com.juu.juulabel.auth.controller;
 
+import com.juu.juulabel.auth.domain.SignUpToken;
 import com.juu.juulabel.auth.service.AuthService;
 import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.dto.request.OAuthLoginRequest;
@@ -13,12 +14,12 @@ import com.juu.juulabel.common.response.CommonResponse;
 import com.juu.juulabel.member.domain.Member;
 import com.juu.juulabel.member.domain.Provider;
 
-import io.swagger.v3.oas.annotations.Parameter;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,51 +29,45 @@ public class AuthController implements AuthApiDocs {
     private final AuthService authService;
 
     @Override
-    public ResponseEntity<CommonResponse<LoginResponse>> oauthLogin(
-            @Parameter(description = "OAuth 제공자 (GOOGLE, KAKAO)", required = true) @PathVariable Provider provider,
-            @Valid @RequestBody OAuthLoginRequest requestBody) {
+    public ResponseEntity<CommonResponse<LoginResponse>> login(
+            @PathVariable Provider provider,
+            CsrfToken csrfToken,
+            @Valid @RequestBody OAuthLoginRequest request) {
+        csrfToken.getToken();
 
-        LoginResponse loginResponse = authService.login(requestBody);
-
-        return CommonResponse.success(SuccessCode.SUCCESS, loginResponse);
+        return CommonResponse.success(SuccessCode.SUCCESS, authService.login(request));
     }
 
     @Override
     public ResponseEntity<CommonResponse<SignUpMemberResponse>> signUp(
+            @AuthenticationPrincipal SignUpToken signUpToken,
             @Valid @RequestBody SignUpMemberRequest request) {
 
-        SignUpMemberResponse signUpMemberResponse = authService.signUp(request);
-
-        return CommonResponse.success(SuccessCode.SUCCESS, signUpMemberResponse);
+        return CommonResponse.success(SuccessCode.SUCCESS, authService.signUp(signUpToken, request));
     }
 
     @Override
     public ResponseEntity<CommonResponse<RefreshResponse>> refresh(
-            @Parameter(description = "리프레시 토큰 (쿠키)", required = true) @CookieValue(value = AuthConstants.REFRESH_TOKEN_HEADER_NAME, required = true) String refreshToken,
-            @AuthenticationPrincipal Member member) {
+            @CookieValue(value = AuthConstants.REFRESH_TOKEN_NAME, required = true) String refreshToken) {
 
-        RefreshResponse refreshResponse = authService.refresh(refreshToken);
-
-        return CommonResponse.success(SuccessCode.SUCCESS, refreshResponse);
+        return CommonResponse.success(SuccessCode.SUCCESS, authService.refresh(refreshToken));
     }
 
     @Override
     public ResponseEntity<CommonResponse<Void>> logout(
-            @Parameter(description = "리프레시 토큰 (쿠키)", required = true) @CookieValue(value = AuthConstants.REFRESH_TOKEN_HEADER_NAME, required = true) String refreshToken,
             @AuthenticationPrincipal Member member) {
 
-        authService.logout(refreshToken);
+        authService.logout(member.getId());
 
         return CommonResponse.success(SuccessCode.SUCCESS);
     }
 
     @Override
     public ResponseEntity<CommonResponse<Void>> deleteAccount(
-            @Parameter(description = "리프레시 토큰 (쿠키)", required = true) @CookieValue(value = AuthConstants.REFRESH_TOKEN_HEADER_NAME, required = true) String refreshToken,
             @AuthenticationPrincipal Member member,
             @Valid @RequestBody WithdrawalRequest request) {
 
-        authService.deleteAccount(member, request, refreshToken);
+        authService.deleteAccount(member, request);
 
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }
