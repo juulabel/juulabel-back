@@ -33,10 +33,7 @@ public class OAuthProviderFactory {
     }
 
     public OAuthUser getOAuthUser(OAuthLoginRequest request) {
-
-        System.out.println("request.redirectUri() = " + request.redirectUri());
-        System.out.println("request.code() = " + request.code());
-
+        
         Provider provider = request.provider();
         String accessToken = getOAuthProvider(provider)
                 .getOAuthToken(request.redirectUri(), request.code())
