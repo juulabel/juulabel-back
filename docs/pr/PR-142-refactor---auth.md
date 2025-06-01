@@ -135,9 +135,9 @@ X-CSRF-TOKEN: {csrfToken}
 
 **현재 구현**: 도메인 마이그레이션 전략
 
-- **기존**: `juulabel.com/app`
-- **변경**: `m.juulabel.com`
-- **API 도메인**: `api.juulabel.com`
+- **기존**: `api.juulabel.com`
+- **변경**: `juulabel.com/api`
+- **Front 도메인**: `juulabel.com/app`
 - **SameSite**: CSRF 보호 강화를 위한 Strict 정책
 
 ---

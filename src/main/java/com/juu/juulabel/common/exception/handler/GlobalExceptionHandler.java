@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.InvalidParamException;
-import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
-import com.juu.juulabel.common.util.CookieUtil;
 
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +42,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<CommonResponse<String>> handle(AuthException e) {
         log.error("AuthException :", e);
-        Sentry.captureException(e);
-        CookieUtil.removeCookie(AuthConstants.REFRESH_TOKEN_NAME);
+        Sentry.captureException(e);        
         return CommonResponse.fail(e.getErrorCode(), e.getMessage());
     }
 

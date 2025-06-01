@@ -4,7 +4,6 @@ import com.juu.juulabel.auth.domain.ClientId;
 import com.juu.juulabel.auth.domain.RefreshToken;
 import com.juu.juulabel.auth.repository.RefreshTokenRepository;
 import com.juu.juulabel.common.constants.AuthConstants;
-import com.juu.juulabel.common.properties.CookieProperties;
 import com.juu.juulabel.common.provider.jwt.AccessTokenProvider;
 import com.juu.juulabel.common.provider.jwt.RefreshTokenProvider;
 import com.juu.juulabel.common.provider.jwt.SignupTokenProvider;
@@ -32,7 +31,7 @@ public class TokenService {
     private final RefreshTokenProvider refreshTokenProvider;
     private final SignupTokenProvider signupTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final CookieProperties cookieProperties;
+    private final CookieUtil cookieUtil;
 
     /**
      * Creates and sets tokens for member registration.
@@ -79,8 +78,8 @@ public class TokenService {
         final RefreshToken newRefreshToken = refreshTokenProvider.buildRefreshToken(member);
 
         refreshTokenRepository.rotate(newRefreshToken, hashedOldToken);
-        CookieUtil.addCookie(AuthConstants.REFRESH_TOKEN_NAME, newRefreshToken.getToken(),
-                (int) AuthConstants.REFRESH_TOKEN_DURATION.getSeconds(), cookieProperties.isSecure());
+        cookieUtil.addCookie(AuthConstants.REFRESH_TOKEN_NAME, newRefreshToken.getToken(),
+                (int) AuthConstants.REFRESH_TOKEN_DURATION.getSeconds());
 
         return accessTokenProvider.createToken(member);
     }
@@ -94,7 +93,7 @@ public class TokenService {
     public void logout(Long memberId) {
         final String deviceId = HttpRequestUtil.getDeviceId();
         refreshTokenRepository.revokeByMemberAndDevice(memberId, ClientId.WEB, deviceId);
-        CookieUtil.removeCookie(AuthConstants.REFRESH_TOKEN_NAME);
+        cookieUtil.removeCookie(AuthConstants.REFRESH_TOKEN_NAME);
     }
 
     /**
@@ -106,7 +105,7 @@ public class TokenService {
     @Transactional
     public void withdraw(Long memberId) {
         refreshTokenRepository.revokeAllByMember(memberId);
-        CookieUtil.removeCookie(AuthConstants.REFRESH_TOKEN_NAME);
+        cookieUtil.removeCookie(AuthConstants.REFRESH_TOKEN_NAME);
     }
 
     /**
@@ -123,8 +122,8 @@ public class TokenService {
 
         repositoryOperation.execute(refreshToken);
 
-        CookieUtil.addCookie(AuthConstants.REFRESH_TOKEN_NAME, refreshToken.getToken(),
-                (int) AuthConstants.REFRESH_TOKEN_DURATION.getSeconds(), cookieProperties.isSecure());
+        cookieUtil.addCookie(AuthConstants.REFRESH_TOKEN_NAME, refreshToken.getToken(),
+                (int) AuthConstants.REFRESH_TOKEN_DURATION.getSeconds());
         return accessTokenProvider.createToken(member);
 
     }
