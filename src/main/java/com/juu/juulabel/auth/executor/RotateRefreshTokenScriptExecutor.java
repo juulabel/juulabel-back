@@ -13,11 +13,8 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
 import com.juu.juulabel.auth.domain.RefreshToken;
-import com.juu.juulabel.common.constants.AuthConstants;
-import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
-import com.juu.juulabel.common.util.HttpResponseUtil;
 import com.juu.juulabel.redis.RedisScriptExecutor;
 
 @Component
@@ -26,8 +23,10 @@ public class RotateRefreshTokenScriptExecutor implements RedisScriptExecutor<Obj
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisScript<Object> redisScript;
 
-    public RotateRefreshTokenScriptExecutor(RedisTemplate<String, String> redisTemplate) throws IOException {
+    public RotateRefreshTokenScriptExecutor(RedisTemplate<String, String> redisTemplate)
+            throws IOException {
         this.redisTemplate = redisTemplate;
+
         String scriptText = Files.readString(
                 new ClassPathResource("scripts/rotate_refresh_token.lua").getFile().toPath(), StandardCharsets.UTF_8);
         this.redisScript = RedisScript.of(scriptText, Object.class);
@@ -52,7 +51,6 @@ public class RotateRefreshTokenScriptExecutor implements RedisScriptExecutor<Obj
 
     @Override
     public void handleRedisScriptError(String errorMessage) {
-        HttpResponseUtil.addCookie(AuthConstants.REFRESH_TOKEN_HEADER_NAME, "", 0);
         if (errorMessage.contains("OLD_TOKEN_NOT_FOUND")) {
             throw new AuthException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
         } else if (errorMessage.contains("OLD_TOKEN_ALREADY_REVOKED_ALL_TOKENS_INVALIDATED")) {
@@ -60,7 +58,7 @@ public class RotateRefreshTokenScriptExecutor implements RedisScriptExecutor<Obj
         } else if (errorMessage.contains("DEVICE_ID_MISMATCH")) {
             throw new AuthException(ErrorCode.DEVICE_ID_MISMATCH);
         } else {
-            throw new BaseException(errorMessage, ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new AuthException(errorMessage, ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -17,11 +17,7 @@ import java.util.function.Function;
  */
 public abstract class AbstractHttpUtil {
 
-    /**
-     * Protected constructor to prevent direct instantiation
-     */
     protected AbstractHttpUtil() {
-        throw new AssertionError("Utility class should not be instantiated");
     }
 
     /**

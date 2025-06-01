@@ -7,19 +7,22 @@ import com.juu.juulabel.common.dto.request.OAuthLoginRequest;
 import com.juu.juulabel.common.exception.InvalidParamException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.member.request.OAuthUser;
-import com.juu.juulabel.member.token.OAuthToken;
-
-import lombok.RequiredArgsConstructor;
 
 import com.juu.juulabel.member.domain.Provider;
+
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class OAuthProviderFactory {
 
     private final KakaoProvider kakaoProvider;
     private final GoogleProvider googleProvider;
+
+    public OAuthProviderFactory(KakaoProvider kakaoProvider,
+            GoogleProvider googleProvider) {
+        this.kakaoProvider = kakaoProvider;
+        this.googleProvider = googleProvider;
+    }
 
     private OAuthProvider getOAuthProvider(Provider provider) {
         return switch (provider) {
@@ -29,18 +32,15 @@ public class OAuthProviderFactory {
         };
     }
 
-    public OAuthUser getOAuthUser(OAuthLoginRequest oAuthLoginRequest) {
-        Provider provider = oAuthLoginRequest.provider();
-        String accessToken = getOAuthToken(
-                provider,
-                oAuthLoginRequest.redirectUri(),
-                oAuthLoginRequest.code()).accessToken();
+    public OAuthUser getOAuthUser(OAuthLoginRequest request) {
+        
+        Provider provider = request.provider();
+        String accessToken = getOAuthProvider(provider)
+                .getOAuthToken(request.redirectUri(), request.code())
+                .accessToken();
 
-        return getOAuthProvider(provider).getOAuthUser(accessToken);
+        return getOAuthProvider(provider)
+                .getOAuthUser(accessToken);
+
     }
-
-    private OAuthToken getOAuthToken(Provider provider, String redirectUri, String code) {
-        return getOAuthProvider(provider).getOAuthToken(redirectUri, code);
-    }
-
 }

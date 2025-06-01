@@ -4,14 +4,18 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.CustomJwtException;
 import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.response.CommonResponse;
+import com.juu.juulabel.common.util.CookieUtil;
+
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -41,6 +45,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonResponse<String>> handle(AuthException e) {
         log.error("AuthException :", e);
         Sentry.captureException(e);
+        CookieUtil.removeCookie(AuthConstants.REFRESH_TOKEN_NAME);
         return CommonResponse.fail(e.getErrorCode(), e.getMessage());
     }
 
@@ -91,6 +96,7 @@ public class GlobalExceptionHandler {
             }
             cause = cause.getCause();
         }
+
 
         return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, e.getMessage());
     }
