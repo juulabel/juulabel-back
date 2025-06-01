@@ -31,7 +31,7 @@ import java.io.IOException;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final AccessTokenProvider accessTokenProvider;
-    private final SignupTokenProvider signUpTokenProvider;    
+    private final SignupTokenProvider signUpTokenProvider;
     private final ObjectMapper objectMapper;
 
     // Cache frequently used paths for better performance
@@ -63,10 +63,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         } catch (AuthException e) {
             handleAuthException(response, e);
-            return;
-        } catch (Exception e) {
-            log.error("Unexpected error in JWT filter", e);
-            handleUnexpectedException(response);
             return;
         }
 
@@ -127,14 +123,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private void handleAuthException(HttpServletResponse response, AuthException e) throws IOException {
         writeErrorResponse(response, HttpStatus.UNAUTHORIZED,
                 CommonResponse.fail(e.getErrorCode(), e.getMessage()).getBody());
-    }
-
-    /**
-     * Handle unexpected exceptions
-     */
-    private void handleUnexpectedException(HttpServletResponse response) throws IOException {
-        writeErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR,
-                CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, "인증 처리 중 오류가 발생했습니다.").getBody());
     }
 
     /**

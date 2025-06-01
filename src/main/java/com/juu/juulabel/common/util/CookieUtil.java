@@ -34,9 +34,9 @@ public final class CookieUtil extends AbstractHttpUtil {
      * @param value  the cookie value
      * @param maxAge the cookie max age in seconds
      */
-    public static void addCookie(String name, String value, int maxAge) {
+    public static void addCookie(String name, String value, int maxAge, boolean isSecure) {
         HttpServletResponse response = getCurrentResponse();
-        Cookie cookie = createSecureCookie(name, value, maxAge);
+        Cookie cookie = createSecureCookie(name, value, maxAge, isSecure);
         response.addCookie(cookie);
     }
 
@@ -46,7 +46,7 @@ public final class CookieUtil extends AbstractHttpUtil {
      * @param name the cookie name to remove
      */
     public static void removeCookie(String name) {
-        addCookie(name, "", 0);
+        addCookie(name, "", 0, false);
     }
 
     /**
@@ -57,13 +57,14 @@ public final class CookieUtil extends AbstractHttpUtil {
      * @param maxAge the cookie max age in seconds
      * @return a configured secure cookie
      */
-    private static Cookie createSecureCookie(String name, String value, int maxAge) {
+    private static Cookie createSecureCookie(String name, String value, int maxAge, boolean isSecure) {
         Cookie cookie = new Cookie(name, value);
         cookie.setMaxAge(maxAge);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        // TODO: 추후 환경에 따라 설정 변경 필요
-        // cookie.setSecure(true);
+        cookie.setSecure(isSecure);
+        // TODO: SameSite 설정 필요 (Strict, Lax, None)
+        // cookie.setAttribute("SameSite", "Strict");
         return cookie;
     }
 }

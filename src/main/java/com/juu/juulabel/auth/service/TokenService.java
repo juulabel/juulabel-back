@@ -4,6 +4,7 @@ import com.juu.juulabel.auth.domain.ClientId;
 import com.juu.juulabel.auth.domain.RefreshToken;
 import com.juu.juulabel.auth.repository.RefreshTokenRepository;
 import com.juu.juulabel.common.constants.AuthConstants;
+import com.juu.juulabel.common.properties.CookieProperties;
 import com.juu.juulabel.common.provider.jwt.AccessTokenProvider;
 import com.juu.juulabel.common.provider.jwt.RefreshTokenProvider;
 import com.juu.juulabel.common.provider.jwt.SignupTokenProvider;
@@ -31,6 +32,7 @@ public class TokenService {
     private final RefreshTokenProvider refreshTokenProvider;
     private final SignupTokenProvider signupTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final CookieProperties cookieProperties;
 
     /**
      * Creates and sets tokens for member registration.
@@ -78,7 +80,7 @@ public class TokenService {
 
         refreshTokenRepository.rotate(newRefreshToken, hashedOldToken);
         CookieUtil.addCookie(AuthConstants.REFRESH_TOKEN_NAME, newRefreshToken.getToken(),
-                (int) AuthConstants.REFRESH_TOKEN_DURATION.getSeconds());
+                (int) AuthConstants.REFRESH_TOKEN_DURATION.getSeconds(), cookieProperties.isSecure());
 
         return accessTokenProvider.createToken(member);
     }
@@ -122,7 +124,7 @@ public class TokenService {
         repositoryOperation.execute(refreshToken);
 
         CookieUtil.addCookie(AuthConstants.REFRESH_TOKEN_NAME, refreshToken.getToken(),
-                (int) AuthConstants.REFRESH_TOKEN_DURATION.getSeconds());
+                (int) AuthConstants.REFRESH_TOKEN_DURATION.getSeconds(), cookieProperties.isSecure());
         return accessTokenProvider.createToken(member);
 
     }
