@@ -30,7 +30,7 @@ public class CookieProperties {
      * Default path for cookies.
      * Default: /app
      */
-    private String path = "/app";
+private String path = "/app";
 
     /**
      * Default SameSite attribute for secure cookies.

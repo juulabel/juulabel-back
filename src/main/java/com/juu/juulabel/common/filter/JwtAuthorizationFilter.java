@@ -51,12 +51,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 } else {
                     processAccessToken(authHeader);
                 }
-            } else if (isSignUpRequest()) {
-                // Sign-up requests require authentication
+            } else {
                 throw new AuthException(ErrorCode.INVALID_AUTHENTICATION);
             }
-            // For other requests without auth header, let Spring Security handle
-            // authorization
 
         } catch (CustomJwtException e) {
             handleJwtException(response, e);
