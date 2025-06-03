@@ -40,8 +40,7 @@ public class GoogleProvider implements OAuthProvider {
 
     @Override
     public OAuthUser getOAuthUser(OAuthToken oauthToken) {
-        String accessToken = getBearerToken(oauthToken.accessToken());
-        System.out.println("accessToken: " + accessToken);
+        String accessToken = getBearerToken(oauthToken.accessToken());        
         return googleApiClient.getUserInfo(accessToken);
     }
 

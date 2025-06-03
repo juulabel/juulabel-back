@@ -1,4 +1,4 @@
-# 인증 시스템 보안 강화 및 아키텍처 리팩토링 (PR [#142](https://github.com/juulabel/juulabel-back/pull/144))
+# 인증 시스템 보안 강화 및 아키텍처 리팩토링 (PR [#144](https://github.com/juulabel/juulabel-back/pull/144))
 
 ## TL;DR
 

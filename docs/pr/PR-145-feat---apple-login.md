@@ -1,4 +1,4 @@
-# 애플 로그인 추가 및 소셜 로그인 리팩토링 (PR [#143](https://github.com/juulabel/juulabel-back/pull/143))
+# 애플 로그인 추가 및 소셜 로그인 리팩토링 (PR [#143](https://github.com/juulabel/juulabel-back/pull/145))
 
 ## TL;DR
 

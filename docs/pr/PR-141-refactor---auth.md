@@ -1,129 +1,96 @@
-# 치명적인 보안 패치 및 인증/인가 리팩토링 (PR [#141](https://github.com/juulabel/juulabel-back/pull/143))
+# Auth API 리팩터링 및 인증 전략 고도화 (PR [#141](https://github.com/juulabel/juulabel-back/pull/141))
 
-## TL;DR
+## 📌 Summary
 
-이번 PR은 소셜 로그인 프로세스에 존재했던 **치명적인 보안 취약점**을 해결하고, 불필요한 데이터베이스 호출을 줄이며 도메인 책임을 명확히 했습니다.
+이 PR은 인증 모듈을 보안 중심의 구조로 리디자인하고, 유지보수성 및 확장성을 고려한 API 명세 리팩터링을 포함합니다. 주요 목표는 다음과 같습니다:
 
-| 항목                 | Before                          | After         | 결과                   |
-| :------------------- | :------------------------------ | :------------ | :--------------------- |
-| **보안 위험**        | **높음** (소셜 인증 우회)       | **완화됨**    | **치명적 취약점 해결** |
-| **회원가입 DB 쿼리** | 4회                             | 1회           | **75% 감소**           |
-| **로그인 DB 쿼리**   | 2회                             | 1회           | **50% 감소**           |
-| **이메일 검증**      | 중복 이메일 처리 회원가입에서만 | 로그인도 같이 | **유저 경험 개선**     |
+- 인증 API 도메인의 **명확한 경계 설정**
+- **Refresh Token Rotation** 전략 기반의 인증 안정성 확보
+- **서버 측 세션 관리**로 클라이언트 신뢰 수준 최소화
+- **비정상 로그인 탐지 기반 확장**을 고려한 로깅 구조 설계
 
 ---
 
-## 💥 핵심 문제 해결
+## 1. 구조 리팩터링: 인증 도메인 책임 분리
 
-### 1. 소셜 로그인 우회 취약점 차단
+기존 API는 `/members` 하위에 인증과 사용자 관리 로직이 혼재되어 있어, 도메인 분리에 따른 유지보수 비용이 컸습니다. 다음과 같이 명확히 분리합니다:
 
-**문제점:** 이전에는 사용자가 소셜 인증 핸드셰이크 과정을 완전히 우회할 수 있었습니다. `/v1/api/auth/sign-up` 엔드포인트에 조작된 데이터를 직접 호출함으로써, 실제 검증 없이 계정을 생성할 수 있었습니다.
+| 기존 경로                 | 신규 경로              | 목적                         |
+| ------------------------- | ---------------------- | ---------------------------- |
+| `/v1/api/members/login`   | `/v1/api/auth/login`   | 인증 도메인 분리             |
+| `/v1/api/members/sign-up` | `/v1/api/auth/sign-up` |                              |
+| `/v1/api/members/me`      | `/v1/api/auth/me`      |                              |
+| _(신규)_                  | `/v1/api/auth/refresh` | Refresh Token 재발급         |
+| _(신규)_                  | `/v1/api/auth/logout`  | 서버 측 로그아웃 (세션 종료) |
 
-```javascript
-// 이전 취약점: 검증되지 않은 회원가입 허용
-POST /v1/api/auth/sign-up
-{
-  "email": "compromised@email.com",
-  "nickname": "fake_name",
-  "provider": "GOOGLE",
-  "providerId": "fake_google_id",
-  ...
-}
-```
+💡 **Outcome:** 인증 흐름과 사용자 정보 흐름의 경계가 명확해져 API 소비자 및 테스트 범위가 선명해집니다.
 
-**해결**: TTL 기반 소셜 인증 상태 관리
+---
 
-- 소셜 로그인 시 로그인 정보와 request header로부터 받아올수있는 metatdata를 Redis에 30분 TTL로 저장
-- 회원가입 시 로그인떄와 저장된 정보와 100% 일치하는지 검증
-- 불일치하거나 TTL 만료 시 가입 차단
+## 2. Refresh Token 기반 인증 및 Rotation 전략
 
-### 2. 인증 로직 보완
+### Why Rotation?
 
-**Before**: 기존에는 이미 가입된 이메일의 다른 소셜 로그인을 통한 처리를 회원가입부분에서 검증.
+토큰 도난 시, 고정 Refresh Token 구조는 **세션 탈취 리스크**를 증가시킵니다. 이에 따라 Rotation 전략을 적용합니다.
 
-```java
-boolean isNewMember = !memberReader.existsByEmailAndProvider(email, provider);
-```
+### 동작 방식
 
-**After**: 로그인 과정에서도 검증하여 에러 반환
+- Access Token 만료 시 `/auth/refresh` 호출 → 새 Access + Refresh Token 응답
+- 이전 Refresh Token은 **즉시 폐기** 및 Redis 블랙리스트 등록
+- 동일 토큰 재사용 시 → 인증 실패 (401)
 
-```java
-public void validateLoginMember(Provider provider, String providerId) {
-    if (this.deletedAt != null) {
-        throw new BaseException(ErrorCode.MEMBER_WITHDRAWN);
-    }
-    // 사용자가 등록한 *동일한* 제공업체를 통해 로그인하는지 확인
-    if (!this.provider.equals(provider)) {
-        throw new BaseException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
-    }
-    // 중요: *올바른* 제공업체의 고유 ID 확인
-    if (!this.providerId.equals(providerId)) {
-        throw new AuthException(ErrorCode.PROVIDER_ID_MISMATCH);
-    }
-}
-```
+💡 **보안 장점:** 사용된 토큰은 재사용 불가 → 리플레이 공격 방지 강화
 
-## 3. 데이터베이스 성능 최적화
+---
 
-**Before**: 회원가입 과정에서는 INSERT를 시도하기 전에 닉네임 충돌, 이메일 충돌, 탈퇴 상태를 확인하기 위해 여러 번의 중복된 EXISTS 쿼리가 발생했습니다. 이로 인해 불필요한 데이터베이스 왕복이 발생했습니다.
+## 3. 비정상 로그인 탐지 기반 확장 고려
 
-```java
-// 비효율적: 삽입 전 여러 사전 확인
-boolean nicknameExists = memberRepository.existsByNickname(nickname); // 쿼리 1
-boolean emailExists = memberRepository.existsByEmail(email);       // 쿼리 2
-boolean isWithdrawn = withdrawalRepository.existsByEmail(email); // 쿼리 3
-memberRepository.save(member);                                     // 쿼리 4
-```
+### 수집 항목
 
-**After**: 데이터베이스의 내장된 제약 조건 위반 처리를 활용합니다. INSERT를 직접 시도하고 DataIntegrityViolationException (예: 고유 키 충돌)과 같은 잠재적인 예외 사례를 우아하게 처리합니다. 이 접근 방식은 일반적인 회원가입 흐름을 단일 INSERT 쿼리로 줄입니다.
+- `Device-Id` (필수 헤더)
+- User-Agent, IP (서버 로그 자동 수집)
 
-```java
-// 효율적: 단일 쿼리, DB 제약 조건 활용 (낙관적)
-try {
-    memberRepository.save(member); // 쿼리 1
-} catch (DataIntegrityViolationException e) {
-    // 특정 제약 조건 위반 처리 (예: 이메일/닉네임 중복)
-    handleConstraintViolation(e);
-}
-```
+이 정보는 향후 다음 기능에 활용됩니다:
 
-## 기타 사항
+- 동일 계정 다중 위치/디바이스 로그인 탐지
+- 의심 활동에 대한 보안 알림 트리거
+- 로그인 히스토리 시각화
 
-### 불필요한 DTO 제거
+💡 **시사점:** 인증은 단일 절차가 아닌 보안 트래픽의 출발점이며, 메타데이터 수집이 이후 기능 확장의 기반이 됩니다.
 
-```java
-// 제거된 중간 변환 객체
-public class OAuthLoginInfo { /* 불필요한 래핑 */ }
+---
 
-// 불필요한 변환 발생
-public record OAuthLoginRequest(
-    /* 불필요한 래핑 */
-) {
-    public OAuthLoginInfo toDto() {
-        Map<String, String> propertyMap = Map.of(
-            AuthConstants.CODE, code,
-            AuthConstants.REDIRECT_URI, redirectUri
-        );
-        return new OAuthLoginInfo(provider, propertyMap);
-    }
-}
+## 4. 로그아웃: 서버 중심 세션 종료 방식으로 전환
 
-// 객체 변환 간소화
-final OAuthUser oAuthUser = providerFactory.getOAuthUser(oAuthLoginRequest);
-```
+기존 구조는 클라이언트 측에서 Access Token 제거만으로 로그아웃 처리하였습니다.  
+새로운 구조에서는 명시적 로그아웃 API 호출로 다음 동작 수행:
 
-### AuthExcpetion 추가
+- Redis에 등록된 Refresh Token을 블랙리스트화
+- 이후 해당 토큰 사용 시 인증 실패
 
-기존에는 인증/인가 관련 예외(Authentication, Authorization)를 포함해 모든 예외를 동일한 수준에서 처리하고 있었습니다. 이 방식은 간단하지만 다음과 같은 단점이 있습니다:
+💡 **효과:** 토큰 재사용 방지 → 클라이언트 신뢰도 최소화
 
-❗ 문제점
-• 문제 추적이 어렵다: 인증 관련 문제인지, 비즈니스 로직 문제인지 구분되지 않음
-• 모니터링/알림 설정이 어려움: 특정 보안 이슈에 대한 빠른 탐지가 불가능
-• 책임 경계 불분명: 도메인 계층과 인증 계층의 에러가 동일하게 처리됨
+---
 
-⸻
+## 5. Redis 기반 토큰 관리 및 인프라 구성
 
-🎯 개선 방향: AuthException 정의 및 분리
-• 인증/인가 실패 상황(providerId 불일치, 로그인되지 않은 사용자, 토큰 유효성 문제 등)에 대해 별도 예외 클래스를 정의
-• BaseException으로부터 상속, ErrorCode를 명확히 지정
-• 차후 로그 필터링/슬랙 알림/보안 모니터링 등에서 인증 이슈만 별도로 추적 가능
+| 항목        | 내용                                                 |
+| ----------- | ---------------------------------------------------- |
+| 저장소 구성 | AWS ElastiCache (Valkey)                             |
+| 접근 방식   | VPC 내부 `socat + SSM 포트포워딩` 기반 접속          |
+| 라이브러리  | `spring-data-redis (lettuce)`                        |
+| 관리 전략   | TTL 기반 자동 만료 + Lua Script 기반 블랙리스트 삽입 |
+
+💡 **운영 이점:** Redis는 고성능 키-밸류 스토어로써 세션 상태 관리에 적합하며, Lua Script로 atomic 블랙리스트 처리 가능
+
+---
+
+## 6. 적용 시 유의사항
+
+| 항목                                         | 설명                                                      |
+| -------------------------------------------- | --------------------------------------------------------- |
+| `Device-Id` 누락 시 400 반환                 | 모든 인증 요청 시 필수 포함 필요                          |
+| `/auth/logout` 미호출 시 Refresh 무효화 누락 | 클라이언트에서만 로그아웃 처리 시 토큰은 유효 상태 유지됨 |
+| `/members/*` 인증 경로 사용 중단             | 호출 시 404 응답 발생 가능성 있음. 즉시 경로 전환 필요    |
+
+---

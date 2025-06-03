@@ -1,4 +1,4 @@
-# 비회원 사용자 GET 접근 정책 리팩터링 (PR [#140](https://github.com/juulabel/juulabel-back/pull/142))
+# 비회원 사용자 GET 접근 정책 리팩터링 (PR [#142](https://github.com/juulabel/juulabel-back/pull/142))
 
 ## 개요
 
