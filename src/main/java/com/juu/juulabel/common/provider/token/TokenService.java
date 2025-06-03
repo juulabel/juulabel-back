@@ -1,5 +1,6 @@
 package com.juu.juulabel.common.provider.token;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -11,7 +12,7 @@ public interface TokenService<T> {
     /**
      * Creates a token with the provided claims
      */
-    String createToken(T claims);
+    String createToken(Map<String, Object> claimsMap);
 
     /**
      * Parses and validates a token, returning the claims

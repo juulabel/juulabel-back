@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.juu.juulabel.common.constants.AuthConstants;
+import com.juu.juulabel.common.exception.InvalidParamException;
+import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.common.http.CookieService;
 import com.juu.juulabel.common.provider.token.paseto.PasetoTokenService;
 import com.juu.juulabel.common.provider.token.validator.SignupTokenClaims;
@@ -99,9 +102,8 @@ public class SignupTokenService extends PasetoTokenService {
      * This method maintains compatibility with the existing TokenProvider interface
      */
     public String resolveToken(String header) {
-        if (!org.springframework.util.StringUtils.hasText(header)) {
-            throw new com.juu.juulabel.common.exception.InvalidParamException(
-                    com.juu.juulabel.common.exception.code.ErrorCode.INVALID_AUTHENTICATION);
+        if (!StringUtils.hasText(header)) {
+            throw new InvalidParamException(ErrorCode.INVALID_AUTHENTICATION);
         }
         return header.replace(AuthConstants.TOKEN_PREFIX, "");
     }
@@ -120,7 +122,7 @@ public class SignupTokenService extends PasetoTokenService {
      */
     private Map<String, Object> convertClaimsToMap(Claims claims) {
         Map<String, Object> claimsMap = new HashMap<>();
-        
+
         // Extract standard PASETO claims
         if (claims.getSubject() != null) {
             claimsMap.put("sub", claims.getSubject());
@@ -146,7 +148,7 @@ public class SignupTokenService extends PasetoTokenService {
 
         // Extract custom claims
         claims.forEach(claimsMap::put);
-        
+
         return claimsMap;
     }
 }

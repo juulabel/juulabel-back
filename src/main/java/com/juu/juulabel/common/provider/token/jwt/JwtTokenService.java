@@ -39,15 +39,12 @@ public class JwtTokenService implements TokenService<Claims> {
         this.tokenDuration = duration;
     }
     
-    @Override
-    public String createToken(Claims claims) {
-        // For now, we'll focus on the Map-based approach which works better
-        throw new UnsupportedOperationException("Use createToken(Map<String, Object>) instead");
-    }
+    
     
     /**
      * Creates a token with custom claims map
      */
+    @Override
     public String createToken(Map<String, Object> claimsMap) {
         return Jwts.builder()
                 .claims(claimsMap)

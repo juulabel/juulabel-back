@@ -73,7 +73,7 @@ public class AuthService {
     public void signUp(Member member, SignUpMemberRequest signUpRequest) {
         Member completedMember = memberCreationService.completeSignup(member, signUpRequest);
         sessionManager.createSession(completedMember);
-        
+
         log.debug("Signup completed successfully for: {}", completedMember.getEmail());
     }
 
@@ -101,7 +101,7 @@ public class AuthService {
         String nonce = memberCreationService.createPendingMember(oAuthUser);
         signupTokenService.createToken(oAuthUser, nonce);
         httpResponseService.redirectToSignup();
-        
+
         log.debug("New member flow initiated for: {}", oAuthUser.email());
     }
 
@@ -109,14 +109,14 @@ public class AuthService {
         String nonce = memberCreationService.getExistingNonce(member);
         signupTokenService.createToken(oAuthUser, nonce);
         httpResponseService.redirectToSignup();
-        
+
         log.debug("Pending member flow initiated for: {}", oAuthUser.email());
     }
 
     private void handleExistingMember(Member member) {
         sessionManager.createSession(member);
         httpResponseService.redirectToLogin();
-        
+
         log.debug("Existing member login successful for: {}", member.getEmail());
     }
-} 
+}

@@ -20,6 +20,7 @@ import dev.paseto.jpaseto.PasetoIOException;
 import dev.paseto.jpaseto.PasetoKeyException;
 import dev.paseto.jpaseto.PasetoParser;
 import dev.paseto.jpaseto.PasetoSignatureException;
+import dev.paseto.jpaseto.PasetoV2LocalBuilder;
 import dev.paseto.jpaseto.Pasetos;
 import dev.paseto.jpaseto.RequiredTypeException;
 import dev.paseto.jpaseto.lang.Keys;
@@ -44,17 +45,12 @@ public class PasetoTokenService implements TokenService<Claims> {
         this.tokenDuration = duration;
     }
 
-    @Override
-    public String createToken(Claims claims) {
-        // For now, we'll focus on the Map-based approach which works
-        throw new UnsupportedOperationException("Use createToken(Map<String, Object>) instead");
-    }
-
     /**
      * Creates a token with custom claims map
      */
+    @Override
     public String createToken(Map<String, Object> claimsMap) {
-        var builder = Pasetos.V2.LOCAL.builder()
+        PasetoV2LocalBuilder builder = Pasetos.V2.LOCAL.builder()
                 .setSharedSecret(secretKey)
                 .setIssuer(DEFAULT_ISSUER)
                 .setIssuedAt(Instant.now())

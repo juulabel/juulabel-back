@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -18,10 +17,15 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class AuthenticationStrategyResolver {
 
     private final List<AuthenticationStrategy> strategies;
+
+    public AuthenticationStrategyResolver(List<AuthenticationStrategy> strategies) {
+        this.strategies = strategies.stream()
+                .sorted(Comparator.comparingInt(AuthenticationStrategy::getOrder))
+                .toList();
+    }
 
     /**
      * Resolves authentication for the given request using available strategies
@@ -38,7 +42,6 @@ public class AuthenticationStrategyResolver {
 
         // Find the first strategy that can handle this request (sorted by priority)
         Optional<AuthenticationStrategy> applicableStrategy = strategies.stream()
-                .sorted(Comparator.comparingInt(AuthenticationStrategy::getOrder))
                 .filter(strategy -> strategy.canHandle(request))
                 .findFirst();
 
