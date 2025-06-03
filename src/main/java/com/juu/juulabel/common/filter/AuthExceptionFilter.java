@@ -31,10 +31,10 @@ public class AuthExceptionFilter extends OncePerRequestFilter {
             log.warn("Authentication failed for request {}: {}", request.getRequestURI(), ex.getMessage());
             securityResponseUtil.setErrorResponse(response, HttpStatus.BAD_REQUEST, ex);
         } catch (Exception ex) {
-            log.error("Unexpected exception in auth filter for request {}: {}", 
-                     request.getRequestURI(), ex.getMessage());
-            securityResponseUtil.setErrorResponse(response, HttpStatus.UNAUTHORIZED, 
-                                                 ErrorCode.INVALID_AUTHENTICATION, ex.getMessage());
+            log.error("Unexpected exception in auth filter for request {}: {}",
+                    request.getRequestURI(), ex.getMessage());
+            securityResponseUtil.setErrorResponse(response, HttpStatus.UNAUTHORIZED,
+                    ErrorCode.INVALID_AUTHENTICATION, ex.getMessage());
         }
     }
 }

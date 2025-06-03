@@ -1,4 +1,4 @@
-package com.juu.juulabel.common.provider.token.jwt;
+package com.juu.juulabel.auth.service;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -9,8 +9,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.List;
+import java.util.function.Function;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,10 +22,20 @@ import com.juu.juulabel.member.request.ApplePublicKey;
 import com.juu.juulabel.member.request.AppleUser;
 import com.juu.juulabel.member.token.OAuthToken;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 
-@Component
-public class AppleTokenProvider extends JwtTokenProvider {
+/**
+ * Service for handling Apple JWT token operations with improved architecture.
+ * Separates token parsing from business logic and provides better error handling.
+ */
+@Service
+public class AppleTokenService {
 
     // Constants for better maintainability
     private static final String RSA_ALGORITHM = "RSA";
@@ -38,45 +49,96 @@ public class AppleTokenProvider extends JwtTokenProvider {
     // Reuse ObjectMapper instance for better performance
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public AppleTokenProvider() {
-        super(null, null);
-    }
-
     /**
-     * Extracts Apple user information from JWT token using the provided public
-     * keys.
+     * Extracts Apple user information from JWT token using the provided public keys.
      * 
      * @param publicKeys List of Apple's public keys
      * @param oauthToken OAuth token containing the ID token
      * @return AppleUser with extracted user information
      * @throws CustomJwtException if token processing fails
      */
-    public AppleUser getAppleUserFromToken(List<ApplePublicKey> publicKeys, OAuthToken oauthToken) {
+    public AppleUser extractAppleUser(List<ApplePublicKey> publicKeys, OAuthToken oauthToken) {
+        ApplePublicKey applePublicKey = findMatchingPublicKey(publicKeys, oauthToken);
+        PublicKey publicKey = buildRSAPublicKey(applePublicKey);
+        JwtParser jwtParser = createJwtParser(publicKey);
 
-        ApplePublicKey applePublicKey = getApplePublicKey(publicKeys, oauthToken);
-        PublicKey publicKey = buildPublicKey(applePublicKey);
-
-        // Set up JWT parser with the public key
-        super.key = publicKey;
-        super.jwtParser = Jwts.parser().verifyWith(publicKey).build();
-
-        return extractFromClaims(oauthToken.idToken(), claims -> new AppleUser(
-                claims.get(SUB_CLAIM, String.class),
-                claims.get(EMAIL_CLAIM, String.class)));
+        return extractFromClaims(oauthToken.idToken(), jwtParser, this::mapToAppleUser);
     }
 
     /**
-     * Finds the matching Apple public key based on the 'kid' in the JWT header.
+     * Validates an Apple JWT token structure and signature.
      * 
-     * @param publicKeys List of available public keys
-     * @param oauthToken OAuth token containing the ID token
-     * @return Matching ApplePublicKey
-     * @throws CustomJwtException if no matching key is found or JWT processing
-     *                            fails
+     * @param publicKeys List of Apple's public keys
+     * @param token JWT token string
+     * @return true if token is valid, false otherwise
      */
-    private ApplePublicKey getApplePublicKey(List<ApplePublicKey> publicKeys, OAuthToken oauthToken) {
-        String kid = extractKidFromToken(oauthToken.idToken());
+    public boolean isValidAppleToken(List<ApplePublicKey> publicKeys, String token) {
+        try {
+            String kid = extractKidFromToken(token);
+            ApplePublicKey applePublicKey = findPublicKeyByKid(publicKeys, kid);
+            PublicKey publicKey = buildRSAPublicKey(applePublicKey);
+            JwtParser jwtParser = createJwtParser(publicKey);
+            
+            parseClaims(token, jwtParser);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
+    /**
+     * Extracts claims from Apple JWT token.
+     * 
+     * @param publicKeys List of Apple's public keys
+     * @param token JWT token string
+     * @return parsed Claims
+     */
+    public Claims extractClaims(List<ApplePublicKey> publicKeys, String token) {
+        String kid = extractKidFromToken(token);
+        ApplePublicKey applePublicKey = findPublicKeyByKid(publicKeys, kid);
+        PublicKey publicKey = buildRSAPublicKey(applePublicKey);
+        JwtParser jwtParser = createJwtParser(publicKey);
+        
+        return parseClaims(token, jwtParser);
+    }
+
+    // Private helper methods
+
+    private AppleUser mapToAppleUser(Claims claims) {
+        return new AppleUser(
+            claims.get(SUB_CLAIM, String.class),
+            claims.get(EMAIL_CLAIM, String.class)
+        );
+    }
+
+    private JwtParser createJwtParser(PublicKey publicKey) {
+        return Jwts.parser().verifyWith(publicKey).build();
+    }
+
+    private <T> T extractFromClaims(String token, JwtParser jwtParser, Function<Claims, T> claimsResolver) {
+        return claimsResolver.apply(parseClaims(token, jwtParser));
+    }
+
+    private Claims parseClaims(String token, JwtParser jwtParser) {
+        try {
+            return jwtParser.parseSignedClaims(token).getPayload();
+        } catch (SignatureException | MalformedJwtException ex) {
+            throw new CustomJwtException(ErrorCode.JWT_MALFORMED_EXCEPTION);
+        } catch (ExpiredJwtException ex) {
+            throw new CustomJwtException(ErrorCode.JWT_EXPIRED_EXCEPTION);
+        } catch (UnsupportedJwtException ex) {
+            throw new CustomJwtException(ErrorCode.JWT_UNSUPPORTED_EXCEPTION);
+        } catch (IllegalArgumentException ex) {
+            throw new CustomJwtException(ErrorCode.JWT_ILLEGAL_ARGUMENT_EXCEPTION);
+        }
+    }
+
+    private ApplePublicKey findMatchingPublicKey(List<ApplePublicKey> publicKeys, OAuthToken oauthToken) {
+        String kid = extractKidFromToken(oauthToken.idToken());
+        return findPublicKeyByKid(publicKeys, kid);
+    }
+
+    private ApplePublicKey findPublicKeyByKid(List<ApplePublicKey> publicKeys, String kid) {
         return publicKeys.stream()
                 .filter(key -> kid.equals(key.kid()))
                 .findFirst()
@@ -85,13 +147,6 @@ public class AppleTokenProvider extends JwtTokenProvider {
                         ErrorCode.JWT_UNSUPPORTED_EXCEPTION));
     }
 
-    /**
-     * Extracts the 'kid' (Key ID) from the JWT token header.
-     * 
-     * @param idToken JWT ID token
-     * @return Key ID string
-     * @throws CustomJwtException if token parsing fails
-     */
     private String extractKidFromToken(String idToken) {
         try {
             String[] chunks = idToken.split(JWT_SEPARATOR);
@@ -120,14 +175,7 @@ public class AppleTokenProvider extends JwtTokenProvider {
         }
     }
 
-    /**
-     * Builds RSA public key from Apple's public key data.
-     * 
-     * @param applePublicKey Apple public key containing modulus and exponent
-     * @return RSA PublicKey instance
-     * @throws CustomJwtException if key construction fails
-     */
-    private PublicKey buildPublicKey(ApplePublicKey applePublicKey) {
+    private PublicKey buildRSAPublicKey(ApplePublicKey applePublicKey) {
         try {
             byte[] nBytes = Base64.getUrlDecoder().decode(applePublicKey.n());
             byte[] eBytes = Base64.getUrlDecoder().decode(applePublicKey.e());
@@ -150,5 +198,4 @@ public class AppleTokenProvider extends JwtTokenProvider {
                     ErrorCode.JWT_UNSUPPORTED_EXCEPTION);
         }
     }
-
-}
+} 

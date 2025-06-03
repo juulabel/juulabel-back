@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.juu.juulabel.common.client.AppleAuthClient;
-import com.juu.juulabel.common.provider.token.jwt.AppleTokenProvider;
+import com.juu.juulabel.auth.service.AppleTokenService;
 import com.juu.juulabel.member.request.ApplePublicKey;
 import com.juu.juulabel.member.request.OAuthUser;
 import com.juu.juulabel.member.token.OAuthToken;
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class AppleProvider implements OAuthProvider {
 
     private final AppleAuthClient appleAuthClient;
-    private final AppleTokenProvider appleTokenProvider;
+    private final AppleTokenService appleTokenService;
 
     @Value("${spring.security.oauth2.client.registration.apple.authorization-grant-type}")
     private String grantType;
@@ -43,7 +43,7 @@ public class AppleProvider implements OAuthProvider {
     public OAuthUser getOAuthUser(OAuthToken oauthToken) {
         List<ApplePublicKey> publicKeys = appleAuthClient.getApplePublicKeys();
 
-        return appleTokenProvider.getAppleUserFromToken(publicKeys, oauthToken);
+        return appleTokenService.extractAppleUser(publicKeys, oauthToken);
     }
 
 }

@@ -2,84 +2,64 @@ package com.juu.juulabel.auth.service;
 
 import com.juu.juulabel.common.dto.request.SignUpMemberRequest;
 import com.juu.juulabel.common.dto.request.WithdrawalRequest;
-import com.juu.juulabel.common.factory.OAuthProviderFactory;
-import com.juu.juulabel.common.properties.RedirectProperties;
-import com.juu.juulabel.common.provider.token.paseto.SignupTokenProvider;
-import com.juu.juulabel.common.util.HttpResponseUtil;
+import com.juu.juulabel.common.http.HttpResponseService;
 import com.juu.juulabel.member.domain.Member;
-import com.juu.juulabel.member.domain.MemberStatus;
 import com.juu.juulabel.member.domain.Provider;
-import com.juu.juulabel.member.domain.WithdrawalRecord;
-import com.juu.juulabel.member.repository.MemberReader;
-import com.juu.juulabel.member.repository.MemberWriter;
-import com.juu.juulabel.member.repository.WithdrawalRecordWriter;
-import com.juu.juulabel.member.util.MemberUtils;
-import com.juu.juulabel.redis.SessionManager;
+import com.juu.juulabel.redis.UserSessionManager;
+import com.juu.juulabel.auth.service.OAuthLoginService.MemberStatusResult;
 
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.juu.juulabel.member.request.OAuthUser;
-import com.juu.juulabel.common.exception.AuthException;
-import com.juu.juulabel.common.exception.code.ErrorCode;
-
-import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for handling authentication operations including login, signup,
- * logout, and account deletion.
- * Provides secure OAuth-based authentication with session management.
+ * Refactored authentication service using specialized service components.
+ * Acts as an orchestration layer delegating to focused services.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final MemberReader memberReader;
-    private final MemberWriter memberWriter;
-    private final WithdrawalRecordWriter withdrawalRecordWriter;
-    private final MemberUtils memberUtils;
-    private final OAuthProviderFactory providerFactory;
-    private final SessionManager sessionManager;
-    private final RedirectProperties redirectProperties;
-    private final SignupTokenProvider signupTokenProvider;
-    private final HttpResponseUtil httpResponseUtil;
+    private final OAuthLoginService oAuthLoginService;
+    private final MemberCreationService memberCreationService;
+    private final AccountLifecycleService accountLifecycleService;
+    private final SignupTokenService signupTokenService;
+    private final UserSessionManager sessionManager;
+    private final HttpResponseService httpResponseService;
 
     /**
      * Handles OAuth login flow for both new and existing members.
      * 
-     * @param provider OAuth provider (Google, GitHub, etc.)
+     * @param provider OAuth provider (Google, Kakao, Apple)
      * @param code     Authorization code from OAuth provider
      * @param state    State parameter from OAuth provider
      */
     @Transactional
     public void login(Provider provider, String code, String state) {
         try {
+            // Authenticate with OAuth provider
+            OAuthUser oAuthUser = oAuthLoginService.authenticateWithProvider(provider, code);
 
-            // Get OAuth user info
-            OAuthUser oAuthUser = getOAuthUser(provider, code);
+            // Determine member status and handle accordingly
+            MemberStatusResult memberResult = oAuthLoginService.determineMemberStatus(oAuthUser);
 
-            // Process member based on existence and status
-            Optional<Member> memberOpt = memberReader.getOptionalByEmail(oAuthUser.email());
-
-            if (memberOpt.isPresent()) {
-                Member member = memberOpt.get();
-                if (member.getStatus() == MemberStatus.PENDING) {
-                    handlePendingMember(member, oAuthUser);
-                } else {
-                    handleExistingMember(member, oAuthUser);
-                }
-            } else {
-                handleNewMember(oAuthUser);
+            if (memberResult.isNewMember()) {
+                handleNewMember(memberResult.oAuthUser());
+            } else if (memberResult.isPendingMember()) {
+                handlePendingMember(memberResult.member(), memberResult.oAuthUser());
+            } else if (memberResult.isActiveMember()) {
+                handleExistingMember(memberResult.member());
             }
 
         } catch (Exception e) {
+            log.error("Login failed for provider {}: {}", provider, e.getMessage());
             Sentry.captureException(e);
-            httpResponseUtil.redirectToError();
+            httpResponseService.redirectToError();
         }
     }
 
@@ -91,108 +71,52 @@ public class AuthService {
      */
     @Transactional
     public void signUp(Member member, SignUpMemberRequest signUpRequest) {
-        // Validate member status
-        if (member.getStatus() != MemberStatus.PENDING) {
-            throw new AuthException("Member is not in pending status", ErrorCode.INVALID_AUTHENTICATION);
-        }
-
-        // Complete signup process
-        member.completeSignUp(signUpRequest);
-        memberWriter.store(member);
-
-        // Process additional member data
-        memberUtils.processMemberData(member, signUpRequest);
-
-        // Create session for the newly registered member
-        sessionManager.createSession(member);
+        Member completedMember = memberCreationService.completeSignup(member, signUpRequest);
+        sessionManager.createSession(completedMember);
+        
+        log.debug("Signup completed successfully for: {}", completedMember.getEmail());
     }
 
     /**
      * Logs out current user by invalidating their session.
      */
     public void logout() {
-        try {
-            sessionManager.invalidateSession();
-        } catch (Exception e) {
-            log.warn("Error during logout: {}", e.getMessage());
-            // Don't throw exception for logout failures
-        }
+        accountLifecycleService.logout();
     }
 
     /**
      * Permanently deletes member account and creates audit record.
      * 
-     * @param loginMember Authenticated member requesting deletion
-     * @param request     Withdrawal request with reason
+     * @param member  Authenticated member requesting deletion
+     * @param request Withdrawal request with reason
      */
     @Transactional
-    public void deleteAccount(Member loginMember, WithdrawalRequest request) {
-        // Validate member can be deleted
-        if (loginMember.getStatus() == MemberStatus.WITHDRAWAL) {
-            throw new AuthException("Member already withdrawn", ErrorCode.MEMBER_WITHDRAWN);
-        }
-
-        // Mark member as deleted (soft delete)
-        loginMember.deleteAccount();
-
-        // Create audit record
-        WithdrawalRecord withdrawalRecord = WithdrawalRecord.create(
-                request.withdrawalReason(),
-                loginMember.getEmail(),
-                loginMember.getNickname());
-        withdrawalRecordWriter.store(withdrawalRecord);
-
-        // Revoke all sessions
-        sessionManager.invalidateAllUserSessions(loginMember.getId());
+    public void deleteAccount(Member member, WithdrawalRequest request) {
+        accountLifecycleService.deleteAccount(member, request);
     }
 
-    // Private helper methods
+    // Private helper methods for different member handling scenarios
 
-    private OAuthUser getOAuthUser(Provider provider, String code) {
-        String redirectUrl = redirectProperties.getRedirectUrl(provider);
-        return providerFactory.getOAuthUser(provider, code, redirectUrl);
-    }
-
-    private void handleExistingMember(Member member, OAuthUser oAuthUser) {
-        // Validate member status
-        if (member.getStatus() == MemberStatus.WITHDRAWAL) {
-            throw new AuthException("Member has been withdrawn", ErrorCode.MEMBER_WITHDRAWN);
-        }
-
-        if (member.getStatus() == MemberStatus.INACTIVE) {
-            throw new AuthException("Member is not active", ErrorCode.MEMBER_NOT_ACTIVE);
-        }
-
-        // Validate OAuth user matches member
-        member.validateLoginMember(oAuthUser);
-
-        // Create session and redirect
-        sessionManager.createSession(member);
-        httpResponseUtil.redirectToLogin();
+    private void handleNewMember(OAuthUser oAuthUser) {
+        String nonce = memberCreationService.createPendingMember(oAuthUser);
+        signupTokenService.createToken(oAuthUser, nonce);
+        httpResponseService.redirectToSignup();
+        
+        log.debug("New member flow initiated for: {}", oAuthUser.email());
     }
 
     private void handlePendingMember(Member member, OAuthUser oAuthUser) {
-        // Validate OAuth user matches pending member
-        member.validateLoginMember(oAuthUser);
-
-        // Generate new signup token for existing pending member
-        String nonce = member.getNickname(); // Use existing nonce
-        signupTokenProvider.createToken(oAuthUser, nonce);
-
-        httpResponseUtil.redirectToSignup();
+        String nonce = memberCreationService.getExistingNonce(member);
+        signupTokenService.createToken(oAuthUser, nonce);
+        httpResponseService.redirectToSignup();
+        
+        log.debug("Pending member flow initiated for: {}", oAuthUser.email());
     }
 
-    private void handleNewMember(OAuthUser oAuthUser) {
-        // Generate unique nonce for new member
-        String nonce = UUID.randomUUID().toString();
-
-        // Create signup token
-        signupTokenProvider.createToken(oAuthUser, nonce);
-
-        // Create new pending member
-        Member newMember = Member.create(oAuthUser, nonce);
-        memberWriter.store(newMember);
-
-        httpResponseUtil.redirectToSignup();
+    private void handleExistingMember(Member member) {
+        sessionManager.createSession(member);
+        httpResponseService.redirectToLogin();
+        
+        log.debug("Existing member login successful for: {}", member.getEmail());
     }
-}
+} 

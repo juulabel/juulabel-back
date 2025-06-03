@@ -1,17 +1,29 @@
-package com.juu.juulabel.common.util;
+package com.juu.juulabel.common.http;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
+import org.springframework.stereotype.Service;
+
 /**
- * Utility class for IP address extraction and validation
+ * Service for IP address extraction and validation.
+ * Handles reliable client IP detection with validation and reliability scoring.
  */
-public final class IpAddressExtractor extends AbstractHttpUtil {
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class IpAddressService {
 
     private static final String UNKNOWN = "unknown";
+    
+    private final HttpContextService httpContextService;
 
     // Ordered by reliability - most trusted first
     private static final List<String> IP_HEADER_CANDIDATES = List.of(
@@ -40,26 +52,24 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
             "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|:((:[0-9a-fA-F]{1,4}){1,7}|:)|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})$");
 
     /**
-     * Private constructor to prevent instantiation
-     */
-    private IpAddressExtractor() {
-        super();
-    }
-
-    /**
      * Extract client IP address with validation and reliability checks
-     * 
      * @return most reliable client IP address found
      */
-    public static String getClientIpAddress() {
-        HttpServletRequest request = getCurrentRequest();
+    public String getClientIpAddress() {
+        Optional<HttpServletRequest> requestOpt = httpContextService.getCurrentRequestOptional();
+        if (requestOpt.isEmpty()) {
+            log.warn("No HTTP context available for IP extraction");
+            return "unknown";
+        }
+
+        HttpServletRequest request = requestOpt.get();
 
         return IP_HEADER_CANDIDATES.stream()
                 .map(request::getHeader)
                 .filter(ip -> ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip))
                 .map(ip -> ip.split(",")[0].trim()) // Take first IP from comma-separated list
-                .filter(IpAddressExtractor::isValidIpAddress)
-                .filter(IpAddressExtractor::isPublicIpAddress) // Prefer public IPs
+                .filter(this::isValidIpAddress)
+                .filter(this::isPublicIpAddress) // Prefer public IPs
                 .findFirst()
                 .orElseGet(() -> {
                     // Fallback: try to get any valid IP (including private)
@@ -67,7 +77,7 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
                             .map(request::getHeader)
                             .filter(ip -> ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip))
                             .map(ip -> ip.split(",")[0].trim())
-                            .filter(IpAddressExtractor::isValidIpAddress)
+                            .filter(this::isValidIpAddress)
                             .findFirst()
                             .orElseGet(request::getRemoteAddr);
 
@@ -77,9 +87,16 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
 
     /**
      * Get client IP with reliability score for monitoring/logging
+     * @return IP address information with reliability assessment
      */
-    public static IpAddressInfo getClientIpAddressWithInfo() {
-        HttpServletRequest request = getCurrentRequest();
+    public IpAddressInfo getClientIpAddressWithInfo() {
+        Optional<HttpServletRequest> requestOpt = httpContextService.getCurrentRequestOptional();
+        if (requestOpt.isEmpty()) {
+            log.warn("No HTTP context available for IP extraction");
+            return new IpAddressInfo("unknown", "NO_CONTEXT", ReliabilityLevel.LOW);
+        }
+
+        HttpServletRequest request = requestOpt.get();
 
         for (int i = 0; i < IP_HEADER_CANDIDATES.size(); i++) {
             String headerName = IP_HEADER_CANDIDATES.get(i);
@@ -103,8 +120,10 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
 
     /**
      * Validate if string is a valid IP address (IPv4 or IPv6)
+     * @param ip IP address string to validate
+     * @return true if valid IP address
      */
-    private static boolean isValidIpAddress(String ip) {
+    public boolean isValidIpAddress(String ip) {
         if (ip == null || ip.trim().isEmpty()) {
             return false;
         }
@@ -119,8 +138,10 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
 
     /**
      * Check if IP address is public (not private/local)
+     * @param ip IP address to check
+     * @return true if public IP address
      */
-    private static boolean isPublicIpAddress(String ip) {
+    public boolean isPublicIpAddress(String ip) {
         if (!isValidIpAddress(ip)) {
             return false;
         }
@@ -130,8 +151,10 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
 
     /**
      * Check if IP is in private ranges
+     * @param ip IP address to check
+     * @return true if private IP address
      */
-    private static boolean isPrivateIpAddress(String ip) {
+    public boolean isPrivateIpAddress(String ip) {
         // Check IPv6 private ranges first
         if (ip.contains(":")) {
             return isPrivateIpv6(ip);
@@ -146,7 +169,7 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
         return false;
     }
 
-    private static boolean isPrivateIpv6(String ip) {
+    private boolean isPrivateIpv6(String ip) {
         try {
             InetAddress addr = InetAddress.getByName(ip);
             return addr.isSiteLocalAddress()
@@ -161,7 +184,7 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
     /**
      * Check if 172.x.x.x IP is in private range (172.16.0.0 to 172.31.255.255)
      */
-    private static boolean isPrivate172Range(String ip) {
+    private boolean isPrivate172Range(String ip) {
         String[] octets = ip.split("\\.");
         if (octets.length < 2) {
             return false;
@@ -178,11 +201,11 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
     /**
      * Check if IP is localhost or other special addresses
      */
-    private static boolean isSpecialAddress(String ip) {
+    private boolean isSpecialAddress(String ip) {
         return ip.equals("127.0.0.1") || ip.equals("::1") || ip.equals("0.0.0.0");
     }
 
-    private static ReliabilityLevel getReliabilityLevel(String headerName, String ip) {
+    private ReliabilityLevel getReliabilityLevel(String headerName, String ip) {
         // Rate headers by trustworthiness
         return switch (headerName) {
             case "CF-Connecting-IP", "True-Client-IP" -> ReliabilityLevel.HIGH;
@@ -217,6 +240,12 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
         public ReliabilityLevel getReliability() {
             return reliability;
         }
+
+        @Override
+        public String toString() {
+            return String.format("IpAddressInfo{ip='%s', source='%s', reliability=%s}", 
+                    ipAddress, sourceHeader, reliability);
+        }
     }
 
     public enum ReliabilityLevel {
@@ -224,4 +253,4 @@ public final class IpAddressExtractor extends AbstractHttpUtil {
         MEDIUM, // Nginx, proper proxies - generally reliable
         LOW // Easy to spoof headers - use with caution
     }
-}
+} 
