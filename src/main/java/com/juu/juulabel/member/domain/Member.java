@@ -6,7 +6,6 @@ import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.member.request.OAuthUser;
-import com.juu.juulabel.member.token.SignUpToken;
 import com.juu.juulabel.common.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -80,6 +79,7 @@ public class Member extends BaseTimeEntity {
     public void completeSignUp(SignUpMemberRequest signUpMemberRequest) {
         this.nickname = signUpMemberRequest.nickname();
         this.gender = signUpMemberRequest.gender();
+        this.role = MemberRole.ROLE_USER;
         this.status = MemberStatus.ACTIVE;
     }
 

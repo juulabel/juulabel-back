@@ -31,6 +31,7 @@ public class MemberCreationService {
 
     /**
      * Creates a new pending member from OAuth user data
+     * 
      * @param oAuthUser OAuth user information
      * @return Generated nonce for the new member
      */
@@ -43,15 +44,16 @@ public class MemberCreationService {
         Member newMember = Member.create(oAuthUser, nonce);
         memberWriter.store(newMember);
 
-        log.debug("Created new pending member for email: {} with nonce: {}", 
-                 oAuthUser.email(), nonce);
-        
+        log.debug("Created new pending member for email: {} with nonce: {}",
+                oAuthUser.email(), nonce);
+
         return nonce;
     }
 
     /**
      * Completes member signup with additional information
-     * @param member Pre-authenticated member from signup token
+     * 
+     * @param member        Pre-authenticated member from signup token
      * @param signUpRequest Additional member registration details
      * @return The completed member
      */
@@ -70,12 +72,13 @@ public class MemberCreationService {
         memberUtils.processMemberData(member, signUpRequest);
 
         log.debug("Completed signup for member: {}", member.getEmail());
-        
+
         return member;
     }
 
     /**
      * Gets existing nonce for pending member (used for existing pending members)
+     * 
      * @param member Existing pending member
      * @return The member's existing nonce
      */
@@ -83,7 +86,7 @@ public class MemberCreationService {
         if (member.getStatus() != MemberStatus.PENDING) {
             throw new AuthException("Member is not in pending status", ErrorCode.INVALID_AUTHENTICATION);
         }
-        
+
         return member.getNickname(); // The nonce is stored in nickname for pending members
     }
-} 
+}
