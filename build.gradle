@@ -51,6 +51,13 @@ dependencies {
 	// jjwt
 	implementation 'io.jsonwebtoken:jjwt:0.12.5'
 
+	// paseto
+	implementation 'dev.paseto:jpaseto-api:0.7.0'
+	runtimeOnly 'dev.paseto:jpaseto-impl:0.7.0'
+	runtimeOnly 'dev.paseto:jpaseto-jackson:0.7.0'
+	runtimeOnly 'dev.paseto:jpaseto-bouncy-castle:0.7.0'
+	runtimeOnly 'dev.paseto:jpaseto-sodium:0.7.0'
+
 	// lombok
 	implementation 'org.projectlombok:lombok'
 	compileOnly 'org.projectlombok:lombok'

@@ -6,7 +6,7 @@ import com.juu.juulabel.common.exception.AuthException;
 import com.juu.juulabel.common.exception.BaseException;
 import com.juu.juulabel.common.exception.code.ErrorCode;
 import com.juu.juulabel.member.request.OAuthUser;
-import com.juu.juulabel.auth.domain.SignUpToken;
+import com.juu.juulabel.member.token.SignUpToken;
 import com.juu.juulabel.common.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -77,16 +77,22 @@ public class Member extends BaseTimeEntity {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '탈퇴 일시'")
     private LocalDateTime deletedAt;
 
-    public static Member create(SignUpMemberRequest signUpMemberRequest, SignUpToken signUpToken) {
+    public void completeSignUp(SignUpMemberRequest signUpMemberRequest) {
+        this.nickname = signUpMemberRequest.nickname();
+        this.gender = signUpMemberRequest.gender();
+        this.status = MemberStatus.ACTIVE;
+    }
+
+    public static Member create(OAuthUser oAuthUser, String nonce) {
         return Member.builder()
-                .email(signUpToken.email())
-                .nickname(signUpMemberRequest.nickname())
-                .gender(signUpMemberRequest.gender())
-                .provider(signUpToken.provider())
-                .providerId(signUpToken.providerId())
-                .status(MemberStatus.ACTIVE)
+                .email(oAuthUser.email())
+                .nickname(nonce)
+                .gender(Gender.NONE)
+                .provider(oAuthUser.provider())
+                .providerId(oAuthUser.id())
                 .hasBadge(false)
-                .role(MemberRole.ROLE_USER)
+                .role(MemberRole.ROLE_GUEST)
+                .status(MemberStatus.PENDING)
                 .build();
     }
 
@@ -110,6 +116,11 @@ public class Member extends BaseTimeEntity {
         if (this.deletedAt != null) {
             throw new BaseException(ErrorCode.MEMBER_WITHDRAWN);
         }
+
+        if (this.status == MemberStatus.INACTIVE ) {
+            throw new BaseException(ErrorCode.MEMBER_NOT_ACTIVE);
+        }
+
         if (!this.provider.equals(oAuthUser.provider())) {
             throw new BaseException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
         }

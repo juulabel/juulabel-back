@@ -3,11 +3,14 @@ package com.juu.juulabel.member.token;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record KakaoToken(
-        @JsonProperty("token_type") String tokenType,
-        @JsonProperty("access_token") String accessToken,
-        @JsonProperty("expires_in") int expiresIn,
-        @JsonProperty("refresh_token") String refreshToken,
-        @JsonProperty("refresh_token_expires_in") int refreshTokenExpiresIn,
-        @JsonProperty("scope") String scope
-) implements OAuthToken {
+                @JsonProperty("token_type") String tokenType,
+                @JsonProperty("access_token") String accessToken,
+                @JsonProperty("expires_in") int expiresIn,
+                @JsonProperty("refresh_token") String refreshToken,
+                @JsonProperty("refresh_token_expires_in") int refreshTokenExpiresIn,
+                @JsonProperty("scope") String scope) implements OAuthToken {
+        @Override
+        public String idToken() {
+                return null;
+        }
 }

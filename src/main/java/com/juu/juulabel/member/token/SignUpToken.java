@@ -1,4 +1,4 @@
-package com.juu.juulabel.auth.domain;
+package com.juu.juulabel.member.token;
 
 import com.juu.juulabel.member.domain.Provider;
 

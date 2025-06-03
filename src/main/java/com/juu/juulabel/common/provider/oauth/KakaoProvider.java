@@ -2,7 +2,6 @@ package com.juu.juulabel.common.provider.oauth;
 
 import com.juu.juulabel.common.client.KakaoApiClient;
 import com.juu.juulabel.common.client.KakaoAuthClient;
-import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.member.request.OAuthUser;
 import com.juu.juulabel.member.token.OAuthToken;
 import lombok.RequiredArgsConstructor;
@@ -32,17 +31,12 @@ public class KakaoProvider implements OAuthProvider {
                 clientId,
                 redirectUri,
                 code,
-                clientSecret
-        );
+                clientSecret);
     }
 
     @Override
-    public OAuthUser getOAuthUser(String accessToken) {
-        return kakaoApiClient.getUserInfo(getBearerToken(accessToken));
-    }
-
-    private String getBearerToken(String accessToken) {
-        return AuthConstants.TOKEN_PREFIX + accessToken;
+    public OAuthUser getOAuthUser(OAuthToken oauthToken) {
+        return kakaoApiClient.getUserInfo(getBearerToken(oauthToken.accessToken()));
     }
 
 }

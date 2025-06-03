@@ -2,7 +2,6 @@ package com.juu.juulabel.common.provider.oauth;
 
 import com.juu.juulabel.common.client.GoogleApiClient;
 import com.juu.juulabel.common.client.GoogleAuthClient;
-import com.juu.juulabel.common.constants.AuthConstants;
 import com.juu.juulabel.member.request.OAuthUser;
 import com.juu.juulabel.member.token.OAuthToken;
 import lombok.RequiredArgsConstructor;
@@ -32,21 +31,18 @@ public class GoogleProvider implements OAuthProvider {
     public OAuthToken getOAuthToken(String redirectUri, String code) {
         String decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8); // 구글 oauth 서버로부터 받은 인가코드는 디코딩 해줘야 함
         return googleAuthClient.generateOAuthToken(
-            decodedCode,
-            clientId,
-            clientSecret,
-            redirectUri,
-            grantType
-        );
+                decodedCode,
+                clientId,
+                clientSecret,
+                redirectUri,
+                grantType);
     }
 
     @Override
-    public OAuthUser getOAuthUser(String accessToken) {
-        return googleApiClient.getUserInfo(getBearerToken(accessToken));
-    }
-
-    private String getBearerToken(String accessToken) {
-        return AuthConstants.TOKEN_PREFIX + accessToken;
+    public OAuthUser getOAuthUser(OAuthToken oauthToken) {
+        String accessToken = getBearerToken(oauthToken.accessToken());
+        System.out.println("accessToken: " + accessToken);
+        return googleApiClient.getUserInfo(accessToken);
     }
 
 }

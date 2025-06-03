@@ -12,7 +12,7 @@ import java.util.Set;
 @Component
 public class ProviderConverter implements Converter<String, Provider> {
 
-    private static final Set<Provider> ALLOWED_PROVIDERS = Set.of(Provider.GOOGLE, Provider.KAKAO);
+    private static final Set<Provider> ALLOWED_PROVIDERS = Set.of(Provider.GOOGLE, Provider.KAKAO, Provider.APPLE);
 
     @Override
     public Provider convert(String source) {

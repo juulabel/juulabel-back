@@ -34,6 +34,10 @@ public class HttpRequestUtil extends AbstractHttpUtil {
         HttpServletRequest request = getCurrentRequest();
         String deviceId = request.getHeader(DEVICE_ID_HEADER_NAME);
         if (deviceId == null || deviceId.trim().isEmpty()) {
+            deviceId = request.getParameter("state");
+        }
+
+        if (deviceId == null || deviceId.trim().isEmpty()) {
             throw new BaseException(ErrorCode.DEVICE_ID_REQUIRED);
         }
         return deviceId.trim();
@@ -49,4 +53,5 @@ public class HttpRequestUtil extends AbstractHttpUtil {
         HttpServletRequest request = getCurrentRequest();
         return request.getHeader(HttpHeaders.USER_AGENT);
     }
+
 }

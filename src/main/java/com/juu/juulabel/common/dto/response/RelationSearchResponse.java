@@ -6,6 +6,5 @@ import java.util.List;
 
 @Schema(description = "연관 검색어 리스트 조회 응답")
 public record RelationSearchResponse(
-        List<String> relationSearch
-) {
+        List<String> relationSearch) {
 }
