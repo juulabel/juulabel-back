@@ -8,6 +8,7 @@ import com.juu.juulabel.member.domain.Provider;
 import com.juu.juulabel.member.repository.jpa.MemberJpaRepository;
 import com.juu.juulabel.member.repository.jpa.MemberQueryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class MemberReader {
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
+    @Cacheable(value = "member", key = "#email")
     public Member getByEmail(String email) {
         return memberJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.MEMBER_NOT_FOUND));

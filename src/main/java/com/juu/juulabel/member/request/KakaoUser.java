@@ -8,8 +8,7 @@ public record KakaoUser(
         @JsonProperty("has_signed_up") String hasSignedUp,
         @JsonProperty("connected_at") String connectedAt,
         @JsonProperty("synched_at") String synchedAt,
-        @JsonProperty("kakao_account") KakaoAccount kakaoAccount
-) implements OAuthUser {
+        @JsonProperty("kakao_account") KakaoAccount kakaoAccount) implements OAuthUser {
     @Override
     public String email() {
         return kakaoAccount.email();

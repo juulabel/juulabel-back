@@ -1,6 +1,5 @@
 package com.juu.juulabel.common.client;
 
-
 import com.juu.juulabel.member.request.KakaoUser;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;

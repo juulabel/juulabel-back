@@ -1,7 +1,8 @@
 package com.juu.juulabel.common.config;
 
-import com.juu.juulabel.common.filter.JwtAuthorizationFilter;
-import com.juu.juulabel.common.filter.JwtExceptionFilter;
+import com.juu.juulabel.common.filter.AuthorizationFilter;
+import com.juu.juulabel.common.filter.AuthExceptionFilter;
+import com.juu.juulabel.common.handler.CustomAccessDeniedHandler;
 import com.juu.juulabel.member.domain.MemberRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +15,6 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -27,13 +26,15 @@ import static org.springframework.http.HttpMethod.OPTIONS;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-        private final JwtAuthorizationFilter jwtAuthorizationFilter;
-        private final JwtExceptionFilter jwtExceptionFilter;
+        private final AuthorizationFilter authorizationFilter;
+        private final AuthExceptionFilter authExceptionFilter;
+        private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-        // 완전 공개 엔드 포인트 (우선순위 최상)
+        // 완전 공개 엔드 포인트 (우선순위 최상) - 가장 자주 호출되는 것을 앞에
         private static final String[] PUBLIC_ENDPOINTS = {
-                        "/swagger-ui/**", "/v3/api-docs/**", "/error", "/favicon.ico", "/", "/actuator/**",
-                        "/v1/api/auth/refresh", "/v1/api/auth/login/**"
+                        "/error", "/favicon.ico", "/",
+                        "/swagger-ui/**", "/v3/api-docs/**",
+                        "/actuator/**"
         };
 
         // 관리자 전용 엔드포인트
@@ -41,7 +42,7 @@ public class SecurityConfig {
                         "/v1/api/admins/permission/test"
         };
 
-        // 인증/인가 필요한 특정 GET 엔드포인트
+        // 인증/인가 필요한 특정 GET 엔드포인트 - 성능을 위해 구체적인 패턴을 앞에
         private static final String[] PROTECTED_GET_ENDPOINTS = {
                         "/v1/api/members/my-info",
                         "/v1/api/members/my-space",
@@ -50,29 +51,23 @@ public class SecurityConfig {
                         "/v1/api/members/alcoholic-drinks/my"
         };
 
-        // CORS 허용 원본
+        // CORS 허용 원본 - 개발 환경을 앞에 배치
         private static final String[] ALLOWED_ORIGINS = {
-                        "http://localhost:8084",
                         "http://localhost:8080",
+                        "http://localhost:8084",
                         "http://localhost:5173",
                         "http://localhost:3000",
+                        "https://juulabel.com",
                         "https://api.juulabel.com",
                         "https://dev.juulabel.com",
                         "https://qa.juulabel.com",
-                        "https://juulabel.com",
                         "https://d3jwyw9rpnxu8p.cloudfront.net"
         };
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 return http
-
-                                .csrf(csrf -> csrf
-                                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                                                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                                                .requireCsrfProtectionMatcher(request -> request.getServletPath()
-                                                                .equals("/v1/api/auth/refresh")))
-
+                                .csrf(AbstractHttpConfigurer::disable)
                                 .httpBasic(AbstractHttpConfigurer::disable)
                                 .formLogin(AbstractHttpConfigurer::disable)
                                 .sessionManagement(session -> session
@@ -85,13 +80,16 @@ public class SecurityConfig {
                                 // Configure CORS
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
+                                // Configure exception handling
+                                .exceptionHandling(exceptions -> exceptions
+                                                .accessDeniedHandler(customAccessDeniedHandler))
+
                                 // Configure authorization rules
                                 .authorizeHttpRequests(this::configureAuthorization)
 
                                 // Add custom filters
-                                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
-                                .addFilterBefore(jwtExceptionFilter, JwtAuthorizationFilter.class)
-
+                                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterBefore(authExceptionFilter, AuthorizationFilter.class)
                                 .build();
         }
 

@@ -24,6 +24,13 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 
     /**
+     * CSRF Security
+     */
+    CSRF_TOKEN_INVALID(HttpStatus.FORBIDDEN, "CSRF 토큰이 유효하지 않습니다."),
+    CSRF_TOKEN_MISSING(HttpStatus.FORBIDDEN, "CSRF 토큰이 누락되었습니다."),
+    CSRF_TOKEN_MISMATCH(HttpStatus.FORBIDDEN, "CSRF 토큰이 일치하지 않습니다."),
+
+    /**
      * Json Web Token
      */
     JWT_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
@@ -32,24 +39,35 @@ public enum ErrorCode {
     JWT_ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
 
     /**
+     * Paseto
+     */
+    PAS_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
+    PAS_UNSUPPORTED_EXCEPTION(HttpStatus.BAD_REQUEST, "지원되지 않는 토큰입니다."),
+    PAS_MALFORMED_EXCEPTION(HttpStatus.UNAUTHORIZED, "잘못된 형식의 토큰입니다."),
+    PAS_ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
+    PAS_SECURITY_EXCEPTION(HttpStatus.UNAUTHORIZED, "보안 오류가 발생하였습니다."),
+    PAS_IO_EXCEPTION(HttpStatus.BAD_REQUEST, "IO 오류가 발생하였습니다."),
+
+    /**
      * Authorization
      * Authorization
      */
     DEVICE_ID_REQUIRED(HttpStatus.BAD_REQUEST, "헤더에 Device-Id가 누락되었습니다."),
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "소셜 로그인 경로를 찾을 수 없습니다."),
 
-    /**
-     * AuthException
-     */
-    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "토큰을 찾을 수 없습니다."),
-    REFRESH_TOKEN_REUSE_DETECTED(HttpStatus.UNAUTHORIZED, "토큰 재사용 감지"),
+    SIGN_UP_SESSION_EXPIRED(HttpStatus.BAD_REQUEST, "회원가입 세션이 만료되었습니다."),
 
-    SOCIAL_LINK_NOT_FOUND(HttpStatus.BAD_REQUEST, "소셜 링크를 찾을 수 없습니다."),
-    SOCIAL_LINK_ALREADY_USED(HttpStatus.BAD_REQUEST, "소셜 링크가 이미 사용되었습니다."),
+    /**
+     * User Session
+     */
+    USER_SESSION_EXPIRED(HttpStatus.BAD_REQUEST, "세션이 만료되었습니다."),
+    USER_SESSION_REUSE_DETECTED(HttpStatus.UNAUTHORIZED, "세션 재사용 감지"),
+
     PROVIDER_ID_MISMATCH(HttpStatus.FORBIDDEN, "소셜 아이디 불일치"),
     DEVICE_ID_MISMATCH(HttpStatus.FORBIDDEN, "Device-Id 불일치"),
     USER_AGENT_MISMATCH(HttpStatus.FORBIDDEN, "User-Agent 불일치"),
-    HIGH_SECURITY_RISK(HttpStatus.FORBIDDEN, "높은 보안 위협이 감지되었습니다."),    
+    HIGH_SECURITY_RISK(HttpStatus.FORBIDDEN, "높은 보안 위협이 감지되었습니다."),
+
     /**
      * Admin, Member
      */
@@ -58,6 +76,7 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "회원 정보를 찾을 수 없습니다."),
     MEMBER_EMAIL_DUPLICATE(HttpStatus.BAD_REQUEST, "중복된 이메일입니다."),
     MEMBER_NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다."),
+    MEMBER_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "활성화되지 않은 회원입니다."),
 
     /**
      * TERMS

@@ -11,9 +11,9 @@ public interface GoogleAuthClient {
 
     @PostMapping(value = "/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     GoogleToken generateOAuthToken(@RequestParam(name = "code") String code,
-                                   @RequestParam(name = "client_id") String clientId,
-                                   @RequestParam(name = "client_secret") String clientSecret,
-                                   @RequestParam(name = "redirect_uri") String redirectUri,
-                                   @RequestParam(name = "grant_type") String grantType);
+            @RequestParam(name = "client_id") String clientId,
+            @RequestParam(name = "client_secret") String clientSecret,
+            @RequestParam(name = "redirect_uri") String redirectUri,
+            @RequestParam(name = "grant_type") String grantType);
 
 }
