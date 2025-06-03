@@ -112,23 +112,6 @@ public class Member extends BaseTimeEntity {
         return this.equals(other);
     }
 
-    public void validateLoginMember(OAuthUser oAuthUser) {
-        if (this.deletedAt != null) {
-            throw new BaseException(ErrorCode.MEMBER_WITHDRAWN);
-        }
-
-        if (this.status == MemberStatus.INACTIVE ) {
-            throw new BaseException(ErrorCode.MEMBER_NOT_ACTIVE);
-        }
-
-        if (!this.provider.equals(oAuthUser.provider())) {
-            throw new BaseException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
-        }
-        if (!this.providerId.equals(oAuthUser.id())) {
-            throw new AuthException(ErrorCode.PROVIDER_ID_MISMATCH);
-        }
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

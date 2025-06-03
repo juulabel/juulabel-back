@@ -32,27 +32,24 @@ public class OAuthLoginService {
 
     /**
      * Performs OAuth authentication and returns user info
+     * 
      * @param provider OAuth provider
-     * @param code Authorization code
+     * @param code     Authorization code
      * @return OAuth user information
      */
     public OAuthUser authenticateWithProvider(Provider provider, String code) {
         try {
             String redirectUrl = redirectProperties.getRedirectUrl(provider);
-            OAuthUser oAuthUser = providerFactory.getOAuthUser(provider, code, redirectUrl);
-            
-            log.debug("OAuth authentication successful for provider: {} email: {}", 
-                     provider, oAuthUser.email());
-            return oAuthUser;
-            
+            return providerFactory.getOAuthUser(provider, code, redirectUrl);
+
         } catch (Exception e) {
-            log.error("OAuth authentication failed for provider: {} - {}", provider, e.getMessage());
-            throw new AuthException("OAuth authentication failed", ErrorCode.INVALID_AUTHENTICATION);
+            throw new AuthException(ErrorCode.INVALID_AUTHENTICATION);
         }
     }
 
     /**
      * Determines the member status for OAuth user
+     * 
      * @param oAuthUser OAuth user information
      * @return Member status result
      */
@@ -74,15 +71,32 @@ public class OAuthLoginService {
      */
     private void validateMemberForLogin(Member member, OAuthUser oAuthUser) {
         if (member.getStatus() == MemberStatus.WITHDRAWAL) {
-            throw new AuthException("Member has been withdrawn", ErrorCode.MEMBER_WITHDRAWN);
+            throw new AuthException(ErrorCode.MEMBER_WITHDRAWN);
         }
 
         if (member.getStatus() == MemberStatus.INACTIVE) {
-            throw new AuthException("Member is not active", ErrorCode.MEMBER_NOT_ACTIVE);
+            throw new AuthException(ErrorCode.MEMBER_NOT_ACTIVE);
         }
 
         // Validate OAuth user matches member
-        member.validateLoginMember(oAuthUser);
+        validateLoginMember(member, oAuthUser);
+    }
+
+    public void validateLoginMember(Member member, OAuthUser oAuthUser) {
+        if (member.getDeletedAt() != null) {
+            throw new AuthException(ErrorCode.MEMBER_WITHDRAWN);
+        }
+
+        if (member.getStatus() == MemberStatus.INACTIVE) {
+            throw new AuthException(ErrorCode.MEMBER_NOT_ACTIVE);
+        }
+
+        if (!member.getProvider().equals(oAuthUser.provider())) {
+            throw new AuthException(ErrorCode.MEMBER_EMAIL_DUPLICATE);
+        }
+        if (!member.getProviderId().equals(oAuthUser.id())) {
+            throw new AuthException(ErrorCode.PROVIDER_ID_MISMATCH);
+        }
     }
 
     /**
@@ -102,4 +116,4 @@ public class OAuthLoginService {
             return status == MemberStatus.ACTIVE;
         }
     }
-} 
+}
