@@ -70,7 +70,7 @@ public class SignupTokenService extends PasetoTokenService {
         cookieService.addCookie(
                 AuthConstants.SIGN_UP_TOKEN_NAME,
                 token,
-                (int) SIGN_UP_TOKEN_TTL.toMillis());
+                (int) SIGN_UP_TOKEN_TTL.toSeconds());
     }
 
     /**
@@ -108,15 +108,6 @@ public class SignupTokenService extends PasetoTokenService {
             throw new InvalidParamException(ErrorCode.INVALID_AUTHENTICATION);
         }
         return header.replace(AuthConstants.TOKEN_PREFIX, "");
-    }
-
-    /**
-     * Creates signup token and sets it as cookie
-     * This method name maintains compatibility with the existing
-     * SignupTokenProvider
-     */
-    public void createToken(OAuthUser oAuthUser, String nonce) {
-        createAndSetToken(oAuthUser, nonce);
     }
 
     /**

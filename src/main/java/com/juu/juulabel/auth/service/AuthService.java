@@ -99,7 +99,7 @@ public class AuthService {
 
     private void handleNewMember(OAuthUser oAuthUser) {
         String nonce = memberCreationService.createPendingMember(oAuthUser);
-        signupTokenService.createToken(oAuthUser, nonce);
+        signupTokenService.createAndSetToken(oAuthUser, nonce);
         httpResponseService.redirectToSignup(oAuthUser.email());
 
         log.debug("New member flow initiated for: {}", oAuthUser.email());
@@ -107,7 +107,7 @@ public class AuthService {
 
     private void handlePendingMember(Member member, OAuthUser oAuthUser) {
         String nonce = memberCreationService.getExistingNonce(member);
-        signupTokenService.createToken(oAuthUser, nonce);
+        signupTokenService.createAndSetToken(oAuthUser, nonce);
         httpResponseService.redirectToSignup(oAuthUser.email());
 
         log.debug("Pending member flow initiated for: {}", oAuthUser.email());

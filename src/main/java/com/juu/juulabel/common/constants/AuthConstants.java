@@ -1,7 +1,5 @@
 package com.juu.juulabel.common.constants;
 
-import java.time.Duration;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

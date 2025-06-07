@@ -55,6 +55,7 @@ public class CookieService {
                 response -> {
                     Cookie cookie = createCookie(name, value, maxAge);
                     response.addCookie(cookie);
+
                     log.debug("Added secure cookie: {} with maxAge: {}", name, maxAge);
                 },
                 () -> log.warn("Cannot add cookie '{}' - no HTTP response context available", name));
@@ -122,6 +123,7 @@ public class CookieService {
         boolean isSecure = cookieProperties.isSecure();
         Cookie cookie = new Cookie(name, value);
 
+        cookie.setDomain(cookieProperties.getDomain());
         cookie.setPath(cookieProperties.getPath());
         cookie.setHttpOnly(cookieProperties.isHttpOnly());
         cookie.setSecure(isSecure);
@@ -132,6 +134,7 @@ public class CookieService {
                 "name=" + name +
                 ", path=" + cookieProperties.getPath() +
                 ", secure=" + isSecure +
+                ", domain=" + cookieProperties.getDomain() +
                 ", httpOnly=" + cookieProperties.isHttpOnly() +
                 ", sameSite=" + cookieProperties.getSameSite() +
                 ", maxAge=" + maxAge);
@@ -146,6 +149,7 @@ public class CookieService {
         boolean isSecure = cookieProperties.isSecure();
         Cookie cookie = new Cookie(name, EMPTY_VALUE);
 
+        cookie.setDomain(cookieProperties.getDomain());
         cookie.setPath(cookieProperties.getPath());
         cookie.setHttpOnly(cookieProperties.isHttpOnly());
         cookie.setSecure(isSecure);
