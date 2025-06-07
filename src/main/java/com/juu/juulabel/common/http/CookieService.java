@@ -130,15 +130,6 @@ public class CookieService {
         cookie.setMaxAge(maxAge);
         cookie.setAttribute("SameSite", cookieProperties.getSameSite());
 
-        System.out.println("Cookie created: " +
-                "name=" + name +
-                ", path=" + cookieProperties.getPath() +
-                ", secure=" + isSecure +
-                ", domain=" + cookieProperties.getDomain() +
-                ", httpOnly=" + cookieProperties.isHttpOnly() +
-                ", sameSite=" + cookieProperties.getSameSite() +
-                ", maxAge=" + maxAge);
-
         return cookie;
     }
 

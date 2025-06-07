@@ -39,7 +39,7 @@ public class SignupTokenAuthenticationStrategy implements AuthenticationStrategy
 
         if (signupToken == null || signupToken.trim().isEmpty()) {
             log.warn("Signup token missing for signup request: {}", request.getRequestURI());
-            throw new AuthException(ErrorCode.SIGN_UP_SESSION_EXPIRED);
+            throw new AuthException(ErrorCode.SIGN_UP_TOKEN_NOT_FOUND);
         }
 
         try {
