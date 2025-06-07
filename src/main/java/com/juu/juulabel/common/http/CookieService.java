@@ -122,6 +122,7 @@ public class CookieService {
         boolean isSecure = cookieProperties.isSecure();
         Cookie cookie = new Cookie(name, value);
 
+        cookie.setDomain(cookieProperties.getDomain());
         cookie.setPath(cookieProperties.getPath());
         cookie.setHttpOnly(cookieProperties.isHttpOnly());
         cookie.setSecure(isSecure);
@@ -138,6 +139,7 @@ public class CookieService {
         boolean isSecure = cookieProperties.isSecure();
         Cookie cookie = new Cookie(name, EMPTY_VALUE);
 
+        cookie.setDomain(cookieProperties.getDomain());
         cookie.setPath(cookieProperties.getPath());
         cookie.setHttpOnly(cookieProperties.isHttpOnly());
         cookie.setSecure(isSecure);
