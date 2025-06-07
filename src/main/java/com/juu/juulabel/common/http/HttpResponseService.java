@@ -39,8 +39,8 @@ public class HttpResponseService {
     /**
      * Redirects to the configured signup URL
      */
-    public void redirectToSignup() {
-        redirect(redirectProperties.getSignupUrl());
+    public void redirectToSignup(String email) {
+        redirect(redirectProperties.getSignupUrl() + "?email=" + email);
         log.debug("Redirected to signup page");
     }
 

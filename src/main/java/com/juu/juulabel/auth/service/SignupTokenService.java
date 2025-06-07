@@ -1,5 +1,6 @@
 package com.juu.juulabel.auth.service;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class SignupTokenService extends PasetoTokenService {
             MemberReader memberReader,
             CookieService cookieService) {
 
-        super(secretKey, AuthConstants.SIGN_UP_TOKEN_DURATION);
+        super(secretKey, Duration.ofSeconds(AuthConstants.SIGN_UP_TOKEN_TTL));
         this.validator = validator;
         this.memberReader = memberReader;
         this.cookieService = cookieService;
@@ -68,7 +69,7 @@ public class SignupTokenService extends PasetoTokenService {
         cookieService.addCookie(
                 AuthConstants.SIGN_UP_TOKEN_NAME,
                 token,
-                (int) AuthConstants.SIGN_UP_TOKEN_DURATION.toSeconds());
+                AuthConstants.SIGN_UP_TOKEN_TTL);
     }
 
     /**

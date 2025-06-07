@@ -61,6 +61,8 @@ public class UserSessionManager {
         sessionService.createSession(session);
         cookieService.addCookie(AuthConstants.AUTH_TOKEN_NAME, sessionId, AuthConstants.USER_SESSION_TTL);
 
+        cookieService.removeCookie(AuthConstants.SIGN_UP_TOKEN_NAME);
+
         log.debug("Session created successfully for member: {}", member.getEmail());
     }
 

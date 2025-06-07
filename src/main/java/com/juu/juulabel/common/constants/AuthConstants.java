@@ -12,8 +12,8 @@ public class AuthConstants {
     public static final String AUTH_TOKEN_NAME = "auth_token";
     public static final String SIGN_UP_TOKEN_NAME = "sign_up_token";
 
-    public static final int USER_SESSION_TTL = 60 * 60 * 24 * 7;
-    public static final Duration SIGN_UP_TOKEN_DURATION = Duration.ofMinutes(15);
+    public static final int USER_SESSION_TTL = 60 * 60 * 24 * 7; // 7 days
+    public static final int SIGN_UP_TOKEN_TTL = 60 * 15; // 15 minutes
 
     // Redis Prefix
     public static final String USER_SESSION_PREFIX = "user_session";
