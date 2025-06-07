@@ -121,12 +121,20 @@ public class CookieService {
     private Cookie createCookie(String name, String value, int maxAge) {
         boolean isSecure = cookieProperties.isSecure();
         Cookie cookie = new Cookie(name, value);
-        
+
         cookie.setPath(cookieProperties.getPath());
         cookie.setHttpOnly(cookieProperties.isHttpOnly());
         cookie.setSecure(isSecure);
         cookie.setMaxAge(maxAge);
         cookie.setAttribute("SameSite", cookieProperties.getSameSite());
+
+        System.out.println("Cookie created: " +
+                "name=" + name +
+                ", path=" + cookieProperties.getPath() +
+                ", secure=" + isSecure +
+                ", httpOnly=" + cookieProperties.isHttpOnly() +
+                ", sameSite=" + cookieProperties.getSameSite() +
+                ", maxAge=" + maxAge);
 
         return cookie;
     }
@@ -137,7 +145,7 @@ public class CookieService {
     private Cookie createRemovalCookie(String name) {
         boolean isSecure = cookieProperties.isSecure();
         Cookie cookie = new Cookie(name, EMPTY_VALUE);
-        
+
         cookie.setPath(cookieProperties.getPath());
         cookie.setHttpOnly(cookieProperties.isHttpOnly());
         cookie.setSecure(isSecure);

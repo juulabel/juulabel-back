@@ -37,6 +37,7 @@ public class SignupTokenService extends PasetoTokenService {
     private static final String PROVIDER_ID_CLAIM = "providerId";
     private static final String NONCE_CLAIM = "nonce";
     private static final String AUDIENCE_CLAIM_KEY = "aud";
+    private static final Duration SIGN_UP_TOKEN_TTL = Duration.ofMinutes(15);
 
     private final SignupTokenValidator validator;
     private final MemberReader memberReader;
@@ -48,7 +49,7 @@ public class SignupTokenService extends PasetoTokenService {
             MemberReader memberReader,
             CookieService cookieService) {
 
-        super(secretKey, Duration.ofSeconds(AuthConstants.SIGN_UP_TOKEN_TTL));
+        super(secretKey, SIGN_UP_TOKEN_TTL);
         this.validator = validator;
         this.memberReader = memberReader;
         this.cookieService = cookieService;
@@ -69,7 +70,7 @@ public class SignupTokenService extends PasetoTokenService {
         cookieService.addCookie(
                 AuthConstants.SIGN_UP_TOKEN_NAME,
                 token,
-                AuthConstants.SIGN_UP_TOKEN_TTL);
+                (int) SIGN_UP_TOKEN_TTL.toMillis());
     }
 
     /**
