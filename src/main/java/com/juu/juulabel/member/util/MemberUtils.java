@@ -82,7 +82,7 @@ public class MemberUtils {
                 .toList();
 
         if (uniqueAlcoholTypeIds.size() != alcoholTypeIds.size()) {
-            throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+            throw new InvalidParamException(ErrorCode.ALCOHOL_TYPE_DUPLICATE);
         }
 
         List<MemberAlcoholType> memberAlcoholTypeList = createMemberAlcoholTypeList(

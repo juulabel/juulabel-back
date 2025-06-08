@@ -34,8 +34,8 @@ public class RedirectProperties {
         return getContextAwareClientUrl() + login;
     }
 
-    public String getSignupUrl() {
-        return getContextAwareClientUrl() + signup;
+    public String getSignupUrl(String email) {
+        return getContextAwareClientUrl() + signup + "?email=" + email;
     }
 
     public String getErrorUrl() {

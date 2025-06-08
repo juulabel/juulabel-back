@@ -83,6 +83,7 @@ public enum ErrorCode {
     /**
      * Alcohol
      */
+    ALCOHOL_TYPE_DUPLICATE(HttpStatus.BAD_REQUEST, "중복된 주종이 있습니다."),
     ALCOHOL_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "주종을 찾을 수 없습니다."),
     ALCOHOLIC_DRINKS_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "전통주를 찾을 수 없습니다."),
     ALCOHOLIC_DRINKS_INVALID_RATING(HttpStatus.BAD_REQUEST, "잘못된 평점입니다. 평점은 0.00에서 5.00 사이여야 합니다."),
