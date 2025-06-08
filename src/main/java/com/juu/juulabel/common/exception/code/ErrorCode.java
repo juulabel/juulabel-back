@@ -22,7 +22,7 @@ public enum ErrorCode {
     COMMON_INVALID_PARAM(HttpStatus.BAD_REQUEST, "요청한 값이 올바르지 않습니다."),
     INVALID_AUTHENTICATION(HttpStatus.UNAUTHORIZED, "인증이 올바르지 않습니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
-    
+
     /**
      * Json Web Token
      */
@@ -46,6 +46,7 @@ public enum ErrorCode {
      * Authorization
      */
     DEVICE_ID_REQUIRED(HttpStatus.BAD_REQUEST, "헤더에 Device-Id가 누락되었습니다."),
+    OAUTH_AUTHENTICATION_FAILED(HttpStatus.BAD_REQUEST, "소셜 로그인 인증에 실패하였습니다."),
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "소셜 로그인 경로를 찾을 수 없습니다."),
 
     SIGN_UP_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "회원가입 토큰이 누락되었습니다."),

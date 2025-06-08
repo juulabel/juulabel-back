@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
-@ConfigurationProperties(prefix = "app.cookie")
+@ConfigurationProperties(prefix = "server.servlet.session.cookie")
 public class CookieProperties {
 
     /**
@@ -37,14 +37,7 @@ public class CookieProperties {
      * Options: None, Lax, Strict
      * Default: None (for cross-site requests)
      */
-    private String sameSiteSecure;
-
-    /**
-     * Default SameSite attribute for non-secure cookies.
-     * Options: None, Lax, Strict
-     * Default: Lax (balanced security and functionality)
-     */
-    private String sameSiteNonSecure;
+    private String sameSite;
 
     /**
      * Whether to set HttpOnly flag on cookies by default.
@@ -69,6 +62,6 @@ public class CookieProperties {
     }
 
     public String getSameSite() {
-        return isSecure() ? sameSiteSecure : sameSiteNonSecure;
+        return sameSite;
     }
 }
