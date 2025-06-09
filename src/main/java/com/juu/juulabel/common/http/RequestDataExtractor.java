@@ -23,11 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 public class RequestDataExtractor {
 
     private static final String DEVICE_ID_HEADER_NAME = "Device-Id";
-    
+
     private final HttpContextService httpContextService;
 
     /**
      * Checks if the current request path matches the given prefix
+     * 
      * @param pathPrefix Path prefix to match against
      * @return true if path matches, false otherwise
      */
@@ -40,6 +41,7 @@ public class RequestDataExtractor {
 
     /**
      * Extracts Authorization header from current request
+     * 
      * @return Authorization header value, or null if not present
      */
     public Optional<String> getAuthorizationHeader() {
@@ -48,6 +50,7 @@ public class RequestDataExtractor {
 
     /**
      * Extracts User-Agent header from current request
+     * 
      * @return User-Agent header value, or null if not present
      */
     public Optional<String> getUserAgent() {
@@ -56,22 +59,23 @@ public class RequestDataExtractor {
 
     /**
      * Extracts device ID from request headers with fallback to parameter
+     * 
      * @return Device ID value
      * @throws BaseException if Device-Id is missing or empty
      */
     public String getDeviceId() {
         HttpServletRequest request = httpContextService.getCurrentRequest();
-        
+
         // Try header first
         String deviceId = request.getHeader(DEVICE_ID_HEADER_NAME);
-        
+
         // Fallback to state parameter
         if (!StringUtils.hasText(deviceId)) {
             deviceId = request.getParameter("state");
         }
 
         if (!StringUtils.hasText(deviceId)) {
-            log.warn("Device-Id not found in headers or parameters for request: {}", 
+            log.warn("Device-Id not found in headers or parameters for request: {}",
                     request.getRequestURI());
             throw new BaseException(ErrorCode.DEVICE_ID_REQUIRED);
         }
@@ -79,8 +83,15 @@ public class RequestDataExtractor {
         return deviceId.trim();
     }
 
+    public boolean isLocalRequest() {
+        HttpServletRequest request = httpContextService.getCurrentRequest();
+        String serverName = request.getServerName();
+        return serverName.contains("local");
+    }
+
     /**
      * Safely extracts device ID without throwing exception
+     * 
      * @return Optional containing device ID if present
      */
     public Optional<String> getDeviceIdOptional() {
@@ -94,6 +105,7 @@ public class RequestDataExtractor {
 
     /**
      * Gets a specific header value from the current request
+     * 
      * @param headerName Name of the header to retrieve
      * @return Optional containing header value if present
      */
@@ -105,6 +117,7 @@ public class RequestDataExtractor {
 
     /**
      * Gets a specific parameter value from the current request
+     * 
      * @param parameterName Name of the parameter to retrieve
      * @return Optional containing parameter value if present
      */
@@ -116,6 +129,7 @@ public class RequestDataExtractor {
 
     /**
      * Gets the current request URI
+     * 
      * @return Optional containing request URI if available
      */
     public Optional<String> getRequestURI() {
@@ -125,6 +139,7 @@ public class RequestDataExtractor {
 
     /**
      * Gets the current request method
+     * 
      * @return Optional containing request method if available
      */
     public Optional<String> getRequestMethod() {
@@ -134,10 +149,11 @@ public class RequestDataExtractor {
 
     /**
      * Gets the remote address from the request
+     * 
      * @return Optional containing remote address if available
      */
     public Optional<String> getRemoteAddress() {
         return httpContextService.getCurrentRequestOptional()
                 .map(HttpServletRequest::getRemoteAddr);
     }
-} 
+}

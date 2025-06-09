@@ -54,13 +54,11 @@ public class MemberUtils {
             // Process alcohol types if provided
             if (hasAlcoholTypes(signUpRequest)) {
                 processAlcoholTypes(member, signUpRequest);
-
             }
 
             // Process terms agreements if provided
             if (hasTermsAgreements(signUpRequest)) {
                 processTermsAgreements(member, signUpRequest);
-
             }
 
         } catch (InvalidParamException e) {
@@ -84,7 +82,7 @@ public class MemberUtils {
                 .toList();
 
         if (uniqueAlcoholTypeIds.size() != alcoholTypeIds.size()) {
-
+            throw new InvalidParamException(ErrorCode.ALCOHOL_TYPE_DUPLICATE);
         }
 
         List<MemberAlcoholType> memberAlcoholTypeList = createMemberAlcoholTypeList(
@@ -139,35 +137,30 @@ public class MemberUtils {
     }
 
     /**
-     * 약관 동의 검증 (개선된 로직)
+     * 약관 동의 검증 (성능 최적화)
      */
     private void validateTermsAgreements(List<Terms> activeTermsList, List<TermsAgreement> termsAgreements) {
         Map<Long, TermsAgreement> agreementMap = termsAgreements.stream()
                 .collect(Collectors.toMap(TermsAgreement::termsId, Function.identity()));
 
-        // 모든 활성 약관에 대한 동의가 있는지 확인
-        List<Long> missingTermsIds = activeTermsList.stream()
+        // 모든 활성 약관에 대한 동의가 있는지 확인 (조기 종료 최적화)
+        boolean hasMissingAgreement = activeTermsList.stream()
                 .map(Terms::getId)
-                .filter(termsId -> !agreementMap.containsKey(termsId))
-                .toList();
+                .anyMatch(termsId -> !agreementMap.containsKey(termsId));
 
-        if (!missingTermsIds.isEmpty()) {
-
+        if (hasMissingAgreement) {
             throw new InvalidParamException(ErrorCode.TERMS_AGREEMENT_MISMATCH);
         }
 
-        // 필수 약관 동의 확인
-        List<Long> requiredTermsNotAgreed = activeTermsList.stream()
+        // 필수 약관 동의 확인 (조기 종료 최적화)
+        boolean hasUnagreedRequiredTerms = activeTermsList.stream()
                 .filter(Terms::isRequired)
-                .filter(terms -> {
+                .anyMatch(terms -> {
                     TermsAgreement agreement = agreementMap.get(terms.getId());
                     return agreement == null || !agreement.isAgreed();
-                })
-                .map(Terms::getId)
-                .toList();
+                });
 
-        if (!requiredTermsNotAgreed.isEmpty()) {
-
+        if (hasUnagreedRequiredTerms) {
             throw new InvalidParamException(ErrorCode.TERMS_AGREEMENT_MISSING_REQUIRED);
         }
     }

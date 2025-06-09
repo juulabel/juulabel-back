@@ -43,7 +43,8 @@ public class OAuthLoginService {
             return providerFactory.getOAuthUser(provider, code, redirectUrl);
 
         } catch (Exception e) {
-            throw new AuthException(ErrorCode.INVALID_AUTHENTICATION);
+            log.error("OAuth authentication failed", e);
+            throw new AuthException(ErrorCode.OAUTH_AUTHENTICATION_FAILED);
         }
     }
 

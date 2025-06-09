@@ -11,52 +11,57 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
-@ConfigurationProperties(prefix = "app.cookie")
+@ConfigurationProperties(prefix = "server.servlet.session.cookie")
 public class CookieProperties {
 
     /**
      * Whether cookies should be marked as secure (HTTPS only).
      * Default: false (for development)
      */
-    private boolean secure = false;
+    private boolean secure;
 
     /**
      * Default domain for cookies.
      * Default: juulabel.com
      */
-    private String domain = "juulabel.com";
+    private String domain;
 
     /**
      * Default path for cookies.
-     * Default: /
+     * Default: /app
      */
-    private String path = "/";
+    private String path;
 
     /**
      * Default SameSite attribute for secure cookies.
      * Options: None, Lax, Strict
      * Default: None (for cross-site requests)
      */
-    private String sameSiteSecure = "None";
-
-    /**
-     * Default SameSite attribute for non-secure cookies.
-     * Options: None, Lax, Strict
-     * Default: Lax (balanced security and functionality)
-     */
-    private String sameSiteNonSecure = "Lax";
+    private String sameSite;
 
     /**
      * Whether to set HttpOnly flag on cookies by default.
      * Default: true (recommended for security)
      */
-    private boolean httpOnly = true;
+    private boolean httpOnly;
 
     public boolean isSecure() {
         return secure;
     }
 
+    public String getDomain() {
+        return domain;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
     public boolean isHttpOnly() {
         return httpOnly;
+    }
+
+    public String getSameSite() {
+        return sameSite;
     }
 }

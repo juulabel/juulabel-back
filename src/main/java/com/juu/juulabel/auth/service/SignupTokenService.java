@@ -1,5 +1,6 @@
 package com.juu.juulabel.auth.service;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class SignupTokenService extends PasetoTokenService {
     private static final String PROVIDER_ID_CLAIM = "providerId";
     private static final String NONCE_CLAIM = "nonce";
     private static final String AUDIENCE_CLAIM_KEY = "aud";
+    private static final Duration SIGN_UP_TOKEN_TTL = Duration.ofMinutes(15);
 
     private final SignupTokenValidator validator;
     private final MemberReader memberReader;
@@ -47,7 +49,7 @@ public class SignupTokenService extends PasetoTokenService {
             MemberReader memberReader,
             CookieService cookieService) {
 
-        super(secretKey, AuthConstants.SIGN_UP_TOKEN_DURATION);
+        super(secretKey, SIGN_UP_TOKEN_TTL);
         this.validator = validator;
         this.memberReader = memberReader;
         this.cookieService = cookieService;
@@ -68,7 +70,7 @@ public class SignupTokenService extends PasetoTokenService {
         cookieService.addCookie(
                 AuthConstants.SIGN_UP_TOKEN_NAME,
                 token,
-                (int) AuthConstants.SIGN_UP_TOKEN_DURATION.toSeconds());
+                (int) SIGN_UP_TOKEN_TTL.toSeconds());
     }
 
     /**
@@ -106,15 +108,6 @@ public class SignupTokenService extends PasetoTokenService {
             throw new InvalidParamException(ErrorCode.INVALID_AUTHENTICATION);
         }
         return header.replace(AuthConstants.TOKEN_PREFIX, "");
-    }
-
-    /**
-     * Creates signup token and sets it as cookie
-     * This method name maintains compatibility with the existing
-     * SignupTokenProvider
-     */
-    public void createToken(OAuthUser oAuthUser, String nonce) {
-        createAndSetToken(oAuthUser, nonce);
     }
 
     /**

@@ -24,13 +24,6 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 
     /**
-     * CSRF Security
-     */
-    CSRF_TOKEN_INVALID(HttpStatus.FORBIDDEN, "CSRF 토큰이 유효하지 않습니다."),
-    CSRF_TOKEN_MISSING(HttpStatus.FORBIDDEN, "CSRF 토큰이 누락되었습니다."),
-    CSRF_TOKEN_MISMATCH(HttpStatus.FORBIDDEN, "CSRF 토큰이 일치하지 않습니다."),
-
-    /**
      * Json Web Token
      */
     JWT_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
@@ -53,8 +46,10 @@ public enum ErrorCode {
      * Authorization
      */
     DEVICE_ID_REQUIRED(HttpStatus.BAD_REQUEST, "헤더에 Device-Id가 누락되었습니다."),
+    OAUTH_AUTHENTICATION_FAILED(HttpStatus.BAD_REQUEST, "소셜 로그인 인증에 실패하였습니다."),
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "소셜 로그인 경로를 찾을 수 없습니다."),
 
+    SIGN_UP_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "회원가입 토큰이 누락되었습니다."),
     SIGN_UP_SESSION_EXPIRED(HttpStatus.BAD_REQUEST, "회원가입 세션이 만료되었습니다."),
 
     /**
@@ -88,6 +83,7 @@ public enum ErrorCode {
     /**
      * Alcohol
      */
+    ALCOHOL_TYPE_DUPLICATE(HttpStatus.BAD_REQUEST, "중복된 주종이 있습니다."),
     ALCOHOL_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "주종을 찾을 수 없습니다."),
     ALCOHOLIC_DRINKS_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "전통주를 찾을 수 없습니다."),
     ALCOHOLIC_DRINKS_INVALID_RATING(HttpStatus.BAD_REQUEST, "잘못된 평점입니다. 평점은 0.00에서 5.00 사이여야 합니다."),
